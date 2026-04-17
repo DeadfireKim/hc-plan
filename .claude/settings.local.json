@@ -3,7 +3,11 @@
     "allow": [
       "Bash(git remote:*)",
       "Bash(git branch:*)",
-      "Skill(update-config)"
+      "Skill(update-config)",
+      "Bash(git -C \"C:/Users/deadf/OneDrive/바탕 화면/docs/hc-plan\" add CLAUDE.md)",
+      "Bash(git -C \"C:/Users/deadf/OneDrive/바탕 화면/docs/hc-plan\" commit -m \"Add CLAUDE.md\")",
+      "Bash(git -C \"C:/Users/deadf/OneDrive/바탕 화면/docs/hc-plan\" push origin main)",
+      "Bash(git:*)"
     ]
   }
 }
