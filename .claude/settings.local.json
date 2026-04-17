@@ -1,13 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git remote:*)",
-      "Bash(git branch:*)",
-      "Skill(update-config)",
-      "Bash(git -C \"C:/Users/deadf/OneDrive/바탕 화면/docs/hc-plan\" add CLAUDE.md)",
-      "Bash(git -C \"C:/Users/deadf/OneDrive/바탕 화면/docs/hc-plan\" commit -m \"Add CLAUDE.md\")",
-      "Bash(git -C \"C:/Users/deadf/OneDrive/바탕 화면/docs/hc-plan\" push origin main)",
-      "Bash(git:*)"
+      "Bash(git clone:*)",
+      "Bash(cp -r /tmp/hc-plan-clone/.git /Users/tj/hc-plan/.git)",
+      "Bash(cp /tmp/hc-plan-clone/CLAUDE.md /Users/tj/hc-plan/CLAUDE.md)",
+      "Bash(cp /tmp/hc-plan-clone/README.md /Users/tj/hc-plan/README.md)",
+      "Bash(cp -r /tmp/hc-plan-clone/docs /Users/tj/hc-plan/docs)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)"
     ]
   }
 }
