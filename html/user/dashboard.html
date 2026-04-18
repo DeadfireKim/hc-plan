@@ -556,13 +556,9 @@
     </div>
   </nav>
 
-  <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
 
   <!-- 헤더 -->
   <header class="main-header">
-    <button class="menu-toggle" onclick="toggleSidebar()">
-      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
     <div class="main-header__title">대시보드</div>
     <div class="main-header__actions">
       <span id="today-date" style="font-size:var(--text-sm);color:var(--text-secondary)"></span>
@@ -1146,10 +1142,6 @@
   document.getElementById('plan-expire-label').textContent = `D-${daysLeft} (${expire.toLocaleDateString('ko-KR')})`;
 
   // 모바일 사이드바
-  function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
-    document.getElementById('overlay').classList.toggle('visible');
-  }
 </script>
 </body>
 </html>
