@@ -344,6 +344,51 @@
       .advice-grid { grid-template-columns: 1fr; }
       .goals-grid { grid-template-columns: 1fr 1fr; }
     }
+
+    /* ── 사이드바 접기/펼치기 ── */
+    .sidebar__collapse-btn {
+      margin-left: auto;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      color: var(--color-primary-400);
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+    .sidebar__collapse-btn:hover {
+      background: rgba(255,255,255,0.1);
+      color: #ffffff;
+    }
+    body.sidebar-collapsed .sidebar { transform: translateX(-240px); }
+    body.sidebar-collapsed .main-header { left: 0; padding-left: 56px; }
+    body.sidebar-collapsed .main-content { margin-left: 0; width: 100%; }
+    .sidebar      { transition: transform 0.25s ease; }
+    .main-header  { transition: left 0.25s ease, padding-left 0.25s ease; }
+    .main-content { transition: margin-left 0.25s ease, width 0.25s ease; }
+    .sidebar-open-btn {
+      display: none;
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      width: 36px;
+      height: 36px;
+      background: var(--color-primary-700);
+      border: none;
+      border-radius: var(--radius-md);
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #ffffff;
+      z-index: 200;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      transition: background 0.15s;
+    }
+    .sidebar-open-btn:hover { background: var(--color-primary-600); }
+    body.sidebar-collapsed .sidebar-open-btn { display: flex; }
   </style>
 </head>
 <body>
@@ -351,11 +396,14 @@
 
   <!-- 사이드바 -->
   <nav class="sidebar" id="sidebar">
-    <div class="sidebar__logo" onclick="location.href='../index.html'" style="cursor:pointer">
-      <div class="sidebar__logo-icon">❤</div>
-      <div>
+    <div class="sidebar__logo">
+      <div class="sidebar__logo-icon" onclick="location.href='../index.html'" style="cursor:pointer">❤</div>
+      <div onclick="location.href='../index.html'" style="cursor:pointer;flex:1">
         <div class="sidebar__logo-text">HC-Plan</div>
         <div class="sidebar__logo-sub">건강 모니터링</div>
+      </div>
+      <div class="sidebar__collapse-btn" onclick="toggleSidebar()" title="사이드바 접기">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
       </div>
     </div>
     <div class="sidebar__nav">
@@ -400,6 +448,11 @@
       </div>
     </div>
   </nav>
+  <!-- 사이드바 접혔을 때 열기 버튼 -->
+  <button class="sidebar-open-btn" id="sidebar-open-btn" onclick="toggleSidebar()" title="사이드바 열기">
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+
 
 
   <!-- 헤더 -->
@@ -719,6 +772,11 @@
 
 
   renderGrid();
+
+  // 사이드바 접기/펼치기
+  function toggleSidebar() {
+    document.body.classList.toggle('sidebar-collapsed');
+  }
 </script>
 </body>
 </html>
