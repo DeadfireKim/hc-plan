@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HC-Plan Mock UI — 화면 목록</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <style>
+    body {
+      background: var(--bg-surface);
+      padding: var(--space-8);
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .index-header {
+      margin-bottom: var(--space-10);
+      padding-bottom: var(--space-6);
+      border-bottom: 2px solid var(--color-primary-700);
+    }
+
+    .index-header__service {
+      font-size: var(--text-xs);
+      font-weight: var(--font-semibold);
+      color: var(--color-primary-500);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: var(--space-2);
+    }
+
+    .index-header__title {
+      font-size: var(--text-3xl);
+      font-weight: var(--font-bold);
+      color: var(--color-primary-900);
+    }
+
+    .index-header__desc {
+      margin-top: var(--space-2);
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+    }
+
+    .step-section {
+      margin-bottom: var(--space-10);
+    }
+
+    .step-section__header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-full);
+      background-color: var(--color-primary-700);
+      color: #ffffff;
+      font-size: var(--text-xs);
+      font-weight: var(--font-bold);
+      flex-shrink: 0;
+    }
+
+    .step-section__title {
+      font-size: var(--text-lg);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+    }
+
+    .screen-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: var(--space-3);
+    }
+
+    .screen-link {
+      display: block;
+      padding: var(--space-4);
+      background: var(--bg-base);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      text-decoration: none;
+      transition: border-color var(--transition-fast),
+                  box-shadow var(--transition-fast);
+    }
+
+    .screen-link:hover {
+      border-color: var(--color-primary-400);
+      box-shadow: var(--shadow-md);
+    }
+
+    .screen-link__label {
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-1);
+    }
+
+    .screen-link__name {
+      font-size: var(--text-sm);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+    }
+
+    .screen-link--wip {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    .screen-link--wip .screen-link__name::after {
+      content: ' (준비중)';
+      font-size: var(--text-xs);
+      font-weight: var(--font-normal);
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="index-header">
+    <div class="index-header__service">HC-Plan · Mock UI</div>
+    <h1 class="index-header__title">건강정보 웹서비스 목업</h1>
+    <p class="index-header__desc">
+      HTML + CSS + JS 전용 프로토타입 · 기반 문서: docs/PRD.md
+    </p>
+  </header>
+
+  <!-- STEP 2: 공통 화면 -->
+  <section class="step-section">
+    <div class="step-section__header">
+      <span class="step-badge">2</span>
+      <h2 class="step-section__title">공통 화면 (인증)</h2>
+    </div>
+    <div class="screen-grid">
+      <a href="login.html" class="screen-link">
+        <div class="screen-link__label">공통</div>
+        <div class="screen-link__name">로그인</div>
+      </a>
+      <a href="register.html" class="screen-link">
+        <div class="screen-link__label">공통</div>
+        <div class="screen-link__name">회원가입</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- STEP 3: 사용자 화면 -->
+  <section class="step-section">
+    <div class="step-section__header">
+      <span class="step-badge">3</span>
+      <h2 class="step-section__title">사용자 화면</h2>
+    </div>
+    <div class="screen-grid">
+      <a href="user/dashboard.html" class="screen-link">
+        <div class="screen-link__label">사용자</div>
+        <div class="screen-link__name">대시보드</div>
+      </a>
+      <a href="user/report-daily.html" class="screen-link">
+        <div class="screen-link__label">사용자</div>
+        <div class="screen-link__name">일간 리포트</div>
+      </a>
+      <a href="user/report-weekly.html" class="screen-link">
+        <div class="screen-link__label">사용자</div>
+        <div class="screen-link__name">주간 리포트</div>
+      </a>
+      <a href="user/report-monthly.html" class="screen-link">
+        <div class="screen-link__label">사용자</div>
+        <div class="screen-link__name">월간 리포트</div>
+      </a>
+      <a href="user/ai-advice.html" class="screen-link">
+        <div class="screen-link__label">사용자</div>
+        <div class="screen-link__name">AI 건강 조언</div>
+      </a>
+      <a href="user/qr.html" class="screen-link">
+        <div class="screen-link__label">사용자</div>
+        <div class="screen-link__name">QR 코드 발급</div>
+      </a>
+      <a href="user/report-print.html" class="screen-link">
+        <div class="screen-link__label">사용자</div>
+        <div class="screen-link__name">인쇄용 리포트 (A4)</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- STEP 4: 의사 화면 -->
+  <section class="step-section">
+    <div class="step-section__header">
+      <span class="step-badge">4</span>
+      <h2 class="step-section__title">의사 화면</h2>
+    </div>
+    <div class="screen-grid">
+      <a href="doctor/patient-list.html" class="screen-link">
+        <div class="screen-link__label">의사</div>
+        <div class="screen-link__name">위험/이상 환자 목록</div>
+      </a>
+      <a href="doctor/patient-detail.html" class="screen-link">
+        <div class="screen-link__label">의사</div>
+        <div class="screen-link__name">환자 상세 + 의견 작성</div>
+      </a>
+      <a href="doctor/history.html" class="screen-link">
+        <div class="screen-link__label">의사</div>
+        <div class="screen-link__name">검토 이력</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- STEP 5: 상담사 화면 -->
+  <section class="step-section">
+    <div class="step-section__header">
+      <span class="step-badge">5</span>
+      <h2 class="step-section__title">상담사 화면</h2>
+    </div>
+    <div class="screen-grid">
+      <a href="counselor/waiting-list.html" class="screen-link">
+        <div class="screen-link__label">상담사</div>
+        <div class="screen-link__name">상담 대기 목록</div>
+      </a>
+      <a href="counselor/customer-viewer.html" class="screen-link">
+        <div class="screen-link__label">상담사</div>
+        <div class="screen-link__name">고객 뷰어</div>
+      </a>
+      <a href="counselor/call-log.html" class="screen-link">
+        <div class="screen-link__label">상담사</div>
+        <div class="screen-link__name">통화 기록 작성</div>
+      </a>
+      <a href="counselor/register-user.html" class="screen-link">
+        <div class="screen-link__label">상담사</div>
+        <div class="screen-link__name">사용자 대리 등록</div>
+      </a>
+      <a href="counselor/period-manage.html" class="screen-link">
+        <div class="screen-link__label">상담사</div>
+        <div class="screen-link__name">이용기간 관리</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- STEP 6: 관리자 화면 -->
+  <section class="step-section">
+    <div class="step-section__header">
+      <span class="step-badge">6</span>
+      <h2 class="step-section__title">관리자 화면</h2>
+    </div>
+    <div class="screen-grid">
+      <a href="admin/users.html" class="screen-link">
+        <div class="screen-link__label">관리자</div>
+        <div class="screen-link__name">사용자 관리</div>
+      </a>
+      <a href="admin/staff.html" class="screen-link">
+        <div class="screen-link__label">관리자</div>
+        <div class="screen-link__name">직원 관리</div>
+      </a>
+      <a href="admin/codes.html" class="screen-link">
+        <div class="screen-link__label">관리자</div>
+        <div class="screen-link__name">코드 관리</div>
+      </a>
+      <a href="admin/settings.html" class="screen-link">
+        <div class="screen-link__label">관리자</div>
+        <div class="screen-link__name">시스템 설정</div>
+      </a>
+      <a href="admin/dashboard.html" class="screen-link">
+        <div class="screen-link__label">관리자</div>
+        <div class="screen-link__name">운영 현황</div>
+      </a>
+    </div>
+  </section>
+
+</body>
+</html>

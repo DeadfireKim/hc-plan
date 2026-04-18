@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>운영 현황 — HC-Plan 관리자</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); margin-bottom: var(--space-6); }
+    .kpi-card {
+      background: var(--bg-base);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      padding: var(--space-5);
+    }
+    .kpi-card__label { font-size: var(--text-xs); color: var(--text-secondary); margin-bottom: var(--space-2); }
+    .kpi-card__value { font-size: 28px; font-weight: var(--font-bold); color: var(--text-primary); line-height: 1; }
+    .kpi-card__sub { font-size: var(--text-xs); color: var(--text-tertiary); margin-top: var(--space-1); }
+    .kpi-card__delta {
+      display: inline-flex; align-items: center; gap: 2px;
+      font-size: var(--text-xs); font-weight: 600; margin-top: var(--space-2);
+    }
+    .kpi-card__delta--up { color: var(--color-status-normal); }
+    .kpi-card__delta--dn { color: var(--color-status-danger); }
+
+    .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-5); margin-bottom: var(--space-5); }
+    .charts-row--3 { grid-template-columns: 1fr 1fr 1fr; }
+
+    .section-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); }
+
+    .alert-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--border-default);
+      font-size: var(--text-sm);
+    }
+    .alert-row:last-child { border-bottom: none; }
+    .alert-row__user { font-weight: 600; color: var(--text-primary); }
+    .alert-row__msg { color: var(--text-secondary); font-size: var(--text-xs); }
+
+    .activity-item {
+      display: flex; gap: var(--space-3); padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--border-default); font-size: var(--text-sm);
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot {
+      width: 8px; height: 8px; border-radius: var(--radius-full);
+      margin-top: 5px; flex-shrink: 0;
+    }
+    .activity-item__time { font-size: var(--text-xs); color: var(--text-tertiary); margin-top: 2px; }
+
+    .staff-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--space-2) 0; border-bottom: 1px solid var(--border-default); font-size: var(--text-sm);
+    }
+    .staff-row:last-child { border-bottom: none; }
+
+    .badge-sm {
+      font-size: 10px; padding: 1px 6px; border-radius: 100px; font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <div class="sidebar__logo-icon">⚙️</div>
+      <div>
+        <div class="sidebar__logo-text">HC-Plan</div>
+        <div class="sidebar__logo-sub">관리자 포털</div>
+      </div>
+    </div>
+    <div class="sidebar__nav">
+      <div class="sidebar__section-label">운영 관리</div>
+      <a href="dashboard.html" class="sidebar__item active">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        운영 현황
+      </a>
+      <a href="users.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        사용자 관리
+      </a>
+      <a href="staff.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        직원 관리
+      </a>
+      <a href="codes.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        코드 관리
+      </a>
+      <a href="settings.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+        시스템 설정
+      </a>
+    </div>
+    <div class="sidebar__footer">
+      <div class="sidebar__user">
+        <div class="sidebar__user-avatar">관</div>
+        <div class="sidebar__user-info">
+          <div class="sidebar__user-name">관리자</div>
+          <div class="sidebar__user-role">시스템 관리자</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <header class="main-header">
+    <div class="main-header__left">
+      <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="main-header__title">운영 현황</div>
+    </div>
+    <div class="main-header__right">
+      <span style="font-size:var(--text-xs);color:var(--text-tertiary)">마지막 업데이트: 2026.04.18 09:00</span>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <!-- KPI -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-card__label">총 사용자</div>
+        <div class="kpi-card__value">1,284</div>
+        <div class="kpi-card__delta kpi-card__delta--up">▲ +28 <span style="font-weight:400;color:var(--text-tertiary)">이번 달</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__label">활성 구독</div>
+        <div class="kpi-card__value">1,047</div>
+        <div class="kpi-card__sub">만료 예정 <strong style="color:var(--color-status-danger)">38명</strong> (7일 내)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__label">위험 등급 사용자</div>
+        <div class="kpi-card__value" style="color:var(--color-status-danger)">12</div>
+        <div class="kpi-card__delta kpi-card__delta--dn">▲ +3 <span style="font-weight:400;color:var(--text-tertiary)">전주 대비</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__label">오늘 상담 건수</div>
+        <div class="kpi-card__value">47</div>
+        <div class="kpi-card__sub">긴급 <strong>5</strong> · 정기 <strong>42</strong></div>
+      </div>
+    </div>
+
+    <!-- 차트 row 1 -->
+    <div class="charts-row" style="margin-bottom:var(--space-5)">
+      <div class="card">
+        <div class="card__header">
+          <div class="card__title">월별 신규 가입 추이</div>
+        </div>
+        <div class="card__body">
+          <canvas id="signupChart" height="160"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card__header">
+          <div class="card__title">등급 분포</div>
+        </div>
+        <div class="card__body" style="display:flex;align-items:center;justify-content:center">
+          <canvas id="gradeChart" width="200" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- 차트 row 2 -->
+    <div class="charts-row--3 charts-row" style="margin-bottom:var(--space-5)">
+      <div class="card">
+        <div class="card__header"><div class="card__title">플랜별 구독 현황</div></div>
+        <div class="card__body"><canvas id="planChart" height="160"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card__header"><div class="card__title">일별 상담 건수 (최근 14일)</div></div>
+        <div class="card__body"><canvas id="callChart" height="160"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card__header"><div class="card__title">기기 연동 현황</div></div>
+        <div class="card__body"><canvas id="deviceChart" height="160"></canvas></div>
+      </div>
+    </div>
+
+    <!-- 하단 섹션 -->
+    <div class="section-grid">
+      <!-- 위험 알림 -->
+      <div class="card">
+        <div class="card__header">
+          <div class="card__title">위험 등급 알림</div>
+          <a href="users.html" style="font-size:var(--text-xs);color:var(--color-primary-600)">전체 보기</a>
+        </div>
+        <div class="card__body">
+          <div class="alert-row">
+            <div>
+              <div class="alert-row__user">박도현 <span class="badge-sm" style="background:rgba(239,68,68,0.12);color:var(--color-status-danger)">위험</span></div>
+              <div class="alert-row__msg">수면 무호흡 의심 · 스트레스 94</div>
+            </div>
+            <button onclick="location.href='users.html'" style="font-size:11px;padding:3px 10px;border:1px solid var(--border-strong);border-radius:var(--radius-md);background:var(--bg-base);cursor:pointer">상세</button>
+          </div>
+          <div class="alert-row">
+            <div>
+              <div class="alert-row__user">최은서 <span class="badge-sm" style="background:rgba(239,68,68,0.12);color:var(--color-status-danger)">위험</span></div>
+              <div class="alert-row__msg">심박수 이상 · 산소포화도 91%</div>
+            </div>
+            <button onclick="location.href='users.html'" style="font-size:11px;padding:3px 10px;border:1px solid var(--border-strong);border-radius:var(--radius-md);background:var(--bg-base);cursor:pointer">상세</button>
+          </div>
+          <div class="alert-row">
+            <div>
+              <div class="alert-row__user">홍재민 <span class="badge-sm" style="background:rgba(234,88,12,0.12);color:var(--color-status-abnormal)">이상</span></div>
+              <div class="alert-row__msg">지속적 수면 부족 (4.2h 평균)</div>
+            </div>
+            <button onclick="location.href='users.html'" style="font-size:11px;padding:3px 10px;border:1px solid var(--border-strong);border-radius:var(--radius-md);background:var(--bg-base);cursor:pointer">상세</button>
+          </div>
+          <div class="alert-row">
+            <div>
+              <div class="alert-row__user">이지현 <span class="badge-sm" style="background:rgba(234,88,12,0.12);color:var(--color-status-abnormal)">이상</span></div>
+              <div class="alert-row__msg">고혈압 가능성 · 심박수 지속 상승</div>
+            </div>
+            <button onclick="location.href='users.html'" style="font-size:11px;padding:3px 10px;border:1px solid var(--border-strong);border-radius:var(--radius-md);background:var(--bg-base);cursor:pointer">상세</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 최근 활동 로그 -->
+      <div class="card">
+        <div class="card__header"><div class="card__title">최근 시스템 활동</div></div>
+        <div class="card__body">
+          <div class="activity-item">
+            <div class="activity-dot" style="background:var(--color-primary-500)"></div>
+            <div>
+              <div>상담사 이수민 — 박도현 긴급 통화 기록 저장</div>
+              <div class="activity-item__time">09:42</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot" style="background:var(--color-status-normal)"></div>
+            <div>
+              <div>신규 사용자 등록 — 김서준 (Premium)</div>
+              <div class="activity-item__time">09:28</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot" style="background:var(--color-status-danger)"></div>
+            <div>
+              <div>위험 등급 자동 알림 발송 — 박도현</div>
+              <div class="activity-item__time">08:57</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot" style="background:var(--color-status-caution)"></div>
+            <div>
+              <div>이용기간 연장 처리 — 정수아 (+30일)</div>
+              <div class="activity-item__time">08:30</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot" style="background:var(--color-primary-400)"></div>
+            <div>
+              <div>의사 김민호 소견 등록 — 최은서</div>
+              <div class="activity-item__time">08:15</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot" style="background:var(--text-tertiary)"></div>
+            <div>
+              <div>시스템 배치 데이터 처리 완료 (1,284건)</div>
+              <div class="activity-item__time">06:00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 직원 현황 -->
+    <div class="card" style="margin-top:var(--space-5)">
+      <div class="card__header">
+        <div class="card__title">오늘 직원 현황</div>
+        <a href="staff.html" style="font-size:var(--text-xs);color:var(--color-primary-600)">직원 관리</a>
+      </div>
+      <div class="card__body">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-3)">
+          <div style="text-align:center;padding:var(--space-3);background:var(--bg-surface);border-radius:var(--radius-lg)">
+            <div style="font-size:var(--text-xs);color:var(--text-secondary);margin-bottom:4px">의사</div>
+            <div style="font-size:20px;font-weight:700">3 / 4</div>
+            <div style="font-size:10px;color:var(--color-status-normal)">● 근무 중</div>
+          </div>
+          <div style="text-align:center;padding:var(--space-3);background:var(--bg-surface);border-radius:var(--radius-lg)">
+            <div style="font-size:var(--text-xs);color:var(--text-secondary);margin-bottom:4px">상담사</div>
+            <div style="font-size:20px;font-weight:700">5 / 6</div>
+            <div style="font-size:10px;color:var(--color-status-normal)">● 근무 중</div>
+          </div>
+          <div style="text-align:center;padding:var(--space-3);background:var(--bg-surface);border-radius:var(--radius-lg)">
+            <div style="font-size:var(--text-xs);color:var(--text-secondary);margin-bottom:4px">오늘 담당 건수</div>
+            <div style="font-size:20px;font-weight:700">47</div>
+            <div style="font-size:10px;color:var(--text-tertiary)">상담 총계</div>
+          </div>
+          <div style="text-align:center;padding:var(--space-3);background:var(--bg-surface);border-radius:var(--radius-lg)">
+            <div style="font-size:var(--text-xs);color:var(--text-secondary);margin-bottom:4px">처리 완료</div>
+            <div style="font-size:20px;font-weight:700">31</div>
+            <div style="font-size:10px;color:var(--color-primary-500)">66% 진행</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
+// 월별 신규 가입
+const signupCtx = document.getElementById('signupChart').getContext('2d');
+new Chart(signupCtx, {
+  type: 'bar',
+  data: {
+    labels: ['10월','11월','12월','1월','2월','3월','4월'],
+    datasets: [{
+      label: '신규 가입',
+      data: [42, 55, 38, 67, 82, 91, 28],
+      backgroundColor: 'rgba(37,99,235,0.7)',
+      borderRadius: 4
+    },{
+      label: '해지',
+      data: [8, 12, 6, 14, 10, 18, 5],
+      backgroundColor: 'rgba(239,68,68,0.5)',
+      borderRadius: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } },
+    scales: { x: { ticks: { font: { size: 11 } } }, y: { ticks: { font: { size: 11 } } } }
+  }
+});
+
+// 등급 분포
+const gradeCtx = document.getElementById('gradeChart').getContext('2d');
+new Chart(gradeCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['정상','주의','이상','위험'],
+    datasets: [{
+      data: [68, 19, 9, 4],
+      backgroundColor: ['#16a34a','#ca8a04','#ea580c','#dc2626'],
+      borderWidth: 2,
+      borderColor: '#fff'
+    }]
+  },
+  options: {
+    responsive: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } }
+    },
+    cutout: '60%'
+  }
+});
+
+// 플랜별
+const planCtx = document.getElementById('planChart').getContext('2d');
+new Chart(planCtx, {
+  type: 'bar',
+  data: {
+    labels: ['Basic','Standard','Premium','Demo'],
+    datasets: [{
+      label: '구독자 수',
+      data: [312, 489, 198, 48],
+      backgroundColor: ['#3b82f6','#2563eb','#1d4ed8','#93c5fd'],
+      borderRadius: 4
+    }]
+  },
+  options: {
+    responsive: true, indexAxis: 'y',
+    plugins: { legend: { display: false } },
+    scales: { x: { ticks: { font: { size: 11 } } }, y: { ticks: { font: { size: 11 } } } }
+  }
+});
+
+// 일별 상담
+const callCtx = document.getElementById('callChart').getContext('2d');
+const callLabels = Array.from({length:14}, (_,i) => {
+  const d = new Date(2026, 3, 5 + i);
+  return (d.getMonth()+1)+'/'+d.getDate();
+});
+new Chart(callCtx, {
+  type: 'line',
+  data: {
+    labels: callLabels,
+    datasets: [{
+      label: '상담 건수',
+      data: [38,42,45,50,41,0,0,48,53,46,44,51,47,47],
+      borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)',
+      fill: true, tension: 0.4, pointRadius: 3
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: { x: { ticks: { font: { size: 10 }, maxRotation: 0 } }, y: { ticks: { font: { size: 11 } } } }
+  }
+});
+
+// 기기 연동
+const deviceCtx = document.getElementById('deviceChart').getContext('2d');
+new Chart(deviceCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['연동 완료','미연동','오류'],
+    datasets: [{
+      data: [892, 312, 80],
+      backgroundColor: ['#16a34a','#d1d5db','#dc2626'],
+      borderWidth: 2, borderColor: '#fff'
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } },
+    cutout: '55%'
+  }
+});
+</script>
+</body>
+</html>

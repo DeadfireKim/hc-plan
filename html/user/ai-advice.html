@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 건강 조언 — HC-Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <style>
+    /* 헤더 배너 */
+    .advice-hero {
+      background: linear-gradient(135deg, var(--color-primary-800), var(--color-primary-600));
+      border-radius: var(--radius-xl);
+      padding: var(--space-8);
+      color: #ffffff;
+      margin-bottom: var(--space-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-6);
+    }
+
+    .advice-hero__left { flex: 1; }
+
+    .advice-hero__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-xs);
+      font-weight: var(--font-semibold);
+      background: rgba(255,255,255,0.15);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      margin-bottom: var(--space-3);
+    }
+
+    .advice-hero__title {
+      font-size: var(--text-2xl);
+      font-weight: var(--font-bold);
+      line-height: 1.3;
+      margin-bottom: var(--space-2);
+    }
+
+    .advice-hero__desc {
+      font-size: var(--text-sm);
+      color: rgba(255,255,255,0.75);
+      line-height: 1.6;
+    }
+
+    .advice-hero__score {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: var(--radius-xl);
+      padding: var(--space-5) var(--space-8);
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .advice-hero__score-label {
+      font-size: var(--text-xs);
+      color: rgba(255,255,255,0.7);
+      margin-bottom: var(--space-2);
+    }
+
+    .advice-hero__score-val {
+      font-size: 3.5rem;
+      font-weight: var(--font-bold);
+      line-height: 1;
+      color: #fcd34d;
+    }
+
+    .advice-hero__score-grade {
+      font-size: var(--text-sm);
+      color: #fcd34d;
+      margin-top: var(--space-1);
+      font-weight: var(--font-semibold);
+    }
+
+    /* 카테고리 필터 */
+    .cat-filters {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-6);
+    }
+
+    .cat-filter {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      border: 1.5px solid var(--border-strong);
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      cursor: pointer;
+      background: var(--bg-base);
+      color: var(--text-secondary);
+      transition: all var(--transition-fast);
+    }
+
+    .cat-filter.active,
+    .cat-filter:hover {
+      border-color: var(--color-primary-500);
+      background: var(--color-primary-50);
+      color: var(--color-primary-700);
+    }
+
+    /* 조언 카드 그리드 */
+    .advice-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: var(--space-5);
+      margin-bottom: var(--space-6);
+    }
+
+    .advice-card {
+      background: var(--bg-base);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      transition: box-shadow var(--transition-fast),
+                  transform var(--transition-fast);
+    }
+
+    .advice-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .advice-card__header {
+      padding: var(--space-5) var(--space-5) var(--space-4);
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+    }
+
+    .advice-card__icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .advice-card__meta { flex: 1; }
+
+    .advice-card__category {
+      font-size: var(--text-xs);
+      font-weight: var(--font-semibold);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: var(--space-1);
+    }
+
+    .advice-card__title {
+      font-size: var(--text-base);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+      line-height: 1.4;
+    }
+
+    .advice-card__priority {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: var(--font-semibold);
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+    }
+
+    .advice-card__body {
+      padding: 0 var(--space-5) var(--space-5);
+    }
+
+    .advice-card__reason {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: var(--space-4);
+    }
+
+    .advice-card__items {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .advice-card__item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    .advice-card__item-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: var(--radius-full);
+      flex-shrink: 0;
+      margin-top: 7px;
+    }
+
+    .advice-card__footer {
+      padding: var(--space-3) var(--space-5);
+      border-top: 1px solid var(--border-default);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-surface);
+    }
+
+    .advice-card__updated {
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+    }
+
+    .advice-card__link {
+      font-size: var(--text-xs);
+      font-weight: var(--font-semibold);
+      color: var(--color-primary-600);
+      cursor: pointer;
+    }
+
+    .advice-card__link:hover { text-decoration: underline; }
+
+    /* 상세 목표 섹션 */
+    .goals-section {
+      margin-bottom: var(--space-6);
+    }
+
+    .goals-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-4);
+    }
+
+    .goal-card {
+      background: var(--bg-base);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+    }
+
+    .goal-card__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-3);
+    }
+
+    .goal-card__label {
+      font-size: var(--text-sm);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+    }
+
+    .goal-card__pct {
+      font-size: var(--text-xl);
+      font-weight: var(--font-bold);
+    }
+
+    .goal-bar {
+      height: 8px;
+      background: var(--bg-muted);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin-bottom: var(--space-2);
+    }
+
+    .goal-bar__fill {
+      height: 100%;
+      border-radius: var(--radius-full);
+    }
+
+    .goal-card__sub {
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+    }
+
+    /* 상담 이력 섹션 */
+    .counseling-section { }
+
+    .counseling-item {
+      display: flex;
+      gap: var(--space-4);
+      padding: var(--space-4) 0;
+      border-bottom: 1px solid var(--border-default);
+    }
+
+    .counseling-item:last-child { border-bottom: none; }
+
+    .counseling-item__date {
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      white-space: nowrap;
+      min-width: 80px;
+    }
+
+    .counseling-item__dot {
+      width: 10px;
+      height: 10px;
+      border-radius: var(--radius-full);
+      border: 2px solid var(--color-primary-400);
+      background: var(--bg-base);
+      margin-top: 3px;
+      flex-shrink: 0;
+    }
+
+    .counseling-item__content { flex: 1; }
+
+    .counseling-item__title {
+      font-size: var(--text-sm);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+      margin-bottom: var(--space-1);
+    }
+
+    .counseling-item__desc {
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    @media (max-width: 1100px) {
+      .goals-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      .advice-hero { flex-direction: column; }
+      .advice-hero__score { width: 100%; }
+      .advice-grid { grid-template-columns: 1fr; }
+      .goals-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- 사이드바 -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar__logo" onclick="location.href='../index.html'" style="cursor:pointer">
+      <div class="sidebar__logo-icon">❤</div>
+      <div>
+        <div class="sidebar__logo-text">HC-Plan</div>
+        <div class="sidebar__logo-sub">건강 모니터링</div>
+      </div>
+    </div>
+    <div class="sidebar__nav">
+      <div class="sidebar__section-label">내 건강</div>
+      <a href="dashboard.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        대시보드
+      </a>
+      <a href="report-daily.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        일간 리포트
+      </a>
+      <a href="report-weekly.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        주간 리포트
+      </a>
+      <a href="report-monthly.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        월간 리포트
+      </a>
+      <a href="ai-advice.html" class="sidebar__item active">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        AI 건강 조언
+      </a>
+      <div class="sidebar__section-label" style="margin-top:var(--space-2)">계정</div>
+      <a href="qr.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="5"/><rect x="16" y="3" width="5" height="5"/><rect x="3" y="16" width="5" height="5"/><path d="M21 16h-3v3m0-3v-3h-3m6 6h-3"/></svg>
+        QR 코드 발급
+      </a>
+      <a href="report-print.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        인쇄용 리포트
+      </a>
+    </div>
+    <div class="sidebar__footer">
+      <div class="sidebar__user">
+        <div class="sidebar__user-avatar">김</div>
+        <div class="sidebar__user-info">
+          <div class="sidebar__user-name">김민준</div>
+          <div class="sidebar__user-role">사용자 · Demo</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- 헤더 -->
+  <header class="main-header">
+    <div class="main-header__left">
+      <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="main-header__title">AI 건강 조언</div>
+    </div>
+    <div class="main-header__right">
+      <span style="font-size:var(--text-xs);color:var(--text-secondary)">최근 분석: 2026.04.17 오전 7:00</span>
+    </div>
+  </header>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="main-content">
+
+    <!-- 히어로 배너 -->
+    <div class="advice-hero">
+      <div class="advice-hero__left">
+        <div class="advice-hero__badge">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          AI 개인 맞춤 분석
+        </div>
+        <div class="advice-hero__title">김민준님의 맞춤<br>건강 개선 플랜</div>
+        <div class="advice-hero__desc">
+          최근 30일 데이터를 AI가 분석하여 운동, 수면, 식단, 생활패턴 등<br>
+          6가지 영역에서 개인 맞춤 건강 조언을 제공합니다.
+        </div>
+      </div>
+      <div class="advice-hero__score">
+        <div class="advice-hero__score-label">종합 건강 점수</div>
+        <div class="advice-hero__score-val">72</div>
+        <div class="advice-hero__score-grade">주의 단계</div>
+      </div>
+    </div>
+
+    <!-- 카테고리 필터 -->
+    <div class="cat-filters" id="catFilters">
+      <div class="cat-filter active" data-cat="all" onclick="filterCat(this,'all')">
+        전체 보기
+      </div>
+      <div class="cat-filter" data-cat="exercise" onclick="filterCat(this,'exercise')">
+        🏃 운동
+      </div>
+      <div class="cat-filter" data-cat="sleep" onclick="filterCat(this,'sleep')">
+        😴 수면
+      </div>
+      <div class="cat-filter" data-cat="diet" onclick="filterCat(this,'diet')">
+        🥗 식단
+      </div>
+      <div class="cat-filter" data-cat="stress" onclick="filterCat(this,'stress')">
+        🧘 스트레스
+      </div>
+      <div class="cat-filter" data-cat="heart" onclick="filterCat(this,'heart')">
+        ❤ 심혈관
+      </div>
+      <div class="cat-filter" data-cat="lifestyle" onclick="filterCat(this,'lifestyle')">
+        🌿 생활패턴
+      </div>
+    </div>
+
+    <!-- 조언 카드 그리드 -->
+    <div class="advice-grid" id="adviceGrid"></div>
+
+    <!-- 건강 목표 달성률 -->
+    <div class="card goals-section">
+      <div class="card__header">
+        <div class="card__title">이번 달 건강 목표 달성률</div>
+      </div>
+      <div class="card__body">
+        <div class="goals-grid">
+          <div class="goal-card">
+            <div class="goal-card__header">
+              <div class="goal-card__label">🏃 일 7,000보 달성</div>
+              <div class="goal-card__pct" style="color:var(--color-status-normal)">82%</div>
+            </div>
+            <div class="goal-bar"><div class="goal-bar__fill" style="width:82%;background:var(--color-status-normal)"></div></div>
+            <div class="goal-card__sub">30일 중 25일 달성</div>
+          </div>
+          <div class="goal-card">
+            <div class="goal-card__header">
+              <div class="goal-card__label">😴 수면 7시간 이상</div>
+              <div class="goal-card__pct" style="color:var(--color-status-caution)">60%</div>
+            </div>
+            <div class="goal-bar"><div class="goal-bar__fill" style="width:60%;background:var(--color-status-caution)"></div></div>
+            <div class="goal-card__sub">30일 중 18일 달성</div>
+          </div>
+          <div class="goal-card">
+            <div class="goal-card__header">
+              <div class="goal-card__label">🧘 스트레스 40 미만</div>
+              <div class="goal-card__pct" style="color:var(--color-status-caution)">53%</div>
+            </div>
+            <div class="goal-bar"><div class="goal-bar__fill" style="width:53%;background:var(--color-status-caution)"></div></div>
+            <div class="goal-card__sub">30일 중 16일 달성</div>
+          </div>
+          <div class="goal-card">
+            <div class="goal-card__header">
+              <div class="goal-card__label">❤ 심박 정상 유지</div>
+              <div class="goal-card__pct" style="color:var(--color-status-normal)">90%</div>
+            </div>
+            <div class="goal-bar"><div class="goal-bar__fill" style="width:90%;background:var(--color-status-normal)"></div></div>
+            <div class="goal-card__sub">30일 중 27일 정상 범위</div>
+          </div>
+          <div class="goal-card">
+            <div class="goal-card__header">
+              <div class="goal-card__label">🥗 적정 칼로리 소모</div>
+              <div class="goal-card__pct" style="color:var(--color-status-normal)">77%</div>
+            </div>
+            <div class="goal-bar"><div class="goal-bar__fill" style="width:77%;background:var(--color-status-normal)"></div></div>
+            <div class="goal-card__sub">목표 350kcal/일, 평균 324kcal</div>
+          </div>
+          <div class="goal-card">
+            <div class="goal-card__header">
+              <div class="goal-card__label">💧 수분 섭취 (추정)</div>
+              <div class="goal-card__pct" style="color:var(--color-status-caution)">65%</div>
+            </div>
+            <div class="goal-bar"><div class="goal-bar__fill" style="width:65%;background:var(--color-status-caution)"></div></div>
+            <div class="goal-card__sub">활동량 기반 추정치</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 상담 이력 -->
+    <div class="card" style="margin-top:var(--space-6)">
+      <div class="card__header">
+        <div class="card__title">최근 상담 이력</div>
+      </div>
+      <div class="card__body counseling-section">
+        <div class="counseling-item">
+          <div class="counseling-item__date">2026.04.10</div>
+          <div class="counseling-item__dot"></div>
+          <div class="counseling-item__content">
+            <div class="counseling-item__title">정기 건강 상담 — 수면 패턴 관련</div>
+            <div class="counseling-item__desc">수면 무호흡 의심 증상에 대해 상담 진행. 이비인후과 또는 수면클리닉 방문 권장. 다음 상담 예약: 2026.05.10</div>
+          </div>
+        </div>
+        <div class="counseling-item">
+          <div class="counseling-item__date">2026.03.15</div>
+          <div class="counseling-item__dot"></div>
+          <div class="counseling-item__content">
+            <div class="counseling-item__title">스트레스 관리 — 업무 과부하 패턴</div>
+            <div class="counseling-item__desc">오후 2~5시 스트레스 집중 패턴 상담. 10분 명상 앱 사용, 점심 후 짧은 산책 권장. 호흡 훈련 자료 전달.</div>
+          </div>
+        </div>
+        <div class="counseling-item">
+          <div class="counseling-item__date">2026.02.20</div>
+          <div class="counseling-item__dot"></div>
+          <div class="counseling-item__content">
+            <div class="counseling-item__title">운동 계획 수립 — 활동량 증가 목표</div>
+            <div class="counseling-item__desc">주 3회 30분 유산소 운동 목표 설정. 계단 이용 습관화, 점심 후 15분 걷기 추천. 다음 달 걸음수 10% 증가 목표.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="../assets/js/mock-data.js"></script>
+<script>
+  const adviceData = [
+    {
+      cat: 'exercise',
+      icon: '🏃',
+      iconBg: 'rgba(16,185,129,0.12)',
+      catColor: 'var(--color-status-normal)',
+      catLabel: '운동',
+      priority: 'high',
+      title: '주 3회 유산소 운동 실시',
+      reason: '최근 7일간 평균 걸음수가 목표(7,000보)의 92% 수준이며, 주말 활동량이 평일 대비 40% 감소하는 패턴이 지속됩니다.',
+      items: [
+        '매일 점심 후 15–20분 빠르게 걷기 (심박수 110–130 목표)',
+        '주 3회 퇴근 후 30분 가벼운 조깅 또는 자전거',
+        '엘리베이터 대신 계단 이용 생활화 (3층 이하)',
+        '주말에도 최소 5,000보 이상 걷기 유지'
+      ],
+      updated: '2026.04.17'
+    },
+    {
+      cat: 'sleep',
+      icon: '😴',
+      iconBg: 'rgba(99,102,241,0.12)',
+      catColor: '#6366f1',
+      catLabel: '수면',
+      priority: 'urgent',
+      title: '수면 무호흡 의심 — 전문의 상담 권장',
+      reason: '수면 중 심박수 95bpm 초과가 주 2회 이상 2시간 지속되며, SpO₂ 95% 미만 구간이 월 7회 관찰됩니다. 수면 무호흡 가능성이 있습니다.',
+      items: [
+        '이비인후과 또는 수면클리닉에서 수면다원검사 고려',
+        '취침 2시간 전 스마트폰·TV 사용 자제',
+        '취침 시간 23시 이전 고정 권장',
+        '옆으로 눕는 자세로 수면 시도'
+      ],
+      updated: '2026.04.17'
+    },
+    {
+      cat: 'diet',
+      icon: '🥗',
+      iconBg: 'rgba(245,158,11,0.12)',
+      catColor: 'var(--color-status-caution)',
+      catLabel: '식단',
+      priority: 'medium',
+      title: '심혈관 친화적 식단 유지',
+      reason: '평균 심박수가 전달 대비 2.5bpm 상승하였습니다. 나트륨 과잉 섭취 및 수분 부족이 심박 상승에 영향을 줄 수 있습니다.',
+      items: [
+        '하루 수분 섭취 2L 이상 (활동량 고려)',
+        '나트륨 하루 2,000mg 이하 유지 (가공식품 주의)',
+        '오메가-3 풍부한 음식 섭취 (고등어, 연어, 견과류)',
+        '취침 3시간 전 식사 마무리'
+      ],
+      updated: '2026.04.17'
+    },
+    {
+      cat: 'stress',
+      icon: '🧘',
+      iconBg: 'rgba(168,85,247,0.12)',
+      catColor: '#a855f7',
+      catLabel: '스트레스 관리',
+      priority: 'high',
+      title: '오후 업무 스트레스 완화 전략',
+      reason: '스트레스 지수는 오후 2–5시에 집중적으로 60 이상을 기록합니다. 지속적인 고스트레스는 수면 질 저하와 심혈관 부담으로 이어질 수 있습니다.',
+      items: [
+        '오후 3시경 5분 박스 호흡 (4초 흡기 · 4초 참기 · 4초 호기)',
+        '업무 집중 50분 후 10분 완전 이완 권장',
+        '점심 식사 후 짧은 야외 보행 (햇빛 노출)',
+        '저녁 마음챙김 명상 앱 활용 (10–15분)'
+      ],
+      updated: '2026.04.15'
+    },
+    {
+      cat: 'heart',
+      icon: '❤',
+      iconBg: 'rgba(239,68,68,0.1)',
+      catColor: 'var(--color-status-danger)',
+      catLabel: '심혈관',
+      priority: 'medium',
+      title: '야간 심박수 모니터링 강화',
+      reason: '수면 중 심박수가 일시적으로 상승하는 패턴이 격주 이상 관찰됩니다. 현재는 경계 수준이나 지속 관찰이 필요합니다.',
+      items: [
+        '취침 전 카페인 음료 자제 (오후 2시 이후)',
+        '심박수 95bpm 초과 알림 시 기록 습관화',
+        '주 1회 안정 시 혈압 자가 측정 권장',
+        '스트레스·음주 후 수면 패턴 변화 주의 관찰'
+      ],
+      updated: '2026.04.17'
+    },
+    {
+      cat: 'lifestyle',
+      icon: '🌿',
+      iconBg: 'rgba(14,165,233,0.1)',
+      catColor: '#0ea5e9',
+      catLabel: '생활패턴',
+      priority: 'medium',
+      title: '규칙적인 일상 리듬 형성',
+      reason: '기상·취침 시간이 주말에 1–2시간씩 후퇴하는 사회적 시차 패턴이 확인됩니다. 이는 수면 질 저하와 주초 피로감의 주요 원인입니다.',
+      items: [
+        '평일·주말 기상 시간 30분 이내로 일정하게 유지',
+        '자연광 노출: 기상 후 30분 내 햇빛 보기 (일주기 리듬)',
+        '야간 청색광 차단 — 21시 이후 다크모드 전환',
+        '저녁 루틴 만들기: 스트레칭 → 독서 → 취침'
+      ],
+      updated: '2026.04.16'
+    }
+  ];
+
+  const priorityConfig = {
+    urgent: { label:'긴급', bg:'rgba(239,68,68,0.15)', color:'#ef4444' },
+    high:   { label:'높음', bg:'rgba(245,158,11,0.15)', color:'#f59e0b' },
+    medium: { label:'보통', bg:'rgba(59,130,246,0.12)', color:'#3b82f6' }
+  };
+
+  let currentCat = 'all';
+
+  function filterCat(el, cat) {
+    document.querySelectorAll('.cat-filter').forEach(f => f.classList.remove('active'));
+    el.classList.add('active');
+    currentCat = cat;
+    renderGrid();
+  }
+
+  function renderGrid() {
+    const filtered = currentCat === 'all' ? adviceData : adviceData.filter(d => d.cat === currentCat);
+    const grid = document.getElementById('adviceGrid');
+    grid.innerHTML = filtered.map(d => {
+      const p = priorityConfig[d.priority];
+      return `
+        <div class="advice-card" data-cat="${d.cat}">
+          <div class="advice-card__header">
+            <div class="advice-card__icon" style="background:${d.iconBg}">${d.icon}</div>
+            <div class="advice-card__meta">
+              <div class="advice-card__category" style="color:${d.catColor}">${d.catLabel}</div>
+              <div class="advice-card__title">${d.title}</div>
+            </div>
+            <div class="advice-card__priority" style="background:${p.bg};color:${p.color}">
+              ${p.label}
+            </div>
+          </div>
+          <div class="advice-card__body">
+            <div class="advice-card__reason">${d.reason}</div>
+            <ul class="advice-card__items">
+              ${d.items.map(item => `
+                <li class="advice-card__item">
+                  <div class="advice-card__item-dot" style="background:${d.catColor}"></div>
+                  ${item}
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+          <div class="advice-card__footer">
+            <div class="advice-card__updated">분석일: ${d.updated}</div>
+            <div class="advice-card__link">관련 리포트 →</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+  }
+
+  renderGrid();
+</script>
+</body>
+</html>

@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>일간 리포트 — HC-Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* 날짜 네비게이터 */
+    .date-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .date-nav__btn {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      background: var(--bg-base);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: border-color var(--transition-fast),
+                  color var(--transition-fast);
+    }
+
+    .date-nav__btn:hover {
+      border-color: var(--color-primary-400);
+      color: var(--color-primary-600);
+    }
+
+    .date-nav__input {
+      padding: var(--space-1) var(--space-3);
+      font-size: var(--text-sm);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      outline: none;
+      color: var(--text-primary);
+      background: var(--bg-base);
+    }
+
+    .date-nav__input:focus {
+      border-color: var(--color-primary-500);
+      box-shadow: 0 0 0 3px var(--color-primary-100);
+    }
+
+    .date-nav__today {
+      font-size: var(--text-xs);
+      color: var(--color-primary-600);
+      font-weight: var(--font-medium);
+      cursor: pointer;
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius-sm);
+      transition: background var(--transition-fast);
+    }
+
+    .date-nav__today:hover { background: var(--color-primary-50); }
+
+    /* 요약 지표 바 */
+    .summary-bar {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+
+    .summary-item {
+      background: var(--bg-base);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+
+    .summary-item--danger { border-color: var(--color-status-danger); }
+    .summary-item--caution { border-color: var(--color-status-caution); }
+    .summary-item--normal { border-color: var(--color-status-normal); }
+
+    .summary-item__label {
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+    }
+
+    .summary-item__value {
+      font-size: var(--text-xl);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .summary-item__sub {
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+
+    .delta-up   { color: var(--color-status-danger); }
+    .delta-down { color: var(--color-status-normal); }
+    .delta-same { color: var(--text-secondary); }
+
+    /* 차트 탭 */
+    .chart-tabs {
+      display: flex;
+      gap: var(--space-1);
+      border-bottom: 2px solid var(--border-default);
+      margin-bottom: var(--space-5);
+    }
+
+    .chart-tab {
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color var(--transition-fast);
+    }
+
+    .chart-tab.active {
+      color: var(--color-primary-600);
+      border-bottom-color: var(--color-primary-600);
+    }
+
+    /* 차트 컨테이너 */
+    .chart-wrap {
+      position: relative;
+      height: 280px;
+    }
+
+    /* 이상 구간 범례 */
+    .anomaly-legend {
+      display: flex;
+      gap: var(--space-4);
+      margin-top: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    .anomaly-legend__item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+    }
+
+    .anomaly-legend__swatch {
+      width: 16px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    /* 시간별 측정 테이블 */
+    .hourly-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-sm);
+    }
+
+    .hourly-table th {
+      background: var(--color-primary-700);
+      color: #ffffff;
+      padding: var(--space-2) var(--space-3);
+      text-align: center;
+      font-weight: var(--font-semibold);
+      font-size: var(--text-xs);
+      white-space: nowrap;
+    }
+
+    .hourly-table th:first-child { text-align: left; border-radius: 0; }
+
+    .hourly-table td {
+      padding: var(--space-2) var(--space-3);
+      text-align: center;
+      border-bottom: 1px solid var(--border-default);
+      color: var(--text-primary);
+      font-size: var(--text-xs);
+    }
+
+    .hourly-table td:first-child { text-align: left; font-weight: var(--font-medium); }
+    .hourly-table tr:last-child td { border-bottom: none; }
+    .hourly-table tr:hover td { background: var(--bg-surface); }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: var(--radius-full);
+      margin-right: 4px;
+    }
+
+    .status-dot--normal  { background: var(--color-status-normal); }
+    .status-dot--caution { background: var(--color-status-caution); }
+    .status-dot--abnormal{ background: var(--color-status-abnormal); }
+    .status-dot--danger  { background: var(--color-status-danger); }
+
+    .cell--danger  { color: var(--color-status-danger); font-weight: var(--font-semibold); }
+    .cell--caution { color: var(--color-status-caution); font-weight: var(--font-medium); }
+
+    /* 테이블 탭 선택 */
+    .table-tab-bar {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-4);
+      flex-wrap: wrap;
+    }
+
+    .table-tab-btn {
+      padding: var(--space-1) var(--space-3);
+      font-size: var(--text-xs);
+      font-weight: var(--font-medium);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-full);
+      background: var(--bg-base);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .table-tab-btn.active {
+      background: var(--color-primary-600);
+      border-color: var(--color-primary-600);
+      color: #ffffff;
+    }
+
+    /* AI 분석 패널 */
+    .ai-daily {
+      background: linear-gradient(135deg, var(--color-primary-900), var(--color-primary-700));
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      color: #ffffff;
+    }
+
+    .ai-daily__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+
+    .ai-daily__title {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-base);
+      font-weight: var(--font-semibold);
+    }
+
+    .ai-badge {
+      font-size: var(--text-xs);
+      font-weight: var(--font-semibold);
+      background: rgba(255,255,255,0.15);
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+    }
+
+    .ai-daily__grade {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .ai-grade-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(255,255,255,0.1);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-5);
+    }
+
+    .ai-grade-box__label {
+      font-size: var(--text-xs);
+      color: rgba(255,255,255,0.7);
+      margin-bottom: var(--space-1);
+    }
+
+    .ai-grade-box__score {
+      font-size: var(--text-3xl);
+      font-weight: var(--font-bold);
+      line-height: 1;
+    }
+
+    .ai-grade-box__badge {
+      font-size: var(--text-xs);
+      margin-top: var(--space-1);
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      background: rgba(255,193,7,0.25);
+      color: #fcd34d;
+    }
+
+    .ai-daily__findings {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+      margin-top: var(--space-4);
+    }
+
+    .finding-block {
+      background: rgba(255,255,255,0.07);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+    }
+
+    .finding-block__title {
+      font-size: var(--text-xs);
+      font-weight: var(--font-semibold);
+      color: rgba(255,255,255,0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-2);
+    }
+
+    .finding-block__list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .finding-block__list li {
+      font-size: var(--text-sm);
+      color: #cbd5e1;
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-2);
+      line-height: 1.5;
+    }
+
+    .finding-block__list li::before {
+      content: '•';
+      color: var(--color-primary-400);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .ai-daily__opinion {
+      margin-top: var(--space-4);
+      background: rgba(255,255,255,0.07);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+    }
+
+    .ai-daily__opinion-label {
+      font-size: var(--text-xs);
+      font-weight: var(--font-semibold);
+      color: rgba(255,255,255,0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-2);
+    }
+
+    .ai-daily__opinion-text {
+      font-size: var(--text-sm);
+      color: #cbd5e1;
+      line-height: 1.8;
+    }
+
+    /* PDF 버튼 */
+    .btn-pdf {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      background: #fff;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: border-color var(--transition-fast),
+                  box-shadow var(--transition-fast);
+    }
+
+    .btn-pdf:hover {
+      border-color: var(--color-primary-400);
+      box-shadow: var(--shadow-sm);
+    }
+
+    @media (max-width: 1200px) {
+      .summary-bar { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      .summary-bar { grid-template-columns: repeat(2, 1fr); }
+      .ai-daily__findings { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- 사이드바 -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar__logo" onclick="location.href='../index.html'" style="cursor:pointer">
+      <div class="sidebar__logo-icon">❤</div>
+      <div>
+        <div class="sidebar__logo-text">HC-Plan</div>
+        <div class="sidebar__logo-sub">건강 모니터링</div>
+      </div>
+    </div>
+    <div class="sidebar__nav">
+      <div class="sidebar__section-label">내 건강</div>
+      <a href="dashboard.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        대시보드
+      </a>
+      <a href="report-daily.html" class="sidebar__item active">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        일간 리포트
+      </a>
+      <a href="report-weekly.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        주간 리포트
+      </a>
+      <a href="report-monthly.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        월간 리포트
+      </a>
+      <a href="ai-advice.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        AI 건강 조언
+      </a>
+      <div class="sidebar__section-label" style="margin-top:var(--space-2)">계정</div>
+      <a href="qr.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="5"/><rect x="16" y="3" width="5" height="5"/><rect x="3" y="16" width="5" height="5"/><path d="M21 16h-3v3m0-3v-3h-3m6 6h-3"/></svg>
+        QR 코드 발급
+      </a>
+      <a href="report-print.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        인쇄용 리포트
+      </a>
+    </div>
+    <div class="sidebar__footer">
+      <div class="sidebar__user">
+        <div class="sidebar__user-avatar">김</div>
+        <div class="sidebar__user-info">
+          <div class="sidebar__user-name">김민준</div>
+          <div class="sidebar__user-role">사용자 · Demo</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 모바일 오버레이 -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- 헤더 -->
+  <header class="main-header">
+    <div class="main-header__left">
+      <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="main-header__title">일간 리포트</div>
+    </div>
+    <div class="main-header__right">
+      <!-- 날짜 네비게이터 -->
+      <div class="date-nav">
+        <button class="date-nav__btn" onclick="changeDate(-1)" title="이전 날">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <input type="date" class="date-nav__input" id="dateInput">
+        <button class="date-nav__btn" onclick="changeDate(1)" title="다음 날">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <span class="date-nav__today" onclick="goToday()">오늘</span>
+      </div>
+      <button class="btn-pdf" onclick="window.location.href='report-print.html'">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        PDF 다운로드
+      </button>
+    </div>
+  </header>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="main-content">
+
+    <!-- 요약 지표 바 -->
+    <div class="summary-bar" id="summaryBar"></div>
+
+    <!-- 차트 섹션 -->
+    <div class="card" style="margin-bottom:var(--space-6)">
+      <div class="card__header">
+        <div class="card__title">24시간 건강 지표 추이</div>
+        <div style="display:flex;gap:var(--space-3);align-items:center">
+          <span style="font-size:var(--text-xs);color:var(--text-secondary)">항목 선택</span>
+        </div>
+      </div>
+      <div class="card__body">
+        <div class="chart-tabs" id="chartTabs">
+          <div class="chart-tab active" data-chart="heartRate" onclick="switchChart(this,'heartRate')">심박수</div>
+          <div class="chart-tab" data-chart="spo2" onclick="switchChart(this,'spo2')">산소포화도</div>
+          <div class="chart-tab" data-chart="stress" onclick="switchChart(this,'stress')">스트레스</div>
+          <div class="chart-tab" data-chart="steps" onclick="switchChart(this,'steps')">걸음수</div>
+          <div class="chart-tab" data-chart="combined" onclick="switchChart(this,'combined')">복합 (심박+SpO₂)</div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="dailyChart"></canvas>
+        </div>
+        <div class="anomaly-legend">
+          <div class="anomaly-legend__item">
+            <div class="anomaly-legend__swatch" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4)"></div>
+            위험 구간
+          </div>
+          <div class="anomaly-legend__item">
+            <div class="anomaly-legend__swatch" style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4)"></div>
+            주의 구간
+          </div>
+          <div class="anomaly-legend__item">
+            <div class="anomaly-legend__swatch" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3)"></div>
+            수면 시간대
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI 일간 분석 -->
+    <div class="ai-daily" style="margin-bottom:var(--space-6)">
+      <div class="ai-daily__header">
+        <div class="ai-daily__title">
+          <span class="ai-badge">AI</span>
+          오늘의 건강 분석
+        </div>
+        <div class="ai-daily__grade">
+          <div class="ai-grade-box">
+            <div class="ai-grade-box__label">건강 점수</div>
+            <div class="ai-grade-box__score">72</div>
+            <div class="ai-grade-box__badge">주의</div>
+          </div>
+        </div>
+      </div>
+      <div class="ai-daily__findings">
+        <div class="finding-block">
+          <div class="finding-block__title">주요 발견</div>
+          <ul class="finding-block__list">
+            <li>오전 2~4시 심박수가 일시적으로 96bpm까지 상승하는 패턴이 감지되었습니다.</li>
+            <li>수면 중 산소포화도가 95%까지 하락한 구간이 3회 관찰되었습니다.</li>
+            <li>스트레스 지수는 오후 2~5시 업무 시간대에 집중적으로 높게 나타났습니다.</li>
+          </ul>
+        </div>
+        <div class="finding-block">
+          <div class="finding-block__title">전일 대비</div>
+          <ul class="finding-block__list">
+            <li>평균 심박수 74bpm → 76bpm (+2.7%, 소폭 증가)</li>
+            <li>산소포화도 97.3% → 96.8% (−0.5%, 정상 범위 내)</li>
+            <li>총 걸음수 7,432보 → 6,815보 (−8.3%, 활동량 감소)</li>
+            <li>수면 효율 82% → 78% (−4%, 수면 질 저하)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ai-daily__opinion">
+        <div class="ai-daily__opinion-label">종합 의견</div>
+        <div class="ai-daily__opinion-text">
+          오늘은 전반적으로 <strong style="color:#fcd34d">주의</strong> 단계로 평가됩니다. 수면 중 심박수 상승과 산소포화도 저하 패턴은 수면 무호흡 가능성을 시사합니다.
+          격주 이상 지속된다면 의료진 확인을 권장합니다. 오후 스트레스 집중은 업무 패턴과 관련된 것으로 보이며, 충분한 휴식과 수분 섭취를 권고합니다.
+        </div>
+      </div>
+    </div>
+
+    <!-- 시간별 측정값 테이블 -->
+    <div class="card">
+      <div class="card__header">
+        <div class="card__title">시간별 측정 상세</div>
+      </div>
+      <div class="card__body">
+        <div class="table-tab-bar" id="tableTabBar">
+          <button class="table-tab-btn active" data-metric="heartRate" onclick="switchTableMetric(this,'heartRate')">심박수</button>
+          <button class="table-tab-btn" data-metric="spo2" onclick="switchTableMetric(this,'spo2')">산소포화도</button>
+          <button class="table-tab-btn" data-metric="stress" onclick="switchTableMetric(this,'stress')">스트레스</button>
+          <button class="table-tab-btn" data-metric="steps" onclick="switchTableMetric(this,'steps')">걸음수</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="hourly-table" id="hourlyTable">
+            <thead>
+              <tr>
+                <th>시간</th>
+                <th>측정값</th>
+                <th>표준 범위</th>
+                <th>상태</th>
+                <th>전시간 대비</th>
+              </tr>
+            </thead>
+            <tbody id="hourlyTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="../assets/js/mock-data.js"></script>
+<script>
+  // 날짜 초기화
+  const dateInput = document.getElementById('dateInput');
+  const today = new Date().toISOString().split('T')[0];
+  dateInput.value = today;
+
+  function changeDate(delta) {
+    const d = new Date(dateInput.value);
+    d.setDate(d.getDate() + delta);
+    dateInput.value = d.toISOString().split('T')[0];
+    refreshAll();
+  }
+
+  function goToday() {
+    dateInput.value = today;
+    refreshAll();
+  }
+
+  // ---- 데이터 ----
+  const hourly = MockData.generateHourlyData();
+
+  const metricConfig = {
+    heartRate: {
+      label: '심박수 (bpm)',
+      unit: 'bpm',
+      normalMin: 60, normalMax: 100,
+      dangerMin: 50, dangerMax: 110,
+      color: '#ef4444',
+      data: hourly.heartRate,
+      prev: hourly.heartRate.map(v => v - Math.round((Math.random()-0.5)*4))
+    },
+    spo2: {
+      label: '산소포화도 (%)',
+      unit: '%',
+      normalMin: 95, normalMax: 100,
+      dangerMin: 90, dangerMax: 100,
+      color: '#3b82f6',
+      data: hourly.spo2,
+      prev: hourly.spo2.map(v => Math.min(100, v + Math.round((Math.random()-0.3)*1.5)))
+    },
+    stress: {
+      label: '스트레스 지수',
+      unit: '',
+      normalMin: 0, normalMax: 40,
+      dangerMin: 0, dangerMax: 80,
+      color: '#a855f7',
+      data: hourly.stress,
+      prev: hourly.stress.map(v => Math.max(0,v + Math.round((Math.random()-0.5)*8)))
+    },
+    steps: {
+      label: '걸음수 (보)',
+      unit: '보',
+      normalMin: 0, normalMax: 999,
+      dangerMin: 0, dangerMax: 999,
+      color: '#10b981',
+      data: hourly.steps,
+      prev: hourly.steps.map(v => Math.max(0,v + Math.round((Math.random()-0.5)*100)))
+    }
+  };
+
+  const labels24 = Array.from({length:24}, (_,i)=>`${String(i).padStart(2,'0')}:00`);
+
+  // ---- 요약 바 ----
+  function buildSummary() {
+    const items = [
+      { label:'평균 심박수', value:'76', unit:'bpm', delta:'+2.7%', dir:'up', status:'caution' },
+      { label:'평균 SpO₂', value:'96.8', unit:'%', delta:'−0.5%', dir:'down', status:'normal' },
+      { label:'최고 스트레스', value:'68', unit:'', delta:'+12%', dir:'up', status:'caution' },
+      { label:'총 걸음수', value:'6,815', unit:'보', delta:'−8.3%', dir:'down', status:'normal' },
+      { label:'활동 칼로리', value:'387', unit:'kcal', delta:'−5.1%', dir:'down', status:'normal' }
+    ];
+    const bar = document.getElementById('summaryBar');
+    bar.innerHTML = items.map(it => `
+      <div class="summary-item summary-item--${it.status}">
+        <div class="summary-item__label">${it.label}</div>
+        <div class="summary-item__value">${it.value}<span style="font-size:var(--text-sm);font-weight:var(--font-normal);margin-left:2px">${it.unit}</span></div>
+        <div class="summary-item__sub delta-${it.dir}">
+          ${it.dir==='up'?'▲':'▼'} ${it.delta} <span style="color:var(--text-secondary)">전일 대비</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ---- 차트 ----
+  let currentChart = null;
+  let currentMetric = 'heartRate';
+
+  function getStatusForValue(v, cfg) {
+    if (v > cfg.dangerMax || v < cfg.dangerMin) return 'danger';
+    if (v > cfg.normalMax || v < cfg.normalMin) return 'caution';
+    return 'normal';
+  }
+
+  function buildChartData(metricKey) {
+    if (metricKey === 'combined') {
+      return {
+        type: 'line',
+        data: {
+          labels: labels24,
+          datasets: [
+            {
+              label: '심박수 (bpm)',
+              data: metricConfig.heartRate.data,
+              borderColor: '#ef4444',
+              backgroundColor: 'rgba(239,68,68,0.08)',
+              borderWidth: 2,
+              pointRadius: 3,
+              tension: 0.4,
+              yAxisID: 'y'
+            },
+            {
+              label: 'SpO₂ (%)',
+              data: metricConfig.spo2.data,
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59,130,246,0.08)',
+              borderWidth: 2,
+              pointRadius: 3,
+              tension: 0.4,
+              yAxisID: 'y2'
+            }
+          ]
+        },
+        options: combinedOptions()
+      };
+    }
+    const cfg = metricConfig[metricKey];
+    const pointColors = cfg.data.map(v => {
+      const s = getStatusForValue(v, cfg);
+      return s==='danger'?'#ef4444': s==='caution'?'#f59e0b':'#10b981';
+    });
+    return {
+      type: 'line',
+      data: {
+        labels: labels24,
+        datasets: [{
+          label: cfg.label,
+          data: cfg.data,
+          borderColor: cfg.color,
+          backgroundColor: cfg.color.replace(')', ',0.08)').replace('rgb','rgba'),
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointBackgroundColor: pointColors,
+          pointBorderColor: pointColors,
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: singleOptions(cfg)
+    };
+  }
+
+  function singleOptions(cfg) {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode:'index', intersect:false },
+      plugins: {
+        legend: { display:false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.parsed.y}${cfg.unit}`,
+            afterLabel: ctx => {
+              const s = getStatusForValue(ctx.parsed.y, cfg);
+              return s==='danger'?' ⚠ 위험': s==='caution'?' △ 주의': ' ✓ 정상';
+            }
+          }
+        },
+        annotation: buildAnnotations(cfg)
+      },
+      scales: {
+        x: { grid:{color:'rgba(0,0,0,0.04)'}, ticks:{font:{size:11}} },
+        y: {
+          min: cfg.dangerMin > 0 ? cfg.dangerMin - 5 : 0,
+          grid: {color:'rgba(0,0,0,0.04)'},
+          ticks: {font:{size:11}},
+          title: {display:true, text:cfg.label, font:{size:11}}
+        }
+      }
+    };
+  }
+
+  function combinedOptions() {
+    return {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{position:'top', labels:{font:{size:11}}},
+        annotation: buildAnnotations(metricConfig.heartRate)
+      },
+      scales:{
+        x:{grid:{color:'rgba(0,0,0,0.04)'}, ticks:{font:{size:11}}},
+        y:{
+          min:50, max:120,
+          title:{display:true,text:'심박수 (bpm)',font:{size:11}},
+          grid:{color:'rgba(0,0,0,0.04)'},
+          ticks:{font:{size:11}}
+        },
+        y2:{
+          position:'right',
+          min:88, max:102,
+          title:{display:true,text:'SpO₂ (%)',font:{size:11}},
+          grid:{drawOnChartArea:false},
+          ticks:{font:{size:11}}
+        }
+      }
+    };
+  }
+
+  function buildAnnotations(cfg) {
+    // 수면 시간대 (23~07시) 배경 + 이상 구간
+    const boxes = {
+      sleepZone: {
+        type:'box',
+        xMin:'23:00', xMax:'07:00',
+        backgroundColor:'rgba(59,130,246,0.06)',
+        borderColor:'rgba(59,130,246,0.2)',
+        borderWidth:1,
+        label:{content:'수면',display:true,position:'start',color:'rgba(59,130,246,0.5)',font:{size:10}}
+      }
+    };
+    // 위험·주의 수평선
+    if (cfg.normalMax < 999) {
+      boxes.normalMax = {
+        type:'line', yMin:cfg.normalMax, yMax:cfg.normalMax,
+        borderColor:'rgba(245,158,11,0.5)', borderWidth:1,
+        borderDash:[4,4],
+        label:{content:'주의 상한',display:true,position:'end',color:'rgba(245,158,11,0.8)',font:{size:10}}
+      };
+    }
+    if (cfg.normalMin > 0) {
+      boxes.normalMin = {
+        type:'line', yMin:cfg.normalMin, yMax:cfg.normalMin,
+        borderColor:'rgba(245,158,11,0.5)', borderWidth:1, borderDash:[4,4],
+        label:{content:'주의 하한',display:true,position:'end',color:'rgba(245,158,11,0.8)',font:{size:10}}
+      };
+    }
+    return {annotations: boxes};
+  }
+
+  function renderChart(metricKey) {
+    const canvas = document.getElementById('dailyChart');
+    if (currentChart) { currentChart.destroy(); currentChart = null; }
+    const cfg = buildChartData(metricKey);
+    // Chart.js annotation plugin (CDN via chartjs-plugin-annotation is optional, skip gracefully)
+    currentChart = new Chart(canvas, { type: cfg.type, data: cfg.data, options: cfg.options });
+  }
+
+  function switchChart(el, metricKey) {
+    document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    currentMetric = metricKey;
+    renderChart(metricKey);
+  }
+
+  // ---- 시간별 테이블 ----
+  let currentTableMetric = 'heartRate';
+
+  const metricNorm = {
+    heartRate: { range:'60 – 100 bpm', unit:'bpm',
+      status: v => v>100?'danger': v>90?'caution': v<55?'danger': v<60?'caution':'normal' },
+    spo2: { range:'96 – 100 %', unit:'%',
+      status: v => v<90?'danger': v<95?'caution':'normal' },
+    stress: { range:'0 – 40', unit:'',
+      status: v => v>80?'danger': v>60?'abnormal': v>40?'caution':'normal' },
+    steps: { range:'—', unit:'보',
+      status: () => 'normal' }
+  };
+
+  const statusLabel = { normal:'정상', caution:'주의', abnormal:'이상', danger:'위험' };
+
+  function buildTable(metricKey) {
+    const cfg = metricConfig[metricKey];
+    const norm = metricNorm[metricKey];
+    const tbody = document.getElementById('hourlyTableBody');
+    tbody.innerHTML = cfg.data.map((v, i) => {
+      const prev = cfg.prev[i];
+      const delta = v - prev;
+      const pct = prev !== 0 ? ((delta/prev)*100).toFixed(1) : '0.0';
+      const st = norm.status(v);
+      const dirClass = delta > 0 ? 'delta-up' : delta < 0 ? 'delta-down' : 'delta-same';
+      const arrow = delta > 0 ? '▲' : delta < 0 ? '▼' : '—';
+      const cellClass = (st === 'danger' || st === 'abnormal') ? `cell--${st==='danger'?'danger':'caution'}` : '';
+      return `
+        <tr>
+          <td>${labels24[i]}</td>
+          <td class="${cellClass}">${v}${norm.unit}</td>
+          <td style="color:var(--text-secondary)">${norm.range}</td>
+          <td><span class="status-dot status-dot--${st}"></span>${statusLabel[st]}</td>
+          <td class="${dirClass}">${arrow} ${Math.abs(delta)}${norm.unit} (${delta>=0?'+':''}${pct}%)</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function switchTableMetric(el, metricKey) {
+    document.querySelectorAll('.table-tab-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    currentTableMetric = metricKey;
+    buildTable(metricKey);
+  }
+
+  function refreshAll() {
+    buildSummary();
+    renderChart(currentMetric);
+    buildTable(currentTableMetric);
+  }
+
+  // ---- 사이드바 토글 ----
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+  }
+
+  // 초기 렌더
+  buildSummary();
+  renderChart('heartRate');
+  buildTable('heartRate');
+</script>
+</body>
+</html>

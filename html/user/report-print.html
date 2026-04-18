@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>건강 리포트 (인쇄용) — HC-Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ---- 화면 미리보기 스타일 ---- */
+    body {
+      background: #e2e8f0;
+      padding: 24px;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    /* 상단 툴바 (화면 전용) */
+    .print-toolbar {
+      max-width: 794px;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .print-toolbar__title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .print-toolbar__btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .tb-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+
+    .tb-btn--primary { background: #1e40af; color: #fff; }
+    .tb-btn--primary:hover { background: #1e3a8a; }
+    .tb-btn--secondary { background: #fff; color: #334155; border: 1px solid #cbd5e1; }
+    .tb-btn--secondary:hover { border-color: #93c5fd; }
+
+    /* ---- A4 페이지 ---- */
+    .a4-page {
+      width: 794px; /* 210mm at 96dpi approx */
+      min-height: 1123px; /* 297mm */
+      background: #fff;
+      margin: 0 auto 24px;
+      padding: 56px 56px 56px 56px; /* 15mm ≈ 57px at 96dpi */
+      box-sizing: border-box;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+      position: relative;
+      page-break-after: always;
+    }
+
+    /* ---- 리포트 헤더 ---- */
+    .rpt-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding-bottom: 14px;
+      border-bottom: 2.5px solid #1e3a8a;
+      margin-bottom: 20px;
+    }
+
+    .rpt-header__logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rpt-header__logo-icon {
+      width: 36px;
+      height: 36px;
+      background: #1e3a8a;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+    }
+
+    .rpt-header__logo-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1e3a8a;
+    }
+
+    .rpt-header__logo-sub {
+      font-size: 10px;
+      color: #64748b;
+    }
+
+    .rpt-header__info {
+      text-align: right;
+    }
+
+    .rpt-header__type {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1e3a8a;
+    }
+
+    .rpt-header__period {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    /* ---- 환자 정보 박스 ---- */
+    .patient-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 0;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    .patient-box__cell {
+      padding: 8px 12px;
+      border-right: 1px solid #e2e8f0;
+    }
+
+    .patient-box__cell:last-child { border-right: none; }
+
+    .patient-box__label {
+      font-size: 9px;
+      color: #94a3b8;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 2px;
+    }
+
+    .patient-box__value {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    /* ---- 섹션 타이틀 ---- */
+    .rpt-section {
+      margin-bottom: 18px;
+    }
+
+    .rpt-section__title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #1e3a8a;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-left: 3px solid #1e3a8a;
+      padding-left: 8px;
+      margin-bottom: 10px;
+    }
+
+    /* ---- 종합 등급 박스 ---- */
+    .grade-summary {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+    }
+
+    .grade-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #fff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 20px;
+      min-width: 80px;
+    }
+
+    .grade-box__score {
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1;
+      color: #f59e0b;
+    }
+
+    .grade-box__label {
+      font-size: 10px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    .grade-box__grade {
+      font-size: 11px;
+      font-weight: 700;
+      color: #f59e0b;
+      margin-top: 2px;
+    }
+
+    .grade-opinion {
+      flex: 1;
+      font-size: 11px;
+      color: #334155;
+      line-height: 1.7;
+    }
+
+    .grade-opinion strong { color: #1e3a8a; }
+
+    /* ---- 지표 측정 테이블 ---- */
+    .metrics-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    .metrics-table th {
+      background: #1e3a8a;
+      color: #fff;
+      padding: 6px 8px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 10px;
+    }
+
+    .metrics-table th:first-child { text-align: left; border-radius: 0; }
+
+    .metrics-table td {
+      padding: 6px 8px;
+      text-align: center;
+      border-bottom: 1px solid #e2e8f0;
+      color: #334155;
+    }
+
+    .metrics-table td:first-child { text-align: left; font-weight: 500; }
+    .metrics-table tr:last-child td { border-bottom: none; }
+    .metrics-table tr:nth-child(even) td { background: #f8fafc; }
+
+    .status-pill {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 100px;
+    }
+
+    .status-pill--normal   { background: rgba(16,185,129,0.15); color: #065f46; }
+    .status-pill--caution  { background: rgba(245,158,11,0.15);  color: #78350f; }
+    .status-pill--abnormal { background: rgba(249,115,22,0.15); color: #7c2d12; }
+    .status-pill--danger   { background: rgba(239,68,68,0.15);  color: #7f1d1d; }
+    .no-data-pill { font-size: 10px; color: #94a3b8; font-style: italic; }
+
+    /* ---- 차트 영역 ---- */
+    .chart-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .chart-block {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 10px;
+    }
+
+    .chart-block__title {
+      font-size: 10px;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 6px;
+    }
+
+    .chart-block canvas {
+      width: 100% !important;
+      height: 120px !important;
+    }
+
+    /* ---- AI 의견 ---- */
+    .ai-section {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-bottom: 18px;
+    }
+
+    .ai-section__header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .ai-section__badge {
+      font-size: 9px;
+      font-weight: 700;
+      background: #1e3a8a;
+      color: #fff;
+      padding: 2px 7px;
+      border-radius: 100px;
+    }
+
+    .ai-section__title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .ai-section__body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .ai-block {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 8px 10px;
+    }
+
+    .ai-block__title {
+      font-size: 9px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .ai-block__text {
+      font-size: 10px;
+      color: #475569;
+      line-height: 1.6;
+    }
+
+    .ai-block__list {
+      list-style: none;
+      padding: 0; margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .ai-block__list li {
+      font-size: 10px;
+      color: #475569;
+      display: flex;
+      gap: 5px;
+      line-height: 1.5;
+    }
+
+    .ai-block__list li::before {
+      content: '·';
+      color: #1e3a8a;
+      flex-shrink: 0;
+    }
+
+    /* ---- 면책 고지 ---- */
+    .disclaimer {
+      margin-top: 20px;
+      padding-top: 10px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 9px;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+
+    /* ---- 페이지 푸터 ---- */
+    .rpt-footer {
+      position: absolute;
+      bottom: 20px;
+      left: 56px;
+      right: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 9px;
+      color: #94a3b8;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 6px;
+    }
+
+    /* ---- 인쇄 스타일 ---- */
+    @media print {
+      body {
+        background: none;
+        padding: 0;
+      }
+
+      .print-toolbar { display: none !important; }
+
+      .a4-page {
+        margin: 0;
+        padding: 15mm;
+        box-shadow: none;
+        width: 210mm;
+        min-height: 297mm;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 화면 전용 툴바 -->
+  <div class="print-toolbar">
+    <div class="print-toolbar__title">인쇄용 건강 리포트 미리보기</div>
+    <div class="print-toolbar__btns">
+      <a href="report-daily.html" class="tb-btn tb-btn--secondary">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        돌아가기
+      </a>
+      <button class="tb-btn tb-btn--primary" onclick="window.print()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        PDF / 인쇄
+      </button>
+    </div>
+  </div>
+
+  <!-- ============= PAGE 1: 종합 요약 ============= -->
+  <div class="a4-page">
+
+    <!-- 헤더 -->
+    <div class="rpt-header">
+      <div class="rpt-header__logo">
+        <div class="rpt-header__logo-icon">❤</div>
+        <div>
+          <div class="rpt-header__logo-name">HC-Plan</div>
+          <div class="rpt-header__logo-sub">건강정보 모니터링 서비스</div>
+        </div>
+      </div>
+      <div class="rpt-header__info">
+        <div class="rpt-header__type">건강 종합 리포트</div>
+        <div class="rpt-header__period">분석 기간: 2026.03.17 – 2026.04.17 (30일)</div>
+        <div class="rpt-header__period">발행일: 2026.04.17</div>
+      </div>
+    </div>
+
+    <!-- 환자 정보 -->
+    <div class="patient-box">
+      <div class="patient-box__cell">
+        <div class="patient-box__label">성명</div>
+        <div class="patient-box__value">김민준</div>
+      </div>
+      <div class="patient-box__cell">
+        <div class="patient-box__label">출생년도 / 성별</div>
+        <div class="patient-box__value">1985년 / 남성</div>
+      </div>
+      <div class="patient-box__cell">
+        <div class="patient-box__label">신체 정보</div>
+        <div class="patient-box__value">175cm / 72kg (BMI 23.5)</div>
+      </div>
+      <div class="patient-box__cell">
+        <div class="patient-box__label">연동 기기</div>
+        <div class="patient-box__value">Garmin Vivosmart 5</div>
+      </div>
+    </div>
+
+    <!-- 종합 등급 -->
+    <div class="rpt-section">
+      <div class="rpt-section__title">종합 건강 등급</div>
+      <div class="grade-summary">
+        <div class="grade-box">
+          <div class="grade-box__score">72</div>
+          <div class="grade-box__label">건강 점수</div>
+          <div class="grade-box__grade">주의 단계</div>
+        </div>
+        <div class="grade-opinion">
+          최근 30일간 측정 데이터를 종합 분석한 결과 <strong>주의(Caution)</strong> 단계로 평가됩니다.
+          수면 중 심박수 상승 패턴과 산소포화도 일시 저하가 주요 관찰 사항입니다.
+          스트레스 지수는 오후 업무 시간대에 집중되며, 수면 시간도 권장(7시간) 대비 다소 부족합니다.
+          전문 의료진의 정기 확인과 생활습관 개선을 권장합니다.
+        </div>
+      </div>
+    </div>
+
+    <!-- 주요 지표 측정표 -->
+    <div class="rpt-section">
+      <div class="rpt-section__title">주요 건강 지표 (30일 평균)</div>
+      <table class="metrics-table">
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>측정값 (평균)</th>
+            <th>표준 범위</th>
+            <th>최솟값</th>
+            <th>최댓값</th>
+            <th>상태</th>
+            <th>전월 대비</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>심박수 (bpm)</td>
+            <td>75.5</td>
+            <td>60 – 100</td>
+            <td>58</td>
+            <td>96</td>
+            <td><span class="status-pill status-pill--caution">주의</span></td>
+            <td>+2.5</td>
+          </tr>
+          <tr>
+            <td>산소포화도 (%)</td>
+            <td>96.9</td>
+            <td>96 – 100</td>
+            <td>93</td>
+            <td>99</td>
+            <td><span class="status-pill status-pill--caution">주의</span></td>
+            <td>−0.2</td>
+          </tr>
+          <tr>
+            <td>수면 시간 (시간)</td>
+            <td>6.8</td>
+            <td>7 – 9</td>
+            <td>4.8</td>
+            <td>9.1</td>
+            <td><span class="status-pill status-pill--caution">주의</span></td>
+            <td>+0.3</td>
+          </tr>
+          <tr>
+            <td>스트레스 지수</td>
+            <td>45.3</td>
+            <td>0 – 40</td>
+            <td>12</td>
+            <td>78</td>
+            <td><span class="status-pill status-pill--caution">주의</span></td>
+            <td>−5.6%</td>
+          </tr>
+          <tr>
+            <td>일일 걸음수 (보)</td>
+            <td>6,920</td>
+            <td>7,000+</td>
+            <td>2,100</td>
+            <td>12,450</td>
+            <td><span class="status-pill status-pill--caution">주의</span></td>
+            <td>+5.1%</td>
+          </tr>
+          <tr>
+            <td>활동 칼로리 (kcal)</td>
+            <td>367</td>
+            <td>300 – 600</td>
+            <td>128</td>
+            <td>612</td>
+            <td><span class="status-pill status-pill--normal">정상</span></td>
+            <td>+3.2%</td>
+          </tr>
+          <tr>
+            <td>체온 (°C)</td>
+            <td colspan="5" style="text-align:left"><span class="no-data-pill">수집되지 않음 — 체온 측정 기능 미탑재 기기</span></td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>호흡수 (회/분)</td>
+            <td colspan="5" style="text-align:left"><span class="no-data-pill">수집되지 않음 — 스마트밴드 미지원 항목</span></td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="font-size:9px;color:#94a3b8;margin-top:6px">
+        * 권장 스마트 기기: Garmin Fenix 7 / Samsung Galaxy Watch 6 / Apple Watch Series 9 이상 (체온·호흡수 지원)
+      </div>
+    </div>
+
+    <!-- AI 분석 의견 -->
+    <div class="ai-section">
+      <div class="ai-section__header">
+        <span class="ai-section__badge">AI</span>
+        <span class="ai-section__title">AI 건강 분석 의견</span>
+      </div>
+      <div class="ai-section__body">
+        <div class="ai-block">
+          <div class="ai-block__title">주요 발견</div>
+          <ul class="ai-block__list">
+            <li>수면 중 심박수 95bpm 초과 패턴 — 수면 무호흡 가능성</li>
+            <li>오후 2–5시 스트레스 집중 패턴 지속</li>
+            <li>SpO₂ 95% 미만 구간 월 7회 관찰</li>
+            <li>주말 활동량 평일 대비 40% 수준으로 감소</li>
+          </ul>
+        </div>
+        <div class="ai-block">
+          <div class="ai-block__title">권장 사항</div>
+          <ul class="ai-block__list">
+            <li>수면클리닉 또는 이비인후과 상담 권장</li>
+            <li>취침 시간 23시 이전 고정 (수면 규칙성)</li>
+            <li>오후 스트레스 완화: 박스 호흡 · 명상 10분</li>
+            <li>일일 7,000보 목표 유지 및 주말 활동 강화</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 면책 고지 -->
+    <div class="disclaimer">
+      본 리포트는 스마트밴드 데이터를 AI로 분석한 참고용 정보입니다. 의학적 진단이나 치료 목적으로 사용할 수 없습니다.
+      건강 이상이 의심될 경우 반드시 의료 전문가의 상담을 받으시기 바랍니다.
+      데이터 수집 기기의 측정 오차 범위(±5%)를 감안하여 해석하시기 바랍니다.
+    </div>
+
+    <div class="rpt-footer">
+      <span>HC-Plan 건강정보 모니터링 서비스 · © 2026 HC-Plan</span>
+      <span>1 / 2</span>
+      <span>발급번호: HC-2026-0417-U001</span>
+    </div>
+  </div>
+
+  <!-- ============= PAGE 2: 추이 차트 ============= -->
+  <div class="a4-page">
+
+    <div class="rpt-header">
+      <div class="rpt-header__logo">
+        <div class="rpt-header__logo-icon">❤</div>
+        <div>
+          <div class="rpt-header__logo-name">HC-Plan</div>
+          <div class="rpt-header__logo-sub">건강정보 모니터링 서비스</div>
+        </div>
+      </div>
+      <div class="rpt-header__info">
+        <div class="rpt-header__type">건강 추이 차트</div>
+        <div class="rpt-header__period">김민준 · 2026.03.17 – 2026.04.17</div>
+      </div>
+    </div>
+
+    <div class="patient-box" style="grid-template-columns:1fr 1fr">
+      <div class="patient-box__cell">
+        <div class="patient-box__label">성명</div>
+        <div class="patient-box__value">김민준</div>
+      </div>
+      <div class="patient-box__cell">
+        <div class="patient-box__label">분석 기간</div>
+        <div class="patient-box__value">2026.03.17 – 2026.04.17 (30일)</div>
+      </div>
+    </div>
+
+    <!-- 차트 섹션 -->
+    <div class="rpt-section">
+      <div class="rpt-section__title">30일 건강 지표 추이</div>
+      <div class="chart-section">
+        <div class="chart-block">
+          <div class="chart-block__title">심박수 추이 (bpm)</div>
+          <canvas id="printHrChart"></canvas>
+        </div>
+        <div class="chart-block">
+          <div class="chart-block__title">산소포화도 추이 (%)</div>
+          <canvas id="printSpo2Chart"></canvas>
+        </div>
+        <div class="chart-block">
+          <div class="chart-block__title">수면 시간 (시간)</div>
+          <canvas id="printSleepChart"></canvas>
+        </div>
+        <div class="chart-block">
+          <div class="chart-block__title">일별 걸음수 (보)</div>
+          <canvas id="printStepsChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- 주간 등급 테이블 -->
+    <div class="rpt-section">
+      <div class="rpt-section__title">주차별 건강 등급 현황</div>
+      <table class="metrics-table">
+        <thead>
+          <tr>
+            <th>주차</th>
+            <th>평균 건강 점수</th>
+            <th>평균 심박수</th>
+            <th>평균 SpO₂</th>
+            <th>평균 수면</th>
+            <th>총 걸음수</th>
+            <th>종합 등급</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1주차 (03.17–03.23)</td>
+            <td>74</td><td>74 bpm</td><td>97.2%</td><td>7.1시간</td><td>52,400보</td>
+            <td><span class="status-pill status-pill--caution">주의</span></td>
+          </tr>
+          <tr>
+            <td>2주차 (03.24–03.30)</td>
+            <td>72</td><td>76 bpm</td><td>96.8%</td><td>6.8시간</td><td>49,800보</td>
+            <td><span class="status-pill status-pill--caution">주의</span></td>
+          </tr>
+          <tr>
+            <td>3주차 (03.31–04.06)</td>
+            <td>68</td><td>77 bpm</td><td>96.5%</td><td>6.3시간</td><td>45,200보</td>
+            <td><span class="status-pill status-pill--caution">주의</span></td>
+          </tr>
+          <tr>
+            <td>4주차 (04.07–04.17)</td>
+            <td>73</td><td>75 bpm</td><td>97.0%</td><td>7.0시간</td><td>51,000보</td>
+            <td><span class="status-pill status-pill--caution">주의</span></td>
+          </tr>
+          <tr style="background:#f1f5f9;font-weight:600">
+            <td>월 평균</td>
+            <td>72</td><td>75.5 bpm</td><td>96.9%</td><td>6.8시간</td><td>49,600보</td>
+            <td><span class="status-pill status-pill--caution">주의</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 권고 사항 -->
+    <div class="ai-section">
+      <div class="ai-section__header">
+        <span class="ai-section__badge">AI</span>
+        <span class="ai-section__title">담당 상담사 메모 (2026.04.10)</span>
+      </div>
+      <div style="font-size:11px;color:#334155;line-height:1.7;padding:8px 0">
+        수면 무호흡 의심 증상에 대해 상담 진행 완료. 다음 달 이비인후과 또는 수면클리닉 방문 예약 권장 안내.
+        스트레스 관리를 위한 마음챙김 명상 앱(Calm, 마보) 사용 권장.
+        다음 정기 상담: <strong>2026.05.10</strong>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      본 리포트는 스마트밴드 데이터를 AI로 분석한 참고용 정보입니다. 의학적 진단이나 치료 목적으로 사용할 수 없습니다.
+      건강 이상이 의심될 경우 반드시 의료 전문가의 상담을 받으시기 바랍니다.
+    </div>
+
+    <div class="rpt-footer">
+      <span>HC-Plan 건강정보 모니터링 서비스 · © 2026 HC-Plan</span>
+      <span>2 / 2</span>
+      <span>발급번호: HC-2026-0417-U001</span>
+    </div>
+  </div>
+
+<script src="../assets/js/mock-data.js"></script>
+<script>
+  const days30 = Array.from({length:30}, (_,i)=>`${i+1}`);
+
+  function genSeries(base, noise, len) {
+    return Array.from({length:len}, () => Math.round(base + (Math.random()-0.5)*noise*2));
+  }
+
+  const hr30    = genSeries(75, 8, 30);
+  const spo2_30 = Array.from({length:30}, () => +(96 + Math.random()*2).toFixed(1));
+  const sleep30 = Array.from({length:30}, () => +(5.5 + Math.random()*2.5).toFixed(1));
+  const steps30 = genSeries(6800, 2500, 30);
+
+  const printOpts = (label, color, min, max) => ({
+    responsive: false,
+    maintainAspectRatio: false,
+    animation: false,
+    plugins: {
+      legend: {display:false},
+      tooltip: {enabled:false}
+    },
+    scales: {
+      x: {grid:{display:false}, ticks:{font:{size:8}, maxTicksLimit:8}},
+      y: {min, max, ticks:{font:{size:8}}, grid:{color:'rgba(0,0,0,0.05)'}}
+    }
+  });
+
+  new Chart(document.getElementById('printHrChart'), {
+    type:'line',
+    data:{ labels:days30, datasets:[{
+      data:hr30, borderColor:'#ef4444', backgroundColor:'rgba(239,68,68,0.08)',
+      borderWidth:1.5, pointRadius:1.5, tension:0.3, fill:true
+    }]},
+    options: printOpts('심박수',null,55,105)
+  });
+
+  new Chart(document.getElementById('printSpo2Chart'), {
+    type:'line',
+    data:{ labels:days30, datasets:[{
+      data:spo2_30, borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.08)',
+      borderWidth:1.5, pointRadius:1.5, tension:0.3, fill:true
+    }]},
+    options: printOpts('SpO₂',null,92,101)
+  });
+
+  new Chart(document.getElementById('printSleepChart'), {
+    type:'bar',
+    data:{ labels:days30, datasets:[{
+      data:sleep30,
+      backgroundColor: sleep30.map(s => s>=7?'rgba(16,185,129,0.5)':'rgba(245,158,11,0.5)'),
+      borderWidth:0, borderRadius:2
+    }]},
+    options: printOpts('수면',null,0,10)
+  });
+
+  new Chart(document.getElementById('printStepsChart'), {
+    type:'bar',
+    data:{ labels:days30, datasets:[{
+      data:steps30, backgroundColor:'rgba(99,102,241,0.4)',
+      borderWidth:0, borderRadius:2
+    }]},
+    options: printOpts('걸음수',null,0,14000)
+  });
+</script>
+</body>
+</html>

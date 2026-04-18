@@ -1,0 +1,266 @@
+/* ==========================================================
+   print.css — A4 인쇄 / PDF 다운로드 레이아웃
+   ========================================================== */
+
+@media print {
+
+  /* ----------------------------------------------------------
+     1. 기본 설정
+     ---------------------------------------------------------- */
+  @page {
+    size: A4 portrait;
+    margin: 15mm;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body {
+    font-family: 'Noto Sans KR', 'Apple SD Gothic Neo',
+                 'Malgun Gothic', sans-serif;
+    font-size: 10pt;
+    line-height: 1.5;
+    color: #111827;
+    background: #ffffff;
+  }
+
+  /* ----------------------------------------------------------
+     2. 웹 전용 요소 숨김
+     ---------------------------------------------------------- */
+  .sidebar,
+  .main-header,
+  .btn--download,
+  .tabs,
+  .pagination,
+  .sidebar-overlay,
+  .menu-toggle,
+  .no-print {
+    display: none !important;
+  }
+
+  /* ----------------------------------------------------------
+     3. 콘텐츠 영역 리셋
+     ---------------------------------------------------------- */
+  .main-content {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  .print-container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* ----------------------------------------------------------
+     4. 인쇄용 헤더 (각 페이지 상단)
+     ---------------------------------------------------------- */
+  .print-header {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 8pt;
+    border-bottom: 2pt solid #1e3a5f;
+    margin-bottom: 16pt;
+  }
+
+  .print-header__logo {
+    display: flex;
+    align-items: center;
+    gap: 8pt;
+  }
+
+  .print-header__logo-text {
+    font-size: 14pt;
+    font-weight: 700;
+    color: #1e3a5f;
+  }
+
+  .print-header__meta {
+    text-align: right;
+    font-size: 8pt;
+    color: #6b7280;
+    line-height: 1.6;
+  }
+
+  /* ----------------------------------------------------------
+     5. 인쇄용 푸터 (각 페이지 하단)
+     ---------------------------------------------------------- */
+  .print-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 6pt;
+    border-top: 1pt solid #e5e7eb;
+    font-size: 7pt;
+    color: #9ca3af;
+  }
+
+  /* ----------------------------------------------------------
+     6. 1페이지 — 요약 섹션
+     ---------------------------------------------------------- */
+  .print-summary {
+    margin-bottom: 20pt;
+  }
+
+  .print-summary__patient {
+    display: flex;
+    gap: 24pt;
+    padding: 12pt;
+    background-color: #f3f4f6;
+    border-radius: 4pt;
+    margin-bottom: 12pt;
+  }
+
+  .print-summary__patient-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2pt;
+  }
+
+  .print-summary__patient-label {
+    font-size: 7pt;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .print-summary__patient-value {
+    font-size: 10pt;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .print-grade-box {
+    display: flex;
+    align-items: center;
+    gap: 12pt;
+    padding: 12pt 16pt;
+    border: 1.5pt solid;
+    border-radius: 4pt;
+    margin-bottom: 12pt;
+  }
+
+  .print-grade-box--normal   { border-color: #16a34a; background: #f0fdf4; }
+  .print-grade-box--caution  { border-color: #ca8a04; background: #fefce8; }
+  .print-grade-box--abnormal { border-color: #ea580c; background: #fff7ed; }
+  .print-grade-box--danger   { border-color: #dc2626; background: #fef2f2; }
+
+  .print-grade-label {
+    font-size: 9pt;
+    color: #374151;
+  }
+
+  .print-grade-value {
+    font-size: 16pt;
+    font-weight: 700;
+  }
+
+  .print-grade-box--normal   .print-grade-value { color: #16a34a; }
+  .print-grade-box--caution  .print-grade-value { color: #ca8a04; }
+  .print-grade-box--abnormal .print-grade-value { color: #ea580c; }
+  .print-grade-box--danger   .print-grade-value { color: #dc2626; }
+
+  .print-opinion {
+    padding: 10pt 12pt;
+    background-color: #f9fafb;
+    border-left: 3pt solid #2563eb;
+    font-size: 9pt;
+    line-height: 1.7;
+    color: #374151;
+    margin-bottom: 12pt;
+  }
+
+  /* ----------------------------------------------------------
+     7. 측정 데이터 테이블
+     ---------------------------------------------------------- */
+  .print-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+    margin-bottom: 16pt;
+  }
+
+  .print-table th {
+    background-color: #1e3a5f;
+    color: #ffffff;
+    padding: 5pt 8pt;
+    text-align: left;
+    font-size: 8pt;
+    font-weight: 600;
+  }
+
+  .print-table td {
+    padding: 4pt 8pt;
+    border-bottom: 0.5pt solid #e5e7eb;
+    color: #111827;
+  }
+
+  .print-table tr:nth-child(even) td {
+    background-color: #f9fafb;
+  }
+
+  /* ----------------------------------------------------------
+     8. 페이지 분할 제어
+     ---------------------------------------------------------- */
+  .print-section {
+    page-break-inside: avoid;
+    margin-bottom: 16pt;
+  }
+
+  .print-page-break {
+    page-break-before: always;
+  }
+
+  h2, h3 {
+    page-break-after: avoid;
+  }
+
+  table {
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+  }
+
+  /* ----------------------------------------------------------
+     9. 면책 고지 (마지막 페이지)
+     ---------------------------------------------------------- */
+  .print-disclaimer {
+    margin-top: 20pt;
+    padding: 10pt 12pt;
+    background-color: #f9fafb;
+    border: 0.5pt solid #e5e7eb;
+    border-radius: 3pt;
+    font-size: 7.5pt;
+    color: #6b7280;
+    line-height: 1.6;
+  }
+
+  .print-disclaimer__title {
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 4pt;
+  }
+}
+
+/* ----------------------------------------------------------
+   인쇄 미리보기용 (화면에서 print 클래스 적용 시 확인)
+   ---------------------------------------------------------- */
+.print-preview {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 15mm;
+  background: #ffffff;
+  box-shadow: var(--shadow-lg);
+  font-size: 10pt;
+  color: #111827;
+}

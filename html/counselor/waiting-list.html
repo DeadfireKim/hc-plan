@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>상담 대기 목록 — HC-Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <style>
+    /* 상담사 사이드바 색상 */
+    .sidebar { background: #1a2744; }
+
+    /* KPI */
+    .kpi-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+
+    .kpi-item {
+      background: var(--bg-base);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .kpi-item__icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .kpi-item__val {
+      font-size: var(--text-2xl);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+    }
+
+    .kpi-item__label {
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+
+    /* 대기 카드 그리드 */
+    .waiting-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+
+    .waiting-card {
+      background: var(--bg-base);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .waiting-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-1px);
+    }
+
+    .waiting-card--urgent { border-left: 4px solid var(--color-status-danger); }
+    .waiting-card--high   { border-left: 4px solid var(--color-status-caution); }
+    .waiting-card--normal { border-left: 4px solid var(--color-status-normal); }
+
+    .waiting-card__header {
+      padding: var(--space-4) var(--space-4) var(--space-3);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .waiting-card__user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .waiting-card__avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary-100);
+      color: var(--color-primary-700);
+      font-size: var(--text-base);
+      font-weight: var(--font-bold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .waiting-card__name {
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+      font-size: var(--text-sm);
+    }
+
+    .waiting-card__meta {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+
+    .waiting-card__grade {
+      font-size: 10px;
+      font-weight: var(--font-bold);
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+    }
+
+    .waiting-card__body {
+      padding: var(--space-2) var(--space-4) var(--space-3);
+    }
+
+    .waiting-card__reason {
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: var(--space-3);
+      background: var(--bg-surface);
+      border-radius: var(--radius-sm);
+      padding: var(--space-2) var(--space-3);
+    }
+
+    .waiting-card__metrics {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    .waiting-card__metric {
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    .waiting-card__metric strong {
+      color: var(--text-primary);
+      font-weight: var(--font-semibold);
+    }
+
+    .waiting-card__footer {
+      padding: var(--space-3) var(--space-4);
+      border-top: 1px solid var(--border-default);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .waiting-card__time {
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    /* 목록 테이블 탭 */
+    .view-toggle {
+      display: flex;
+      gap: var(--space-1);
+    }
+
+    .view-btn {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      background: var(--bg-base);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all var(--transition-fast);
+    }
+
+    .view-btn.active, .view-btn:hover {
+      background: var(--color-primary-600);
+      border-color: var(--color-primary-600);
+      color: #fff;
+    }
+
+    /* 완료 상담 테이블 */
+    .done-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-sm);
+    }
+
+    .done-table th {
+      background: var(--color-primary-700);
+      color: #fff;
+      padding: var(--space-2) var(--space-3);
+      text-align: left;
+      font-weight: var(--font-semibold);
+      font-size: var(--text-xs);
+    }
+
+    .done-table td {
+      padding: var(--space-2) var(--space-3);
+      border-bottom: 1px solid var(--border-default);
+      font-size: var(--text-sm);
+    }
+
+    .done-table tr:last-child td { border-bottom: none; }
+    .done-table tbody tr:hover td { background: var(--bg-surface); }
+
+    @media (max-width: 1100px) {
+      .kpi-bar { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- 사이드바 (상담사) -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <div class="sidebar__logo-icon">📞</div>
+      <div>
+        <div class="sidebar__logo-text">HC-Plan</div>
+        <div class="sidebar__logo-sub">상담사 포털</div>
+      </div>
+    </div>
+    <div class="sidebar__nav">
+      <div class="sidebar__section-label">상담 관리</div>
+      <a href="waiting-list.html" class="sidebar__item active">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        상담 대기 목록
+      </a>
+      <a href="customer-viewer.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        고객 뷰어
+      </a>
+      <a href="call-log.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        통화 기록 작성
+      </a>
+      <a href="register-user.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        사용자 대리 등록
+      </a>
+      <a href="period-manage.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        이용기간 관리
+      </a>
+    </div>
+    <div class="sidebar__footer">
+      <div class="sidebar__user">
+        <div class="sidebar__user-avatar">이</div>
+        <div class="sidebar__user-info">
+          <div class="sidebar__user-name">이수민</div>
+          <div class="sidebar__user-role">상담사</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <header class="main-header">
+    <div class="main-header__left">
+      <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="main-header__title">상담 대기 목록</div>
+    </div>
+    <div class="main-header__right">
+      <span style="font-size:var(--text-xs);color:var(--text-secondary)">오늘 2026.04.17 (목)</span>
+      <div class="view-toggle">
+        <button class="view-btn active" onclick="setView(this,'card')" title="카드 뷰">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </button>
+        <button class="view-btn" onclick="setView(this,'list')" title="목록 뷰">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <!-- KPI -->
+    <div class="kpi-bar">
+      <div class="kpi-item">
+        <div class="kpi-item__icon" style="background:rgba(239,68,68,0.12)">🚨</div>
+        <div>
+          <div class="kpi-item__val" style="color:var(--color-status-danger)">2</div>
+          <div class="kpi-item__label">긴급 상담 대기</div>
+        </div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-item__icon" style="background:rgba(245,158,11,0.12)">📋</div>
+        <div>
+          <div class="kpi-item__val">4</div>
+          <div class="kpi-item__label">오늘 총 대기</div>
+        </div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-item__icon" style="background:rgba(16,185,129,0.12)">✅</div>
+        <div>
+          <div class="kpi-item__val" style="color:var(--color-status-normal)">3</div>
+          <div class="kpi-item__label">오늘 완료</div>
+        </div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-item__icon" style="background:rgba(99,102,241,0.12)">📅</div>
+        <div>
+          <div class="kpi-item__val">2</div>
+          <div class="kpi-item__label">만료 임박 (7일)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 대기 중 섹션 -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-4)">
+      <h2 style="font-size:var(--text-base);font-weight:var(--font-semibold);color:var(--text-primary)">
+        상담 대기 중 <span style="font-size:var(--text-sm);color:var(--text-secondary)">(4건)</span>
+      </h2>
+    </div>
+
+    <div class="waiting-grid" id="waitingGrid"></div>
+
+    <!-- 오늘 완료된 상담 -->
+    <div style="margin-bottom:var(--space-4)">
+      <h2 style="font-size:var(--text-base);font-weight:var(--font-semibold);color:var(--text-primary)">
+        오늘 완료된 상담 <span style="font-size:var(--text-sm);color:var(--text-secondary)">(3건)</span>
+      </h2>
+    </div>
+
+    <div class="card">
+      <div class="card__body" style="padding:0">
+        <table class="done-table">
+          <thead>
+            <tr>
+              <th>완료 시간</th>
+              <th>고객명</th>
+              <th>상담 유형</th>
+              <th>통화 시간</th>
+              <th>요약</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:var(--text-secondary);font-size:var(--text-xs)">09:30</td>
+              <td style="font-weight:var(--font-semibold)">이서연</td>
+              <td><span style="font-size:10px;padding:2px 7px;border-radius:100px;background:rgba(16,185,129,0.12);color:var(--color-status-normal)">정기 상담</span></td>
+              <td style="font-size:var(--text-xs)">12분</td>
+              <td style="font-size:var(--text-xs);color:var(--text-secondary)">이번 주 활동량 증가 확인. 걸음수 목표 달성. 다음 상담 5월 예정.</td>
+              <td><button onclick="window.location='call-log.html'" style="padding:2px 8px;font-size:11px;border:1px solid var(--border-strong);border-radius:4px;background:var(--bg-base);cursor:pointer">기록 보기</button></td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-secondary);font-size:var(--text-xs)">10:15</td>
+              <td style="font-weight:var(--font-semibold)">박도현</td>
+              <td><span style="font-size:10px;padding:2px 7px;border-radius:100px;background:rgba(239,68,68,0.12);color:var(--color-status-danger)">긴급 상담</span></td>
+              <td style="font-size:var(--text-xs)">28분</td>
+              <td style="font-size:var(--text-xs);color:var(--text-secondary)">수면 무호흡 증상 상담. 수면클리닉 예약 완료 안내. 의사 소견 전달.</td>
+              <td><button onclick="window.location='call-log.html'" style="padding:2px 8px;font-size:11px;border:1px solid var(--border-strong);border-radius:4px;background:var(--bg-base);cursor:pointer">기록 보기</button></td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-secondary);font-size:var(--text-xs)">11:40</td>
+              <td style="font-weight:var(--font-semibold)">최지우</td>
+              <td><span style="font-size:10px;padding:2px 7px;border-radius:100px;background:rgba(245,158,11,0.12);color:var(--color-status-caution)">상태 확인</span></td>
+              <td style="font-size:var(--text-xs)">9분</td>
+              <td style="font-size:var(--text-xs);color:var(--text-secondary)">스트레스 지수 확인. 명상 앱 사용 독려. 주말 산책 권고.</td>
+              <td><button onclick="window.location='call-log.html'" style="padding:2px 8px;font-size:11px;border:1px solid var(--border-strong);border-radius:4px;background:var(--bg-base);cursor:pointer">기록 보기</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const waitingData = [
+    {
+      id:'u003', name:'박도현', avatar:'박', age:'58세/남', plan:'Demo',
+      grade:'danger', gradeLabel:'위험', gradeBg:'rgba(239,68,68,0.15)', gradeColor:'var(--color-status-danger)',
+      priority:'urgent',
+      reason:'의사 의견 전달 필요 — 수면클리닉 병원 예약 진행 요청',
+      metrics:{ hr:'96bpm', spo2:'93.2%', sleep:'4.8h', stress:'72' },
+      waiting:'2시간 20분 대기',
+      expiry:'2026.05.01 (15일 남음)'
+    },
+    {
+      id:'u005', name:'정태현', avatar:'정', age:'72세/남', plan:'Demo',
+      grade:'danger', gradeLabel:'위험', gradeBg:'rgba(239,68,68,0.15)', gradeColor:'var(--color-status-danger)',
+      priority:'urgent',
+      reason:'심박수 이상 — 외래 방문 동반 안내 및 가족 연락 필요',
+      metrics:{ hr:'102bpm', spo2:'92.5%', sleep:'5.1h', stress:'81' },
+      waiting:'1시간 45분 대기',
+      expiry:'2026.04.25 (8일 남음)'
+    },
+    {
+      id:'u001', name:'김민준', avatar:'김', age:'41세/남', plan:'Demo',
+      grade:'caution', gradeLabel:'주의', gradeBg:'rgba(245,158,11,0.15)', gradeColor:'var(--color-status-caution)',
+      priority:'high',
+      reason:'정기 상담 — 스트레스 관리 프로그램 안내 및 생활 습관 코칭',
+      metrics:{ hr:'76bpm', spo2:'96.8%', sleep:'6.8h', stress:'45' },
+      waiting:'45분 대기',
+      expiry:'2026.05.17 (30일 남음)'
+    },
+    {
+      id:'u002', name:'이서연', avatar:'이', age:'35세/여', plan:'Demo',
+      grade:'normal', gradeLabel:'정상', gradeBg:'rgba(16,185,129,0.15)', gradeColor:'var(--color-status-normal)',
+      priority:'normal',
+      reason:'이용기간 연장 문의 — Demo 종료 후 정규 플랜 전환 상담',
+      metrics:{ hr:'68bpm', spo2:'98.2%', sleep:'7.5h', stress:'28' },
+      waiting:'20분 대기',
+      expiry:'2026.04.30 (13일 남음)'
+    }
+  ];
+
+  function renderWaiting() {
+    document.getElementById('waitingGrid').innerHTML = waitingData.map(w => `
+      <div class="waiting-card waiting-card--${w.priority}" onclick="window.location='customer-viewer.html'">
+        <div class="waiting-card__header">
+          <div class="waiting-card__user">
+            <div class="waiting-card__avatar">${w.avatar}</div>
+            <div>
+              <div class="waiting-card__name">${w.name}</div>
+              <div class="waiting-card__meta">${w.age} · ${w.plan}</div>
+            </div>
+          </div>
+          <span class="waiting-card__grade" style="background:${w.gradeBg};color:${w.gradeColor}">${w.gradeLabel}</span>
+        </div>
+        <div class="waiting-card__body">
+          <div class="waiting-card__reason">${w.reason}</div>
+          <div class="waiting-card__metrics">
+            <span class="waiting-card__metric">심박 <strong>${w.metrics.hr}</strong></span>
+            <span class="waiting-card__metric">SpO₂ <strong>${w.metrics.spo2}</strong></span>
+            <span class="waiting-card__metric">수면 <strong>${w.metrics.sleep}</strong></span>
+            <span class="waiting-card__metric">스트레스 <strong>${w.metrics.stress}</strong></span>
+          </div>
+        </div>
+        <div class="waiting-card__footer">
+          <div class="waiting-card__time">⏱ ${w.waiting}</div>
+          <button onclick="event.stopPropagation();window.location='customer-viewer.html'"
+            style="padding:4px 12px;font-size:11px;font-weight:600;border:none;border-radius:4px;
+            background:var(--color-primary-600);color:#fff;cursor:pointer">
+            상담 시작
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function setView(el, view) {
+    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+  }
+
+  renderWaiting();
+</script>
+</body>
+</html>

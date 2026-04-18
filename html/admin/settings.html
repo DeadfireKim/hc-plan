@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>시스템 설정 — HC-Plan 관리자</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <style>
+    .settings-layout { display: grid; grid-template-columns: 220px 1fr; gap: var(--space-5); }
+
+    .settings-nav {
+      background: var(--bg-base); border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl); padding: var(--space-3); height: fit-content;
+    }
+    .settings-nav__item {
+      display: flex; align-items: center; gap: var(--space-3);
+      padding: var(--space-3); border-radius: var(--radius-md);
+      font-size: var(--text-sm); cursor: pointer; color: var(--text-primary);
+    }
+    .settings-nav__item:hover { background: var(--bg-surface); }
+    .settings-nav__item.active { background: var(--color-primary-50); color: var(--color-primary-700); font-weight: 600; }
+    .settings-nav__icon { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .settings-section { display: none; }
+    .settings-section.active { display: block; }
+
+    .settings-group {
+      background: var(--bg-base); border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl); padding: var(--space-5);
+      margin-bottom: var(--space-5);
+    }
+    .settings-group__title { font-size: var(--text-sm); font-weight: 700; color: var(--text-primary); margin-bottom: var(--space-4); }
+
+    .setting-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--space-3) 0; border-bottom: 1px solid var(--border-default);
+    }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-row__left { flex: 1; }
+    .setting-row__label { font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); }
+    .setting-row__desc { font-size: var(--text-xs); color: var(--text-secondary); margin-top: 2px; }
+    .setting-row__control { flex-shrink: 0; margin-left: var(--space-6); }
+
+    .toggle-switch {
+      width: 44px; height: 24px; border-radius: 100px;
+      border: none; cursor: pointer; position: relative;
+      transition: background 0.2s;
+    }
+    .toggle-switch::after {
+      content: ''; position: absolute;
+      top: 3px; left: 3px;
+      width: 18px; height: 18px; border-radius: 100px;
+      background: #fff; transition: left 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle-switch.on { background: var(--color-primary-600); }
+    .toggle-switch.on::after { left: 23px; }
+    .toggle-switch.off { background: var(--text-tertiary); }
+
+    .setting-input {
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+      font-size: var(--text-sm); outline: none; text-align: right;
+      width: 120px;
+    }
+    .setting-input:focus { border-color: var(--color-primary-500); }
+
+    .setting-select {
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+      font-size: var(--text-sm); outline: none; background: var(--bg-base);
+    }
+
+    .action-btn {
+      padding: var(--space-2) var(--space-4); font-size: var(--text-sm);
+      border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+      background: var(--bg-base); cursor: pointer; color: var(--text-primary); font-weight: 500;
+    }
+    .action-btn:hover { background: var(--bg-surface); }
+    .action-btn--primary { background: var(--color-primary-600); color: #fff; border-color: var(--color-primary-600); }
+    .action-btn--primary:hover { background: var(--color-primary-700); }
+    .action-btn--danger { color: var(--color-status-danger); border-color: rgba(239,68,68,0.3); }
+
+    .save-bar {
+      position: sticky; bottom: 0;
+      background: var(--bg-base); border-top: 1px solid var(--border-default);
+      padding: var(--space-4); display: flex; justify-content: flex-end; gap: var(--space-3);
+      margin-top: var(--space-5); margin-left: calc(-1 * var(--space-6));
+      margin-right: calc(-1 * var(--space-6)); padding-left: var(--space-6); padding-right: var(--space-6);
+    }
+
+    .badge-warning {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; padding: 2px 8px; border-radius: 100px;
+      background: rgba(234,88,12,0.1); color: var(--color-status-abnormal); font-weight: 600;
+    }
+
+    .api-key-row {
+      display: flex; gap: var(--space-2); align-items: center;
+    }
+    .api-key-input {
+      flex: 1; padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+      font-size: var(--text-sm); font-family: monospace; outline: none;
+      background: var(--bg-surface);
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <div class="sidebar__logo-icon">⚙️</div>
+      <div>
+        <div class="sidebar__logo-text">HC-Plan</div>
+        <div class="sidebar__logo-sub">관리자 포털</div>
+      </div>
+    </div>
+    <div class="sidebar__nav">
+      <div class="sidebar__section-label">운영 관리</div>
+      <a href="dashboard.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        운영 현황
+      </a>
+      <a href="users.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        사용자 관리
+      </a>
+      <a href="staff.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        직원 관리
+      </a>
+      <a href="codes.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        코드 관리
+      </a>
+      <a href="settings.html" class="sidebar__item active">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+        시스템 설정
+      </a>
+    </div>
+    <div class="sidebar__footer">
+      <div class="sidebar__user">
+        <div class="sidebar__user-avatar">관</div>
+        <div class="sidebar__user-info">
+          <div class="sidebar__user-name">관리자</div>
+          <div class="sidebar__user-role">시스템 관리자</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <header class="main-header">
+    <div class="main-header__left">
+      <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="main-header__title">시스템 설정</div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="settings-layout">
+
+      <!-- 설정 네비 -->
+      <div class="settings-nav">
+        <div class="settings-nav__item active" onclick="switchSection('general')">
+          <svg class="settings-nav__icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14"/></svg>
+          일반 설정
+        </div>
+        <div class="settings-nav__item" onclick="switchSection('alert')">
+          <svg class="settings-nav__icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          알림 설정
+        </div>
+        <div class="settings-nav__item" onclick="switchSection('data')">
+          <svg class="settings-nav__icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          데이터 관리
+        </div>
+        <div class="settings-nav__item" onclick="switchSection('integration')">
+          <svg class="settings-nav__icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          외부 연동
+        </div>
+        <div class="settings-nav__item" onclick="switchSection('security')">
+          <svg class="settings-nav__icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          보안 설정
+        </div>
+      </div>
+
+      <!-- 설정 컨텐츠 -->
+      <div>
+
+        <!-- 일반 설정 -->
+        <div class="settings-section active" id="section-general">
+          <div class="settings-group">
+            <div class="settings-group__title">서비스 기본 정보</div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">서비스명</div>
+                <div class="setting-row__desc">앱 및 보고서에 표시되는 서비스 이름</div>
+              </div>
+              <div class="setting-row__control">
+                <input class="setting-input" type="text" value="HC-Plan" style="width:160px;text-align:left">
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">서비스 언어</div>
+              </div>
+              <div class="setting-row__control">
+                <select class="setting-select">
+                  <option selected>한국어</option>
+                  <option>English</option>
+                  <option>日本語</option>
+                </select>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">시간대</div>
+              </div>
+              <div class="setting-row__control">
+                <select class="setting-select">
+                  <option selected>Asia/Seoul (UTC+9)</option>
+                  <option>UTC</option>
+                  <option>America/New_York</option>
+                </select>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">운영 모드</div>
+                <div class="setting-row__desc">프로덕션 / 스테이징 전환</div>
+              </div>
+              <div class="setting-row__control">
+                <select class="setting-select">
+                  <option selected>Production</option>
+                  <option>Staging</option>
+                  <option>Development</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <div class="settings-group__title">이용기간 기본값</div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">기본 구독 기간 (일)</div>
+                <div class="setting-row__desc">신규 등록 시 기본 이용기간</div>
+              </div>
+              <div class="setting-row__control">
+                <input class="setting-input" type="number" value="30">
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">만료 알림 기준 (일 전)</div>
+                <div class="setting-row__desc">이용기간 만료 며칠 전부터 알림 발송</div>
+              </div>
+              <div class="setting-row__control">
+                <input class="setting-input" type="number" value="7">
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">자동 연장 허용</div>
+              </div>
+              <div class="setting-row__control">
+                <button class="toggle-switch off" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 알림 설정 -->
+        <div class="settings-section" id="section-alert">
+          <div class="settings-group">
+            <div class="settings-group__title">자동 알림</div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">위험 등급 즉시 알림</div>
+                <div class="setting-row__desc">사용자가 위험 등급 판정 시 상담사에게 즉시 푸시 알림</div>
+              </div>
+              <div class="setting-row__control">
+                <button class="toggle-switch on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">이용기간 만료 알림 (사용자)</div>
+                <div class="setting-row__desc">만료 7일 전 사용자 앱 내 알림 및 이메일 발송</div>
+              </div>
+              <div class="setting-row__control">
+                <button class="toggle-switch on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">이용기간 만료 알림 (상담사)</div>
+              </div>
+              <div class="setting-row__control">
+                <button class="toggle-switch on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">기기 연동 끊김 알림</div>
+                <div class="setting-row__desc">웨어러블 기기 연결 해제 시 알림</div>
+              </div>
+              <div class="setting-row__control">
+                <button class="toggle-switch off" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+              </div>
+            </div>
+          </div>
+          <div class="settings-group">
+            <div class="settings-group__title">알림 채널</div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">이메일 알림</div>
+              </div>
+              <div class="setting-row__control">
+                <button class="toggle-switch on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">SMS 알림</div>
+                <div class="setting-row__desc">긴급 알림에 한해 SMS 발송</div>
+              </div>
+              <div class="setting-row__control">
+                <button class="toggle-switch on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">카카오 알림톡</div>
+              </div>
+              <div class="setting-row__control">
+                <button class="toggle-switch off" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 데이터 관리 -->
+        <div class="settings-section" id="section-data">
+          <div class="settings-group">
+            <div class="settings-group__title">데이터 보존 정책</div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">건강 데이터 보존 기간</div>
+                <div class="setting-row__desc">이용 종료 후 데이터 보존 기간 (법적 의무 3년 이상)</div>
+              </div>
+              <div class="setting-row__control">
+                <select class="setting-select">
+                  <option>3년</option>
+                  <option selected>5년</option>
+                  <option>10년</option>
+                </select>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">통화 기록 보존 기간</div>
+              </div>
+              <div class="setting-row__control">
+                <select class="setting-select">
+                  <option>1년</option>
+                  <option selected>3년</option>
+                  <option>5년</option>
+                </select>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">자동 백업</div>
+                <div class="setting-row__desc">매일 02:00 자동 백업 수행</div>
+              </div>
+              <div class="setting-row__control">
+                <button class="toggle-switch on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+              </div>
+            </div>
+          </div>
+          <div class="settings-group">
+            <div class="settings-group__title">데이터 작업</div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">전체 데이터 내보내기 (CSV)</div>
+                <div class="setting-row__desc">개인정보 마스킹 포함 내보내기</div>
+              </div>
+              <div class="setting-row__control">
+                <button class="action-btn" onclick="exportData()">내보내기</button>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">만료 데이터 정리 <span class="badge-warning">주의</span></div>
+                <div class="setting-row__desc">보존 기간 초과 데이터 일괄 삭제</div>
+              </div>
+              <div class="setting-row__control">
+                <button class="action-btn action-btn--danger" onclick="purgeData()">정리 실행</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 외부 연동 -->
+        <div class="settings-section" id="section-integration">
+          <div class="settings-group">
+            <div class="settings-group__title">API 키 관리</div>
+            <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:var(--space-2)">
+              <div class="setting-row__label">서비스 API 키</div>
+              <div class="api-key-row" style="width:100%">
+                <input class="api-key-input" type="password" value="hcp_sk_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxx" id="apiKey">
+                <button class="action-btn" onclick="toggleApiKey()">보기</button>
+                <button class="action-btn" onclick="regenKey()">재발급</button>
+              </div>
+            </div>
+          </div>
+          <div class="settings-group">
+            <div class="settings-group__title">웨어러블 기기 연동</div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">Samsung Health 연동</div>
+              </div>
+              <div class="setting-row__control" style="display:flex;align-items:center;gap:var(--space-2)">
+                <span style="font-size:11px;color:var(--color-status-normal);font-weight:600">● 연결됨</span>
+                <button class="action-btn">설정</button>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">Apple Health 연동</div>
+              </div>
+              <div class="setting-row__control" style="display:flex;align-items:center;gap:var(--space-2)">
+                <span style="font-size:11px;color:var(--color-status-normal);font-weight:600">● 연결됨</span>
+                <button class="action-btn">설정</button>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">Garmin Connect 연동</div>
+              </div>
+              <div class="setting-row__control" style="display:flex;align-items:center;gap:var(--space-2)">
+                <span style="font-size:11px;color:var(--text-tertiary);font-weight:600">○ 미연결</span>
+                <button class="action-btn action-btn--primary">연결</button>
+              </div>
+            </div>
+          </div>
+          <div class="settings-group">
+            <div class="settings-group__title">알림 서비스</div>
+            <div class="setting-row">
+              <div class="setting-row__left"><div class="setting-row__label">SMS (Cool SMS)</div></div>
+              <div class="setting-row__control" style="display:flex;align-items:center;gap:var(--space-2)">
+                <span style="font-size:11px;color:var(--color-status-normal);font-weight:600">● 연결됨</span>
+                <button class="action-btn">키 변경</button>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left"><div class="setting-row__label">카카오 알림톡</div></div>
+              <div class="setting-row__control" style="display:flex;align-items:center;gap:var(--space-2)">
+                <span style="font-size:11px;color:var(--text-tertiary);font-weight:600">○ 미연결</span>
+                <button class="action-btn action-btn--primary">연결</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 보안 설정 -->
+        <div class="settings-section" id="section-security">
+          <div class="settings-group">
+            <div class="settings-group__title">인증 정책</div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">2단계 인증 (직원 계정)</div>
+                <div class="setting-row__desc">관리자/의사/상담사 로그인 시 OTP 필수</div>
+              </div>
+              <div class="setting-row__control">
+                <button class="toggle-switch on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">세션 만료 시간 (분)</div>
+                <div class="setting-row__desc">비활성 상태에서 자동 로그아웃</div>
+              </div>
+              <div class="setting-row__control">
+                <input class="setting-input" type="number" value="30">
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">비밀번호 복잡도 강제</div>
+                <div class="setting-row__desc">영문+숫자+특수문자 8자 이상</div>
+              </div>
+              <div class="setting-row__control">
+                <button class="toggle-switch on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">로그인 실패 잠금 (횟수)</div>
+                <div class="setting-row__desc">연속 실패 시 계정 임시 잠금</div>
+              </div>
+              <div class="setting-row__control">
+                <input class="setting-input" type="number" value="5">
+              </div>
+            </div>
+          </div>
+          <div class="settings-group">
+            <div class="settings-group__title">개인정보 보호</div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">상담사 개인정보 마스킹</div>
+                <div class="setting-row__desc">상담사 화면에서 이메일/전화번호 자동 마스킹</div>
+              </div>
+              <div class="setting-row__control">
+                <button class="toggle-switch on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__left">
+                <div class="setting-row__label">접근 로그 기록</div>
+                <div class="setting-row__desc">직원의 개인정보 조회 이력 저장</div>
+              </div>
+              <div class="setting-row__control">
+                <button class="toggle-switch on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 저장 바 -->
+        <div class="save-bar">
+          <button class="action-btn" onclick="resetSettings()">초기화</button>
+          <button class="action-btn action-btn--primary" onclick="saveSettings()">설정 저장</button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+function switchSection(id) {
+  document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.settings-nav__item').forEach(i => i.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+function toggleApiKey() {
+  const inp = document.getElementById('apiKey');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function regenKey() {
+  if (confirm('API 키를 재발급하면 기존 키는 즉시 만료됩니다. 계속하시겠습니까?')) {
+    alert('새 API 키가 발급되었습니다. 이메일로 전송됩니다.');
+  }
+}
+
+function exportData() {
+  alert('데이터 내보내기가 시작되었습니다. 완료 시 이메일로 다운로드 링크를 보내드립니다.');
+}
+
+function purgeData() {
+  if (confirm('보존 기간이 초과된 데이터를 영구 삭제합니다. 이 작업은 되돌릴 수 없습니다.\n정말 실행하시겠습니까?')) {
+    alert('데이터 정리가 완료되었습니다.');
+  }
+}
+
+function resetSettings() {
+  if (confirm('모든 설정을 기본값으로 초기화하시겠습니까?')) {
+    alert('설정이 초기화되었습니다.');
+  }
+}
+
+function saveSettings() {
+  alert('설정이 저장되었습니다.');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('active');
+}
+</script>
+</body>
+</html>

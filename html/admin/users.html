@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>사용자 관리 — HC-Plan 관리자</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <style>
+    /* Toast */
+    .toast-stack { position:fixed; bottom:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:8px; }
+    .toast {
+      padding:12px 18px; border-radius:10px; font-size:var(--text-sm); font-weight:500;
+      color:#fff; box-shadow:0 4px 16px rgba(0,0,0,0.18);
+      animation: toastIn .2s ease; pointer-events:none; max-width:320px;
+    }
+    .toast--success { background:#16a34a; }
+    .toast--error   { background:#dc2626; }
+    .toast--info    { background:#2563eb; }
+    @keyframes toastIn { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
+
+    /* Bulk action bar */
+    .bulk-bar {
+      display:none; align-items:center; gap:var(--space-3);
+      background:var(--color-primary-50); border:1px solid var(--color-primary-200);
+      border-radius:var(--radius-xl); padding:var(--space-3) var(--space-4);
+      margin-bottom:var(--space-4); font-size:var(--text-sm);
+    }
+    .bulk-bar.visible { display:flex; }
+    .bulk-bar__count { font-weight:700; color:var(--color-primary-700); margin-right:auto; }
+
+    /* Filter bar */
+    .filter-bar { display:flex; gap:var(--space-3); flex-wrap:wrap; align-items:center; margin-bottom:var(--space-4); }
+    .filter-bar__search {
+      flex:1; min-width:200px; padding:var(--space-2) var(--space-3);
+      border:1px solid var(--border-strong); border-radius:var(--radius-md);
+      font-size:var(--text-sm); outline:none;
+    }
+    .filter-bar__search:focus { border-color:var(--color-primary-500); }
+    .filter-bar__select {
+      padding:var(--space-2) var(--space-3); border:1px solid var(--border-strong);
+      border-radius:var(--radius-md); font-size:var(--text-sm); outline:none; background:var(--bg-base);
+    }
+
+    /* Table */
+    .data-table { width:100%; border-collapse:collapse; font-size:var(--text-sm); }
+    .data-table th {
+      text-align:left; padding:var(--space-3) var(--space-4);
+      border-bottom:2px solid var(--border-default);
+      font-size:var(--text-xs); color:var(--text-secondary); font-weight:600; white-space:nowrap;
+    }
+    .data-table td {
+      padding:var(--space-3) var(--space-4);
+      border-bottom:1px solid var(--border-default);
+      color:var(--text-primary); vertical-align:middle;
+    }
+    .data-table tr:last-child td { border-bottom:none; }
+    .data-table tr:hover td { background:var(--bg-surface); }
+    .data-table tr.selected td { background:var(--color-primary-50); }
+
+    /* Buttons */
+    .action-btn {
+      padding:3px 10px; font-size:11px; border:1px solid var(--border-strong);
+      border-radius:var(--radius-md); background:var(--bg-base); cursor:pointer; color:var(--text-primary);
+    }
+    .action-btn:hover { background:var(--bg-surface); }
+    .action-btn--primary { background:var(--color-primary-600); color:#fff; border-color:var(--color-primary-600); }
+    .action-btn--primary:hover { background:var(--color-primary-700); }
+    .action-btn--danger { color:var(--color-status-danger); border-color:rgba(239,68,68,0.3); }
+
+    /* KPI */
+    .kpi-row { display:flex; gap:var(--space-4); margin-bottom:var(--space-5); }
+    .kpi-mini {
+      flex:1; padding:var(--space-4); background:var(--bg-base);
+      border:1px solid var(--border-default); border-radius:var(--radius-xl); text-align:center;
+    }
+    .kpi-mini__val { font-size:22px; font-weight:700; }
+    .kpi-mini__lbl { font-size:var(--text-xs); color:var(--text-secondary); margin-top:2px; }
+
+    /* Detail panel */
+    .detail-panel {
+      display:none; background:var(--bg-surface); border:1px solid var(--border-default);
+      border-radius:var(--radius-xl); padding:var(--space-5); margin-bottom:var(--space-5);
+    }
+    .detail-panel.open { display:block; }
+    .detail-panel__title { font-size:var(--text-base); font-weight:700; margin-bottom:var(--space-4); }
+    .detail-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-4); }
+    .detail-field label { font-size:var(--text-xs); color:var(--text-secondary); display:block; margin-bottom:4px; }
+    .detail-field input, .detail-field select {
+      width:100%; padding:var(--space-2) var(--space-3);
+      border:1px solid var(--border-strong); border-radius:var(--radius-md);
+      font-size:var(--text-sm); outline:none;
+    }
+    .detail-field input:focus, .detail-field select:focus { border-color:var(--color-primary-500); }
+
+    /* Pagination */
+    .pagination { display:flex; gap:var(--space-2); justify-content:center; margin-top:var(--space-5); align-items:center; }
+    .page-btn {
+      width:34px; height:34px; border:1px solid var(--border-default);
+      border-radius:var(--radius-md); background:var(--bg-base); cursor:pointer;
+      font-size:var(--text-sm); display:flex; align-items:center; justify-content:center;
+    }
+    .page-btn:hover:not(:disabled) { background:var(--bg-surface); }
+    .page-btn--active { background:var(--color-primary-600); color:#fff; border-color:var(--color-primary-600); }
+    .page-btn:disabled { opacity:0.4; cursor:not-allowed; }
+    .page-info { font-size:var(--text-xs); color:var(--text-secondary); }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <div class="sidebar__logo-icon">⚙️</div>
+      <div>
+        <div class="sidebar__logo-text">HC-Plan</div>
+        <div class="sidebar__logo-sub">관리자 포털</div>
+      </div>
+    </div>
+    <div class="sidebar__nav">
+      <div class="sidebar__section-label">운영 관리</div>
+      <a href="dashboard.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        운영 현황
+      </a>
+      <a href="users.html" class="sidebar__item active">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        사용자 관리
+      </a>
+      <a href="staff.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        직원 관리
+      </a>
+      <a href="codes.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        코드 관리
+      </a>
+      <a href="settings.html" class="sidebar__item">
+        <svg class="sidebar__item-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+        시스템 설정
+      </a>
+    </div>
+    <div class="sidebar__footer">
+      <div class="sidebar__user">
+        <div class="sidebar__user-avatar">관</div>
+        <div class="sidebar__user-info">
+          <div class="sidebar__user-name">관리자</div>
+          <div class="sidebar__user-role">시스템 관리자</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <header class="main-header">
+    <div class="main-header__left">
+      <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="main-header__title">사용자 관리</div>
+    </div>
+    <div class="main-header__right" style="display:flex;gap:var(--space-2)">
+      <button class="action-btn" onclick="exportCSV()">CSV 내보내기</button>
+      <button class="action-btn action-btn--primary" onclick="openNew()">+ 신규 등록</button>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <!-- KPI -->
+    <div class="kpi-row">
+      <div class="kpi-mini"><div class="kpi-mini__val" id="kpiTotal">—</div><div class="kpi-mini__lbl">전체 사용자</div></div>
+      <div class="kpi-mini"><div class="kpi-mini__val" id="kpiActive">—</div><div class="kpi-mini__lbl">활성 구독</div></div>
+      <div class="kpi-mini"><div class="kpi-mini__val" id="kpiExpiring" style="color:var(--color-status-danger)">—</div><div class="kpi-mini__lbl">7일 내 만료</div></div>
+      <div class="kpi-mini"><div class="kpi-mini__val" id="kpiDanger" style="color:var(--color-status-danger)">—</div><div class="kpi-mini__lbl">위험 등급</div></div>
+      <div class="kpi-mini"><div class="kpi-mini__val" id="kpiExpired">—</div><div class="kpi-mini__lbl">만료/정지</div></div>
+    </div>
+
+    <!-- 편집 패널 -->
+    <div class="detail-panel" id="detailPanel">
+      <div class="detail-panel__title" id="detailTitle">사용자 편집</div>
+      <div class="detail-grid">
+        <div class="detail-field"><label>이름</label><input type="text" id="dName"></div>
+        <div class="detail-field"><label>이메일</label><input type="email" id="dEmail"></div>
+        <div class="detail-field"><label>전화번호</label><input type="text" id="dPhone"></div>
+        <div class="detail-field"><label>생년월일</label><input type="date" id="dBirth"></div>
+        <div class="detail-field"><label>성별</label>
+          <select id="dGender"><option>남성</option><option>여성</option></select>
+        </div>
+        <div class="detail-field"><label>플랜</label>
+          <select id="dPlan"><option>Basic</option><option>Standard</option><option>Premium</option><option>Demo</option></select>
+        </div>
+        <div class="detail-field"><label>이용 시작</label><input type="date" id="dStart"></div>
+        <div class="detail-field"><label>이용 만료</label><input type="date" id="dEnd"></div>
+        <div class="detail-field"><label>상태</label>
+          <select id="dStatus"><option>활성</option><option>만료</option><option>정지</option></select>
+        </div>
+      </div>
+      <div style="display:flex;gap:var(--space-3);justify-content:flex-end;margin-top:var(--space-4)">
+        <button class="action-btn" onclick="closeDetail()">취소</button>
+        <button class="action-btn action-btn--primary" onclick="saveDetail()">저장</button>
+      </div>
+    </div>
+
+    <!-- 일괄 작업 바 -->
+    <div class="bulk-bar" id="bulkBar">
+      <span class="bulk-bar__count" id="bulkCount">0명 선택됨</span>
+      <select id="bulkPlan" class="filter-bar__select" style="font-size:var(--text-xs)">
+        <option value="">플랜 일괄 변경...</option>
+        <option>Basic</option><option>Standard</option><option>Premium</option><option>Demo</option>
+      </select>
+      <button class="action-btn action-btn--primary" onclick="applyBulkPlan()">적용</button>
+      <button class="action-btn" onclick="extendBulk()">+30일 연장</button>
+      <button class="action-btn action-btn--danger" onclick="deleteBulk()">선택 삭제</button>
+      <button class="action-btn" style="margin-left:auto" onclick="clearSelection()">선택 해제</button>
+    </div>
+
+    <!-- 필터 -->
+    <div class="filter-bar">
+      <input class="filter-bar__search" type="text" id="searchInput" placeholder="이름, 이메일, ID 검색..." oninput="applyFilter()">
+      <select class="filter-bar__select" id="gradeFilter" onchange="applyFilter()">
+        <option value="">전체 등급</option>
+        <option value="정상">정상</option><option value="주의">주의</option>
+        <option value="이상">이상</option><option value="위험">위험</option>
+      </select>
+      <select class="filter-bar__select" id="planFilter" onchange="applyFilter()">
+        <option value="">전체 플랜</option>
+        <option>Basic</option><option>Standard</option><option>Premium</option><option>Demo</option>
+      </select>
+      <select class="filter-bar__select" id="statusFilter" onchange="applyFilter()">
+        <option value="">전체 상태</option>
+        <option>활성</option><option>만료</option><option>정지</option>
+      </select>
+      <span id="resultCount" style="font-size:var(--text-xs);color:var(--text-secondary);white-space:nowrap"></span>
+    </div>
+
+    <!-- 테이블 -->
+    <div class="card">
+      <div class="card__body" style="padding:0">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:36px"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"></th>
+              <th>ID</th>
+              <th>이름</th>
+              <th>이메일</th>
+              <th>나이/성별</th>
+              <th>플랜</th>
+              <th>이용 만료</th>
+              <th>등급</th>
+              <th>상태</th>
+              <th>담당 상담사</th>
+              <th>액션</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 페이지네이션 -->
+    <div class="pagination" id="pagination"></div>
+
+  </main>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script>
+const PAGE_SIZE = 8;
+let currentPage = 1;
+let filteredData = [];
+let editingId = null;
+let selectedIds = new Set();
+
+const users = [
+  { id:'u001', name:'김지수',  email:'kim****@example.com', age:42, gender:'여성', plan:'Premium',  end:'2026-12-31', grade:'정상', status:'활성', counselor:'이수민', birth:'1983-08-12', phone:'010-****-1234', start:'2026-01-01' },
+  { id:'u002', name:'이준혁',  email:'lee****@example.com', age:35, gender:'남성', plan:'Standard', end:'2026-07-15', grade:'주의', status:'활성', counselor:'박지훈', birth:'1990-03-25', phone:'010-****-5678', start:'2026-01-15' },
+  { id:'u003', name:'박도현',  email:'par****@example.com', age:58, gender:'남성', plan:'Demo',     end:'2026-05-01', grade:'위험', status:'활성', counselor:'이수민', birth:'1967-11-05', phone:'010-****-5678', start:'2026-04-01' },
+  { id:'u004', name:'정수아',  email:'chu****@example.com', age:29, gender:'여성', plan:'Basic',    end:'2026-06-30', grade:'정상', status:'활성', counselor:'이수민', birth:'1996-07-20', phone:'010-****-9012', start:'2025-12-01' },
+  { id:'u005', name:'최은서',  email:'cho****@example.com', age:51, gender:'여성', plan:'Premium',  end:'2026-09-22', grade:'위험', status:'활성', counselor:'박지훈', birth:'1974-02-14', phone:'010-****-3456', start:'2026-03-22' },
+  { id:'u006', name:'홍재민',  email:'hon****@example.com', age:44, gender:'남성', plan:'Standard', end:'2026-08-10', grade:'이상', status:'활성', counselor:'이수민', birth:'1981-09-30', phone:'010-****-7890', start:'2026-02-10' },
+  { id:'u007', name:'윤서연',  email:'yun****@example.com', age:33, gender:'여성', plan:'Basic',    end:'2026-03-31', grade:'정상', status:'만료', counselor:'박지훈', birth:'1992-04-18', phone:'010-****-2345', start:'2025-04-01' },
+  { id:'u008', name:'임도훈',  email:'lim****@example.com', age:67, gender:'남성', plan:'Premium',  end:'2027-01-15', grade:'주의', status:'활성', counselor:'이수민', birth:'1958-12-03', phone:'010-****-6789', start:'2026-01-15' },
+  { id:'u009', name:'강민지',  email:'kan****@example.com', age:27, gender:'여성', plan:'Standard', end:'2026-05-28', grade:'정상', status:'활성', counselor:'박지훈', birth:'1998-06-10', phone:'010-****-0123', start:'2026-04-28' },
+  { id:'u010', name:'서태양',  email:'seo****@example.com', age:39, gender:'남성', plan:'Basic',    end:'2026-02-20', grade:'이상', status:'정지', counselor:'이수민', birth:'1986-01-22', phone:'010-****-4567', start:'2025-08-20' },
+  { id:'u011', name:'나영현',  email:'nay****@example.com', age:55, gender:'남성', plan:'Premium',  end:'2026-11-05', grade:'주의', status:'활성', counselor:'박지훈', birth:'1970-05-15', phone:'010-****-1111', start:'2026-02-01' },
+  { id:'u012', name:'오지영',  email:'ozy****@example.com', age:31, gender:'여성', plan:'Standard', end:'2026-04-25', grade:'이상', status:'활성', counselor:'이수민', birth:'1994-12-08', phone:'010-****-2222', start:'2026-01-25' },
+];
+
+const gradeColor = { 정상:'var(--color-status-normal)', 주의:'var(--color-status-caution)', 이상:'var(--color-status-abnormal)', 위험:'var(--color-status-danger)' };
+const statusColor = { 활성:'var(--color-status-normal)', 만료:'var(--text-tertiary)', 정지:'var(--color-status-danger)' };
+
+function toast(msg, type='success') {
+  const el = document.createElement('div');
+  el.className = `toast toast--${type}`;
+  el.textContent = msg;
+  document.getElementById('toastStack').appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+function fmtDate(iso) { return iso ? iso.replace(/-/g, '.') : '—'; }
+function daysLeft(iso) {
+  const diff = (new Date(iso) - new Date()) / 86400000;
+  return Math.ceil(diff);
+}
+
+function applyFilter() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const gf = document.getElementById('gradeFilter').value;
+  const pf = document.getElementById('planFilter').value;
+  const sf = document.getElementById('statusFilter').value;
+  filteredData = users.filter(u =>
+    (!q || u.name.includes(q) || u.email.includes(q) || u.id.includes(q)) &&
+    (!gf || u.grade === gf) &&
+    (!pf || u.plan === pf) &&
+    (!sf || u.status === sf)
+  );
+  document.getElementById('resultCount').textContent = `${filteredData.length}명`;
+  currentPage = 1;
+  renderTable();
+  renderPagination();
+}
+
+function renderTable() {
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const page = filteredData.slice(start, start + PAGE_SIZE);
+  const allPageSelected = page.length > 0 && page.every(u => selectedIds.has(u.id));
+  document.getElementById('selectAll').checked = allPageSelected;
+  document.getElementById('selectAll').indeterminate = !allPageSelected && page.some(u => selectedIds.has(u.id));
+
+  document.getElementById('tableBody').innerHTML = page.map(u => {
+    const dl = daysLeft(u.end);
+    const expireBadge = dl <= 7 && u.status === '활성'
+      ? `<span style="font-size:10px;margin-left:4px;color:var(--color-status-danger);font-weight:600">D-${dl}</span>` : '';
+    return `
+    <tr class="${selectedIds.has(u.id) ? 'selected' : ''}">
+      <td><input type="checkbox" ${selectedIds.has(u.id)?'checked':''} onchange="toggleRow('${u.id}',this)"></td>
+      <td style="color:var(--text-tertiary);font-size:11px">${u.id}</td>
+      <td><strong>${u.name}</strong></td>
+      <td style="color:var(--text-secondary);font-size:12px">${u.email}</td>
+      <td>${u.age}세 / ${u.gender}</td>
+      <td><span style="font-size:11px;padding:2px 8px;border-radius:100px;background:var(--color-primary-50);color:var(--color-primary-700);font-weight:600">${u.plan}</span></td>
+      <td style="font-size:12px">${fmtDate(u.end)}${expireBadge}</td>
+      <td><span style="font-size:11px;display:inline-flex;align-items:center;gap:4px">
+        <span style="width:7px;height:7px;border-radius:50%;background:${gradeColor[u.grade]};display:inline-block"></span>${u.grade}
+      </span></td>
+      <td><span style="font-size:11px;font-weight:600;color:${statusColor[u.status]}">${u.status}</span></td>
+      <td style="font-size:12px">${u.counselor}</td>
+      <td>
+        <div style="display:flex;gap:4px">
+          <button class="action-btn" onclick="openDetail('${u.id}')">편집</button>
+          <button class="action-btn action-btn--danger" onclick="deleteOne('${u.id}')">삭제</button>
+        </div>
+      </td>
+    </tr>`
+  }).join('');
+
+  updateBulkBar();
+  updateKpi();
+}
+
+function renderPagination() {
+  const total = Math.ceil(filteredData.length / PAGE_SIZE);
+  if (total <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
+  let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>&#8249;</button>`;
+  for (let i = 1; i <= total; i++) {
+    if (total > 7 && Math.abs(i - currentPage) > 2 && i !== 1 && i !== total) {
+      if (i === 2 || i === total - 1) html += `<span style="padding:0 4px;color:var(--text-tertiary)">…</span>`;
+      continue;
+    }
+    html += `<button class="page-btn ${i===currentPage?'page-btn--active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===total?'disabled':''}>&#8250;</button>`;
+  html += `<span class="page-info">${filteredData.length}명 중 ${Math.min((currentPage-1)*PAGE_SIZE+1, filteredData.length)}–${Math.min(currentPage*PAGE_SIZE, filteredData.length)}</span>`;
+  document.getElementById('pagination').innerHTML = html;
+}
+
+function goPage(p) {
+  const total = Math.ceil(filteredData.length / PAGE_SIZE);
+  if (p < 1 || p > total) return;
+  currentPage = p;
+  renderTable();
+  renderPagination();
+}
+
+function updateKpi() {
+  document.getElementById('kpiTotal').textContent = users.length.toLocaleString();
+  document.getElementById('kpiActive').textContent = users.filter(u => u.status === '활성').length;
+  document.getElementById('kpiExpiring').textContent = users.filter(u => u.status === '활성' && daysLeft(u.end) <= 7).length;
+  document.getElementById('kpiDanger').textContent = users.filter(u => u.grade === '위험').length;
+  document.getElementById('kpiExpired').textContent = users.filter(u => u.status !== '활성').length;
+}
+
+// Selection
+function toggleRow(id, cb) {
+  if (cb.checked) selectedIds.add(id); else selectedIds.delete(id);
+  renderTable();
+}
+function toggleSelectAll(cb) {
+  const start = (currentPage-1)*PAGE_SIZE;
+  const page = filteredData.slice(start, start+PAGE_SIZE);
+  page.forEach(u => cb.checked ? selectedIds.add(u.id) : selectedIds.delete(u.id));
+  renderTable();
+}
+function clearSelection() { selectedIds.clear(); renderTable(); }
+function updateBulkBar() {
+  const bar = document.getElementById('bulkBar');
+  if (selectedIds.size > 0) {
+    bar.classList.add('visible');
+    document.getElementById('bulkCount').textContent = `${selectedIds.size}명 선택됨`;
+  } else {
+    bar.classList.remove('visible');
+  }
+}
+
+// Bulk actions
+function applyBulkPlan() {
+  const plan = document.getElementById('bulkPlan').value;
+  if (!plan) { toast('변경할 플랜을 선택하세요', 'error'); return; }
+  users.forEach(u => { if (selectedIds.has(u.id)) u.plan = plan; });
+  toast(`${selectedIds.size}명의 플랜이 ${plan}으로 변경되었습니다`);
+  clearSelection(); applyFilter();
+}
+function extendBulk() {
+  if (selectedIds.size === 0) return;
+  users.forEach(u => {
+    if (selectedIds.has(u.id)) {
+      const d = new Date(u.end); d.setDate(d.getDate()+30);
+      u.end = d.toISOString().slice(0,10);
+    }
+  });
+  toast(`${selectedIds.size}명 이용기간이 30일 연장되었습니다`);
+  clearSelection(); applyFilter();
+}
+function deleteBulk() {
+  if (!confirm(`선택한 ${selectedIds.size}명을 삭제하시겠습니까?`)) return;
+  const ids = new Set(selectedIds);
+  for (let i = users.length - 1; i >= 0; i--) {
+    if (ids.has(users[i].id)) users.splice(i, 1);
+  }
+  toast(`${ids.size}명이 삭제되었습니다`, 'info');
+  clearSelection(); applyFilter();
+}
+
+// CRUD
+function openDetail(id) {
+  const u = users.find(x => x.id === id);
+  editingId = id;
+  document.getElementById('detailTitle').textContent = `사용자 편집 — ${u.name} (${u.id})`;
+  document.getElementById('dName').value = u.name;
+  document.getElementById('dEmail').value = u.email;
+  document.getElementById('dPhone').value = u.phone;
+  document.getElementById('dBirth').value = u.birth;
+  document.getElementById('dGender').value = u.gender;
+  document.getElementById('dPlan').value = u.plan;
+  document.getElementById('dStart').value = u.start;
+  document.getElementById('dEnd').value = u.end;
+  document.getElementById('dStatus').value = u.status;
+  const panel = document.getElementById('detailPanel');
+  panel.classList.add('open');
+  panel.scrollIntoView({ behavior:'smooth' });
+}
+
+function openNew() {
+  editingId = null;
+  document.getElementById('detailTitle').textContent = '신규 사용자 등록';
+  ['dName','dEmail','dPhone','dBirth','dStart','dEnd'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('dGender').value = '남성';
+  document.getElementById('dPlan').value = 'Basic';
+  document.getElementById('dStatus').value = '활성';
+  document.getElementById('detailPanel').classList.add('open');
+  document.getElementById('detailPanel').scrollIntoView({ behavior:'smooth' });
+}
+
+function closeDetail() { document.getElementById('detailPanel').classList.remove('open'); editingId = null; }
+
+function saveDetail() {
+  const name = document.getElementById('dName').value.trim();
+  if (!name) { toast('이름을 입력하세요', 'error'); return; }
+  if (editingId) {
+    const u = users.find(x => x.id === editingId);
+    u.name   = name;
+    u.email  = document.getElementById('dEmail').value;
+    u.phone  = document.getElementById('dPhone').value;
+    u.birth  = document.getElementById('dBirth').value;
+    u.gender = document.getElementById('dGender').value;
+    u.plan   = document.getElementById('dPlan').value;
+    u.start  = document.getElementById('dStart').value;
+    u.end    = document.getElementById('dEnd').value;
+    u.status = document.getElementById('dStatus').value;
+    toast(`${name} 정보가 저장되었습니다`);
+  } else {
+    const newId = 'u' + String(users.length + 1).padStart(3, '0');
+    users.push({
+      id: newId, name,
+      email:  document.getElementById('dEmail').value || 'new@example.com',
+      phone:  document.getElementById('dPhone').value || '010-****-0000',
+      birth:  document.getElementById('dBirth').value,
+      age:    new Date().getFullYear() - new Date(document.getElementById('dBirth').value).getFullYear() || 0,
+      gender: document.getElementById('dGender').value,
+      plan:   document.getElementById('dPlan').value,
+      start:  document.getElementById('dStart').value,
+      end:    document.getElementById('dEnd').value,
+      grade: '정상', status: '활성', counselor: '미배정'
+    });
+    toast(`${name} 등록이 완료되었습니다`);
+  }
+  closeDetail();
+  applyFilter();
+}
+
+function deleteOne(id) {
+  const u = users.find(x => x.id === id);
+  if (!confirm(`${u.name}(${id})을 삭제하시겠습니까?`)) return;
+  users.splice(users.indexOf(u), 1);
+  toast(`${u.name}이 삭제되었습니다`, 'info');
+  applyFilter();
+}
+
+// CSV export
+function exportCSV() {
+  const cols = ['ID','이름','이메일','나이','성별','플랜','시작일','만료일','등급','상태','담당상담사'];
+  const rows = filteredData.map(u => [u.id,u.name,u.email,u.age,u.gender,u.plan,u.start,u.end,u.grade,u.status,u.counselor]);
+  const csv = [cols, ...rows].map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent('\uFEFF' + csv);
+  a.download = `hcplan_users_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast(`${filteredData.length}명 데이터를 내보냈습니다`);
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
+applyFilter();
+</script>
+</body>
+</html>
