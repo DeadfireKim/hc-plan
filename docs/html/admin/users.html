@@ -593,17 +593,29 @@ applyFilter();
 
   // 사이드바 접기/펼치기
   function toggleSidebar() {
-    if (window.innerWidth <= 768) {
-      const sidebar = document.querySelector('.sidebar');
-      const overlay = document.getElementById('sidebar-overlay');
-      sidebar.classList.toggle('open');
-      if (overlay) overlay.classList.toggle('visible');
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    if (isMobile) {
+      const isOpen = sidebar.classList.contains('open');
+      if (isOpen) {
+        sidebar.style.transform = 'translateX(-240px)';
+        sidebar.classList.remove('open');
+        if (overlay) overlay.classList.remove('visible');
+      } else {
+        sidebar.style.transform = 'translateX(0)';
+        sidebar.style.width = '240px';
+        sidebar.classList.add('open');
+        if (overlay) overlay.classList.add('visible');
+      }
     } else {
       document.body.classList.toggle('sidebar-collapsed');
     }
   }
   function closeMobileSidebar() {
-    document.querySelector('.sidebar').classList.remove('open');
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.style.transform = 'translateX(-240px)';
+    sidebar.classList.remove('open');
     const ov = document.getElementById('sidebar-overlay');
     if (ov) ov.classList.remove('visible');
   }
