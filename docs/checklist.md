@@ -8,6 +8,8 @@
 
 ## 폴더 구조
 
+- docs/html 경로에 구현
+
 ```
 html/
 ├── assets/
