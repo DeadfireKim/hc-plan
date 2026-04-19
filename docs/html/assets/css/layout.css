@@ -290,7 +290,7 @@
 
   .main-header {
     left: 0;
-    padding: 0 var(--space-4);
+    padding: 0 var(--space-4) 0 56px;
   }
 
   .grid-2,

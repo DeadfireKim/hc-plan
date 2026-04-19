@@ -155,6 +155,11 @@
     }
     .sidebar-open-btn:hover { background: var(--color-primary-600); }
     body.sidebar-collapsed .sidebar-open-btn { display: flex; }
+
+    /* 모바일: 사이드바 열기 버튼 항상 표시 */
+    @media (max-width: 768px) {
+      .sidebar-open-btn { display: flex; }
+    }
   </style>
 </head>
 <body>
@@ -346,8 +351,21 @@
 
   // 사이드바 접기/펼치기
   function toggleSidebar() {
-    document.body.classList.toggle('sidebar-collapsed');
+    if (window.innerWidth <= 768) {
+      const sidebar = document.querySelector('.sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      sidebar.classList.toggle('open');
+      if (overlay) overlay.classList.toggle('visible');
+    } else {
+      document.body.classList.toggle('sidebar-collapsed');
+    }
+  }
+  function closeMobileSidebar() {
+    document.querySelector('.sidebar').classList.remove('open');
+    const ov = document.getElementById('sidebar-overlay');
+    if (ov) ov.classList.remove('visible');
   }
 </script>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
 </body>
 </html>
