@@ -1,0 +1,675 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>관리자 포털 - 또래 평균 관리</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #F4F6F9;
+      color: #1A2332;
+      min-width: 1280px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── 헤더 ── */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 60px;
+      background: #FFFFFF;
+      border-bottom: 1px solid #D1D9E6;
+      display: flex; align-items: center;
+      padding: 0 24px;
+      gap: 12px;
+    }
+    .header-logo { display: flex; align-items: center; gap: 10px; width: 216px; }
+    .logo-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, #2B7FE0, #34C4A0);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 16px; font-weight: 700;
+    }
+    .logo-text { font-size: 15px; font-weight: 700; color: #1A2332; }
+    .logo-sub  { font-size: 11px; color: #546E7A; margin-top: 1px; }
+    .header-divider { width: 1px; height: 28px; background: #D1D9E6; margin: 0 8px; }
+    .header-title { font-size: 14px; font-weight: 600; color: #2B7FE0; flex: 1; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .header-notif {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #F4F6F9; border: 1px solid #D1D9E6;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative; font-size: 16px;
+    }
+    .notif-badge {
+      position: absolute; top: -3px; right: -3px;
+      background: #E53935; color: #fff;
+      font-size: 9px; font-weight: 700;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid #fff;
+    }
+    .header-user { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .user-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #2B7FE0, #1A5FB4);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 13px; font-weight: 600;
+    }
+    .user-info { display: flex; flex-direction: column; }
+    .user-name  { font-size: 13px; font-weight: 600; color: #1A2332; }
+    .user-role  { font-size: 11px; color: #546E7A; }
+
+    /* ── 레이아웃 ── */
+    .layout { display: flex; padding-top: 60px; height: 100vh; }
+
+    /* ── 사이드바 ── */
+    .sidebar {
+      width: 240px; min-width: 240px;
+      background: #FFFFFF;
+      border-right: 1px solid #D1D9E6;
+      display: flex; flex-direction: column;
+      padding: 20px 0;
+      overflow-y: auto;
+      position: fixed; top: 60px; bottom: 0; left: 0;
+    }
+    .nav-section-label {
+      font-size: 10px; font-weight: 600; color: #546E7A;
+      letter-spacing: 0.8px; text-transform: uppercase;
+      padding: 0 20px 8px; margin-top: 8px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px 10px 10px; cursor: pointer;
+      font-size: 14px; color: #546E7A;
+      border-left: 3px solid transparent;
+      transition: all 0.15s; text-decoration: none;
+    }
+    .nav-item:hover { background: #F4F6F9; color: #1A2332; }
+    .nav-item.active {
+      background: #EBF3FF; color: #2B7FE0;
+      border-left-color: #2B7FE0; font-weight: 600;
+    }
+    .nav-icon { font-size: 17px; width: 20px; text-align: center; }
+    .nav-badge {
+      margin-left: auto; background: #E53935; color: #fff;
+      font-size: 10px; font-weight: 700;
+      padding: 1px 6px; border-radius: 10px;
+    }
+    .nav-badge.yellow { background: #F5A623; }
+    .sidebar-footer {
+      margin-top: auto; padding: 16px 20px;
+      border-top: 1px solid #D1D9E6;
+    }
+    .sidebar-footer-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; cursor: pointer;
+      font-size: 13px; color: #546E7A; text-decoration: none;
+    }
+    .sidebar-footer-item:hover { color: #1A2332; }
+
+    /* ── 메인 콘텐츠 ── */
+    .main {
+      flex: 1; margin-left: 240px;
+      padding: 32px; overflow-y: auto;
+      height: calc(100vh - 60px);
+    }
+
+    .page-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .page-title { font-size: 22px; font-weight: 700; color: #1A2332; }
+    .page-subtitle { font-size: 13px; color: #546E7A; margin-top: 4px; }
+    .page-actions { display: flex; gap: 10px; }
+
+    /* ── 버튼 ── */
+    .btn {
+      height: 40px; padding: 0 18px; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      border: none; display: inline-flex; align-items: center; gap: 6px;
+      transition: background 0.15s;
+    }
+    .btn-primary { background: #2B7FE0; color: #fff; }
+    .btn-primary:hover { background: #1A5FB4; }
+    .btn-outline { background: #fff; color: #2B7FE0; border: 1px solid #2B7FE0; }
+    .btn-outline:hover { background: #EBF3FF; }
+    .btn-sm { height: 34px; padding: 0 14px; font-size: 13px; }
+
+    /* ── 카드 ── */
+    .card {
+      background: #fff; border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 24px; overflow: hidden;
+    }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px; border-bottom: 1px solid #F0F2F5;
+    }
+    .card-title { font-size: 15px; font-weight: 700; color: #1A2332; }
+    .card-desc  { font-size: 12px; color: #546E7A; margin-top: 3px; }
+
+    /* ── 필터 탭 ── */
+    .filter-row {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 24px; border-bottom: 1px solid #F0F2F5;
+      background: #F8FAFF;
+    }
+    .filter-label { font-size: 12px; font-weight: 600; color: #546E7A; white-space: nowrap; }
+    .tab-group { display: flex; gap: 4px; }
+    .tab-btn {
+      height: 32px; padding: 0 14px; border-radius: 6px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      border: 1px solid #D1D9E6; background: #fff; color: #546E7A;
+      transition: all 0.15s;
+    }
+    .tab-btn.active { background: #2B7FE0; color: #fff; border-color: #2B7FE0; font-weight: 600; }
+    .tab-btn:hover:not(.active) { background: #EBF3FF; color: #2B7FE0; }
+    .filter-divider { width: 1px; height: 24px; background: #D1D9E6; }
+
+    /* ── 안내 배너 ── */
+    .info-box {
+      background: #EBF3FF; border-left: 4px solid #2B7FE0;
+      border-radius: 8px; padding: 12px 16px;
+      font-size: 13px; color: #1A5FB4; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* ── 테이블 ── */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .data-table thead tr { background: #F8FAFF; border-bottom: 2px solid #EBF3FF; }
+    .data-table th {
+      padding: 12px 20px; text-align: left;
+      font-size: 12px; font-weight: 600; color: #546E7A;
+      white-space: nowrap;
+    }
+    .data-table th.center { text-align: center; }
+    .data-table tbody tr { border-bottom: 1px solid #F0F2F5; transition: background 0.12s; }
+    .data-table tbody tr:hover { background: #FAFBFD; }
+    .data-table tbody tr:last-child { border-bottom: none; }
+    .data-table td { padding: 12px 20px; vertical-align: middle; }
+    .data-table td.center { text-align: center; }
+
+    /* 지표명 셀 */
+    .metric-cell { display: flex; align-items: center; gap: 10px; }
+    .metric-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .metric-name { font-size: 14px; font-weight: 600; color: #1A2332; }
+    .metric-unit { font-size: 11px; color: #90A4AE; }
+
+    /* 입력 필드 */
+    .num-input {
+      width: 90px; height: 36px; padding: 0 10px;
+      border: 1px solid #D1D9E6; border-radius: 6px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; color: #1A2332; outline: none;
+      text-align: right;
+    }
+    .num-input:focus { border-color: #2B7FE0; background: #EBF3FF; }
+    .range-sep { font-size: 13px; color: #90A4AE; padding: 0 4px; }
+    .range-cell { display: flex; align-items: center; }
+
+    /* 변경 뱃지 */
+    .changed-dot {
+      display: inline-block; width: 6px; height: 6px;
+      background: #F5A623; border-radius: 50%; margin-left: 6px;
+    }
+
+    /* 토스트 */
+    #toast {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+      background: #1A2332; color: #fff; padding: 12px 24px;
+      border-radius: 10px; font-size: 14px; font-weight: 500;
+      z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #D1D9E6; border-radius: 3px; }
+
+    /* ── 사이드바 토글 ── */
+    .sidebar-toggle-btn {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: transparent; border: none;
+      font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #546E7A; transition: background 0.15s; flex-shrink: 0;
+    }
+    .sidebar-toggle-btn:hover { background: #F4F6F9; color: #1A2332; }
+    .sidebar { transition: transform 0.25s ease; }
+    .main    { transition: margin-left 0.25s ease; }
+    body.sidebar-hidden .sidebar { transform: translateX(-240px); }
+    body.sidebar-hidden .main    { margin-left: 0; }
+    /* ── 콘텐츠 탭 (또래 평균) ── */
+    .tab-nav-wrap { padding: 0 24px; border-bottom: 1px solid #D1D9E6; }
+    .tab-nav { display: flex; }
+    .peer-tab-btn {
+      padding: 13px 22px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; font-weight: 600; color: #78909C;
+      background: transparent; border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer; transition: all 0.15s; margin-bottom: -1px;
+    }
+    .peer-tab-btn:hover { color: #2B7FE0; background: #F8FAFD; }
+    .peer-tab-btn.active { color: #2B7FE0; border-bottom-color: #2B7FE0; }
+    .peer-tab-panel { display: none; }
+    .peer-tab-panel.active { display: block; }  </style>
+</head>
+<body>
+
+  <!-- ── 헤더 ── -->
+  <header class="header">
+  <button class="sidebar-toggle-btn" onclick="document.body.classList.toggle('sidebar-hidden')" title="메뉴 접기/펼치기">☰</button>
+
+    <div class="header-logo">
+      <div class="logo-icon">H</div>
+      <div>
+        <div class="logo-text">HealthCare Portal</div>
+        <div class="logo-sub">관리자 포털</div>
+      </div>
+    </div>
+    <div class="header-divider"></div>
+    <span class="header-title">또래 평균 관리</span>
+    <div class="header-right">
+      <div class="header-notif">
+        🔔
+        <div class="notif-badge">3</div>
+      </div>
+      <div class="header-user">
+        <div class="user-avatar">김</div>
+        <div class="user-info">
+          <span class="user-name">김관리자</span>
+          <span class="user-role">최고 관리자</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- ── 사이드바 ── -->
+    <nav class="sidebar">
+    <a class="nav-item"  href="dashboard.html"><span class="nav-icon">📊</span> 대시보드</a>
+    <a class="nav-item"  href="notice.html"><span class="nav-icon">📢</span> 공지사항</a>
+    <a class="nav-item"  href="hospitals.html"><span class="nav-icon">🏥</span> 병원·기관 관리</a>
+    <a class="nav-item"  href="operators.html"><span class="nav-icon">👨‍💼</span> 운영자 관리</a>
+    <a class="nav-item"  href="accounts.html"><span class="nav-icon">👥</span> 계정 관리<span class="nav-badge yellow">5</span></a>
+    <a class="nav-item"  href="permissions.html"><span class="nav-icon">🔐</span> 권한 관리</a>
+    <a class="nav-item active" href="peer-averages.html"><span class="nav-icon">📈</span> 또래 평균 관리</a>
+    <a class="nav-item"  href="settings.html"><span class="nav-icon">⚙️</span> 시스템 설정</a>
+
+  <div class="sidebar-footer">
+        <a href="profile.html" class="sidebar-footer-item">
+          <span>👤</span> 내 계정
+        </a>
+        <div class="sidebar-footer-item">
+          <span>🚪</span> 로그아웃
+        </div>
+      </div>
+    </nav>
+
+    <!-- ── 메인 ── -->
+    <main class="main">
+
+      <!-- 페이지 헤더 -->
+      <div class="page-header">
+        <div>
+          <div class="page-title">또래 평균 관리</div>
+          <div class="page-subtitle">앱의 또래 비교 기능에 사용되는 연령·성별 건강 기준값을 설정합니다.</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-outline" onclick="resetChanges()">변경 취소</button>
+          <button class="btn btn-primary" onclick="saveAll()">💾 전체 저장</button>
+        </div>
+      </div>
+
+      <!-- 안내 -->
+      <div class="info-box">
+        💡 여기서 설정한 값은 앱의 <strong>또래 평균 비교</strong> 화면에 실시간 반영됩니다. 연령대·성별을 선택한 후 각 지표의 평균값과 정상 범위를 입력하고 저장하세요.
+      </div>
+
+      <!-- 탭 통합 카드 -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">또래 평균 기준값 관리</div>
+            <div class="card-desc">연령대·성별별 건강 지표 기준값을 편집하거나 전체 설정 현황을 확인합니다.</div>
+          </div>
+        </div>
+        <div class="tab-nav-wrap">
+          <div class="tab-nav">
+            <button class="peer-tab-btn active" onclick="switchPeerTab('edit',this)">📝 기준값 편집</button>
+            <button class="peer-tab-btn" onclick="switchPeerTab('status',this)">📋 설정 현황</button>
+          </div>
+        </div>
+        <div id="peer-panel-edit" class="peer-tab-panel active">
+
+        <!-- 필터 (연령대 / 성별) -->
+        <div class="filter-row">
+          <span class="filter-label">연령대</span>
+          <div class="tab-group" id="age-tabs">
+            <button class="tab-btn active" onclick="selectAge(this,'60대')">60대</button>
+            <button class="tab-btn" onclick="selectAge(this,'70대')">70대</button>
+            <button class="tab-btn" onclick="selectAge(this,'80대')">80대</button>
+            <button class="tab-btn" onclick="selectAge(this,'90대+')">90대+</button>
+          </div>
+          <div class="filter-divider"></div>
+          <span class="filter-label">성별</span>
+          <div class="tab-group" id="gender-tabs">
+            <button class="tab-btn active" onclick="selectGender(this,'남성')">남성</button>
+            <button class="tab-btn" onclick="selectGender(this,'여성')">여성</button>
+          </div>
+          <div style="margin-left:auto;font-size:12px;color:#546E7A;">
+            현재: <strong id="current-filter" style="color:#2B7FE0;">60대 남성</strong>
+          </div>
+        </div>
+
+        <!-- 기준값 테이블 -->
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:220px;">건강 지표</th>
+              <th class="center">또래 평균값</th>
+              <th class="center">정상 범위 (하한)</th>
+              <th class="center">정상 범위 (상한)</th>
+              <th class="center">마지막 수정</th>
+            </tr>
+          </thead>
+          <tbody id="metrics-table">
+            <tr>
+              <td>
+                <div class="metric-cell">
+                  <div class="metric-icon" style="background:#FDECEA;">❤️</div>
+                  <div>
+                    <div class="metric-name">심박수</div>
+                    <div class="metric-unit">bpm</div>
+                  </div>
+                </div>
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="hr-avg" value="72" oninput="markChanged(this)" />
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="hr-min" value="60" oninput="markChanged(this)" />
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="hr-max" value="100" oninput="markChanged(this)" />
+              </td>
+              <td class="center" style="font-size:12px;color:#546E7A;">2026-04-10</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="metric-cell">
+                  <div class="metric-icon" style="background:#EBF3FF;">🩸</div>
+                  <div>
+                    <div class="metric-name">수축기혈압</div>
+                    <div class="metric-unit">mmHg</div>
+                  </div>
+                </div>
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="sbp-avg" value="128" oninput="markChanged(this)" />
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="sbp-min" value="90" oninput="markChanged(this)" />
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="sbp-max" value="140" oninput="markChanged(this)" />
+              </td>
+              <td class="center" style="font-size:12px;color:#546E7A;">2026-04-10</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="metric-cell">
+                  <div class="metric-icon" style="background:#EBF3FF;">🩸</div>
+                  <div>
+                    <div class="metric-name">이완기혈압</div>
+                    <div class="metric-unit">mmHg</div>
+                  </div>
+                </div>
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="dbp-avg" value="78" oninput="markChanged(this)" />
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="dbp-min" value="60" oninput="markChanged(this)" />
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="dbp-max" value="90" oninput="markChanged(this)" />
+              </td>
+              <td class="center" style="font-size:12px;color:#546E7A;">2026-04-10</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="metric-cell">
+                  <div class="metric-icon" style="background:#FEF6E9;">🍬</div>
+                  <div>
+                    <div class="metric-name">혈당 (공복)</div>
+                    <div class="metric-unit">mg/dL</div>
+                  </div>
+                </div>
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="fbg-avg" value="98" oninput="markChanged(this)" />
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="fbg-min" value="70" oninput="markChanged(this)" />
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="fbg-max" value="125" oninput="markChanged(this)" />
+              </td>
+              <td class="center" style="font-size:12px;color:#546E7A;">2026-03-22</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="metric-cell">
+                  <div class="metric-icon" style="background:#FEF6E9;">🍬</div>
+                  <div>
+                    <div class="metric-name">혈당 (식후 2h)</div>
+                    <div class="metric-unit">mg/dL</div>
+                  </div>
+                </div>
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="ppg-avg" value="138" oninput="markChanged(this)" />
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="ppg-min" value="80" oninput="markChanged(this)" />
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="ppg-max" value="199" oninput="markChanged(this)" />
+              </td>
+              <td class="center" style="font-size:12px;color:#546E7A;">2026-03-22</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="metric-cell">
+                  <div class="metric-icon" style="background:#E6F9F5;">💨</div>
+                  <div>
+                    <div class="metric-name">산소포화도</div>
+                    <div class="metric-unit">%</div>
+                  </div>
+                </div>
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="spo2-avg" value="97" oninput="markChanged(this)" />
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="spo2-min" value="95" oninput="markChanged(this)" />
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="spo2-max" value="100" oninput="markChanged(this)" />
+              </td>
+              <td class="center" style="font-size:12px;color:#546E7A;">2026-04-10</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="metric-cell">
+                  <div class="metric-icon" style="background:#EDE7F6;">🌡️</div>
+                  <div>
+                    <div class="metric-name">체온</div>
+                    <div class="metric-unit">°C</div>
+                  </div>
+                </div>
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="temp-avg" value="36.5" step="0.1" oninput="markChanged(this)" />
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="temp-min" value="36.1" step="0.1" oninput="markChanged(this)" />
+              </td>
+              <td class="center">
+                <input class="num-input" type="number" id="temp-max" value="37.2" step="0.1" oninput="markChanged(this)" />
+              </td>
+              <td class="center" style="font-size:12px;color:#546E7A;">2026-04-10</td>
+            </tr>
+          </tbody>
+        </table>
+        </div><!-- /peer-panel-edit -->
+
+        <div id="peer-panel-status" class="peer-tab-panel">
+          <div style="padding:20px 24px 8px; font-size:15px; font-weight:700; color:#1A2332;">연령·성별 설정 현황</div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>연령대</th>
+              <th class="center">남성</th>
+              <th class="center">여성</th>
+              <th>마지막 전체 저장</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>60대</strong></td>
+              <td class="center"><span style="color:#34C4A0;font-weight:700;">✔ 설정됨</span></td>
+              <td class="center"><span style="color:#34C4A0;font-weight:700;">✔ 설정됨</span></td>
+              <td style="font-size:12px;color:#546E7A;">2026-04-10 김관리자</td>
+            </tr>
+            <tr>
+              <td><strong>70대</strong></td>
+              <td class="center"><span style="color:#34C4A0;font-weight:700;">✔ 설정됨</span></td>
+              <td class="center"><span style="color:#34C4A0;font-weight:700;">✔ 설정됨</span></td>
+              <td style="font-size:12px;color:#546E7A;">2026-04-10 김관리자</td>
+            </tr>
+            <tr>
+              <td><strong>80대</strong></td>
+              <td class="center"><span style="color:#34C4A0;font-weight:700;">✔ 설정됨</span></td>
+              <td class="center"><span style="color:#F5A623;font-weight:700;">⚠ 미설정</span></td>
+              <td style="font-size:12px;color:#546E7A;">2026-03-15 김관리자</td>
+            </tr>
+            <tr>
+              <td><strong>90대+</strong></td>
+              <td class="center"><span style="color:#F5A623;font-weight:700;">⚠ 미설정</span></td>
+              <td class="center"><span style="color:#F5A623;font-weight:700;">⚠ 미설정</span></td>
+              <td style="font-size:12px;color:#90A4AE;">—</td>
+            </tr>
+          </tbody>
+        </table>
+        </div><!-- /peer-panel-status -->
+      </div><!-- /wrapper card -->
+
+    </main>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    function switchPeerTab(id, btn) {
+      document.querySelectorAll('.peer-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.peer-tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('peer-panel-' + id).classList.add('active');
+    }
+    let currentAge = '60대';
+    let currentGender = '남성';
+
+    // 샘플 데이터 (연령·성별별 기준값)
+    const DATA = {
+      '60대_남성': { hr:[72,60,100], sbp:[128,90,140], dbp:[78,60,90], fbg:[98,70,125], ppg:[138,80,199], spo2:[97,95,100], temp:[36.5,36.1,37.2] },
+      '60대_여성': { hr:[74,60,100], sbp:[126,90,140], dbp:[76,60,90], fbg:[95,70,125], ppg:[133,80,199], spo2:[97,95,100], temp:[36.5,36.1,37.2] },
+      '70대_남성': { hr:[70,55,95],  sbp:[134,90,145], dbp:[80,60,92], fbg:[102,70,130], ppg:[145,80,200], spo2:[96,94,100], temp:[36.4,36.0,37.2] },
+      '70대_여성': { hr:[72,55,95],  sbp:[132,90,145], dbp:[78,60,92], fbg:[99,70,130],  ppg:[140,80,200], spo2:[96,94,100], temp:[36.4,36.0,37.2] },
+      '80대_남성': { hr:[68,55,90],  sbp:[138,90,150], dbp:[82,60,94], fbg:[106,70,135], ppg:[150,80,200], spo2:[95,93,100], temp:[36.3,35.9,37.2] },
+      '80대_여성': { hr:null, sbp:null, dbp:null, fbg:null, ppg:null, spo2:null, temp:null },
+      '90대+_남성': { hr:null, sbp:null, dbp:null, fbg:null, ppg:null, spo2:null, temp:null },
+      '90대+_여성': { hr:null, sbp:null, dbp:null, fbg:null, ppg:null, spo2:null, temp:null },
+    };
+
+    const FIELDS = ['hr','sbp','dbp','fbg','ppg','spo2','temp'];
+    const DEFAULT = { hr:[70,60,100], sbp:[130,90,140], dbp:[78,60,90], fbg:[100,70,125], ppg:[140,80,199], spo2:[97,95,100], temp:[36.5,36.1,37.2] };
+
+    function selectAge(btn, age) {
+      document.querySelectorAll('#age-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentAge = age;
+      updateFilter();
+      loadData();
+    }
+
+    function selectGender(btn, gender) {
+      document.querySelectorAll('#gender-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentGender = gender;
+      updateFilter();
+      loadData();
+    }
+
+    function updateFilter() {
+      document.getElementById('current-filter').textContent = currentAge + ' ' + currentGender;
+    }
+
+    function loadData() {
+      const key = currentAge + '_' + currentGender;
+      const d = DATA[key];
+      FIELDS.forEach(f => {
+        const vals = (d && d[f]) ? d[f] : DEFAULT[f];
+        document.getElementById(f+'-avg').value = vals[0];
+        document.getElementById(f+'-min').value = vals[1];
+        document.getElementById(f+'-max').value = vals[2];
+        document.getElementById(f+'-avg').style.borderColor = '#D1D9E6';
+        document.getElementById(f+'-min').style.borderColor = '#D1D9E6';
+        document.getElementById(f+'-max').style.borderColor = '#D1D9E6';
+      });
+    }
+
+    function markChanged(input) {
+      input.style.borderColor = '#F5A623';
+    }
+
+    function resetChanges() {
+      loadData();
+      showToast('변경 사항이 취소되었습니다.');
+    }
+
+    function saveAll() {
+      FIELDS.forEach(f => {
+        ['avg','min','max'].forEach(s => {
+          document.getElementById(f+'-'+s).style.borderColor = '#D1D9E6';
+        });
+      });
+      showToast('✅ ' + currentAge + ' ' + currentGender + ' 기준값이 저장되었습니다.');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.opacity = '1';
+      setTimeout(() => { t.style.opacity = '0'; }, 2500);
+    }
+  </script>
+</body>
+</html>

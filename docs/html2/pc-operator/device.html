@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>운영자 포털 - 기기 관리</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #F4F6F9; color: #1A2332;
+      min-width: 1280px; display: flex; flex-direction: column;
+      height: 100vh; overflow: hidden;
+    }
+
+    /* ── 헤더 ── */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 60px; background: #fff; border-bottom: 1px solid #D1D9E6;
+      display: flex; align-items: center; padding: 0 24px; gap: 12px;
+    }
+    .header-logo { display: flex; align-items: center; gap: 10px; width: 216px; }
+    .logo-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: linear-gradient(135deg, #1565C0, #1976D2);
+      display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
+    }
+    .logo-text { font-size: 15px; font-weight: 700; }
+    .logo-sub  { font-size: 11px; color: #546E7A; margin-top: 2px; }
+    .portal-badge {
+      display: inline-flex; background: #E6F9F5; color: #1E9C80;
+      font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+    }
+    .header-divider { width: 1px; height: 28px; background: #D1D9E6; margin: 0 8px; }
+    .header-title { font-size: 14px; font-weight: 600; color: #34C4A0; flex: 1; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .header-notif {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #F4F6F9; border: 1px solid #D1D9E6;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative; font-size: 16px;
+    }
+    .notif-badge {
+      position: absolute; top: -3px; right: -3px;
+      background: #E53935; color: #fff; font-size: 9px; font-weight: 700;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; border: 2px solid #fff;
+    }
+    .header-user { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .user-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #8E24AA, #6A1B9A);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 13px; font-weight: 600;
+    }
+    .user-name { font-size: 13px; font-weight: 600; }
+    .user-role { font-size: 11px; color: #546E7A; }
+
+    /* ── 레이아웃 ── */
+    .layout { display: flex; padding-top: 60px; height: 100vh; }
+
+    /* ── 사이드바 ── */
+    .sidebar {
+      width: 240px; min-width: 240px; background: #fff;
+      border-right: 1px solid #D1D9E6; display: flex; flex-direction: column;
+      padding: 20px 0; overflow-y: auto; position: fixed; top: 60px; bottom: 0; left: 0;
+    }
+    .hosp-card {
+      margin: 4px 16px 16px;
+      background: linear-gradient(135deg, #EBF3FF 0%, #E6F9F5 100%);
+      border-radius: 12px; padding: 14px 16px; border: 1px solid #BBDEFB;
+    }
+    .hosp-card-name { font-size: 13px; font-weight: 700; }
+    .hosp-card-meta { font-size: 11px; color: #546E7A; margin-top: 6px; display: flex; flex-direction: column; gap: 3px; }
+    .nav-section-label {
+      font-size: 10px; font-weight: 600; color: #546E7A;
+      letter-spacing: 0.8px; text-transform: uppercase; padding: 0 20px 8px; margin-top: 8px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px 20px;
+      font-size: 14px; color: #546E7A; border-left: 3px solid transparent;
+      transition: all 0.15s; text-decoration: none; cursor: pointer;
+    }
+    .nav-item:hover { background: #F4F6F9; color: #1A2332; }
+    .nav-item.active { background: #E6F9F5; color: #34C4A0; border-left-color: #34C4A0; font-weight: 600; }
+    .nav-item.disabled { opacity: 0.4; pointer-events: none; }
+    .nav-icon { font-size: 17px; width: 20px; text-align: center; }
+    .sidebar-footer { margin-top: auto; padding: 16px 20px; border-top: 1px solid #D1D9E6; }
+    .sidebar-footer-item {
+      display: flex; align-items: center; gap: 10px; padding: 8px 0;
+      font-size: 13px; color: #546E7A; text-decoration: none; cursor: pointer;
+    }
+    .sidebar-footer-item:hover { color: #1A2332; }
+
+    /* ── 메인 ── */
+    .main { flex: 1; margin-left: 240px; padding: 28px 32px; overflow-y: auto; height: calc(100vh - 60px); }
+
+    /* ── 페이지 헤더 ── */
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+    .page-title { font-size: 22px; font-weight: 700; }
+    .page-subtitle { font-size: 13px; color: #546E7A; margin-top: 4px; }
+    .page-actions { display: flex; gap: 10px; align-items: center; }
+
+    /* ── 버튼 ── */
+    .btn {
+      height: 40px; padding: 0 18px; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px;
+      transition: background 0.15s;
+    }
+    .btn-primary { background: #2B7FE0; color: #fff; }
+    .btn-primary:hover { background: #1A5FB4; }
+    .btn-green { background: #34C4A0; color: #fff; }
+    .btn-green:hover { background: #1E9C80; }
+    .btn-outline { background: #fff; color: #546E7A; border: 1px solid #D1D9E6; }
+    .btn-outline:hover { background: #F4F6F9; }
+    .btn-sm { height: 32px; padding: 0 12px; font-size: 12px; }
+    .btn-cancel {
+      height: 44px; padding: 0 20px; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; border: 1px solid #D1D9E6; background: #fff; color: #546E7A;
+    }
+    .btn-save {
+      height: 44px; padding: 0 24px; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; border: none; background: #34C4A0; color: #fff;
+    }
+    .btn-save:hover { background: #1E9C80; }
+    .btn-danger {
+      height: 44px; padding: 0 24px; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; border: none; background: #E53935; color: #fff;
+    }
+    .btn-danger:hover { background: #C62828; }
+
+    /* ── 통계 ── */
+    .stat-row { display: flex; gap: 12px; margin-bottom: 24px; }
+    .stat-card {
+      flex: 1; background: #fff; border-radius: 12px; padding: 16px 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 14px;
+    }
+    .stat-icon { font-size: 26px; }
+    .stat-val  { font-size: 22px; font-weight: 700; }
+    .stat-label { font-size: 12px; color: #546E7A; margin-top: 2px; }
+
+    /* ── 필터 바 ── */
+    .filter-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; }
+    .search-wrap { position: relative; flex: 1; max-width: 320px; }
+    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: #90A4AE; }
+    .search-input {
+      width: 100%; height: 38px; padding: 0 12px 0 36px;
+      border: 1px solid #D1D9E6; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif; font-size: 13px; outline: none; background: #fff;
+    }
+    .search-input:focus { border-color: #2B7FE0; }
+    .filter-select {
+      height: 38px; padding: 0 10px; border: 1px solid #D1D9E6; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif; font-size: 13px; background: #fff; outline: none; cursor: pointer;
+    }
+    .result-count { font-size: 13px; color: #546E7A; margin-left: auto; }
+
+    /* ── 테이블 카드 ── */
+    .card { background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+      background: #F8FAFB; font-size: 12px; font-weight: 600; color: #546E7A;
+      padding: 11px 16px; text-align: left; border-bottom: 1px solid #EEF0F3; white-space: nowrap;
+    }
+    .data-table td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid #F0F2F5; vertical-align: middle; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #FAFBFC; }
+
+    .device-cell { display: flex; align-items: center; gap: 12px; }
+    .device-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+    }
+    .device-icon-pro  { background: #EBF3FF; }
+    .device-icon-lite { background: #F3E5F5; }
+    .cell-name { font-size: 13px; font-weight: 600; }
+    .cell-sub  { font-size: 11px; color: #546E7A; margin-top: 2px; font-family: monospace; }
+    .cell-id   { font-size: 10px; color: #90A4AE; margin-top: 1px; font-family: monospace; }
+
+    .senior-cell { display: flex; align-items: center; gap: 8px; }
+    .senior-avatar-sm {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: #E8F5E9; color: #2E7D32;
+      display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .status-badge {
+      font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px;
+      display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+    }
+    .status-matched  { background: #E6F9F5; color: #1E9C80; }
+    .status-free     { background: #EBF3FF; color: #1A5FB4; }
+    .status-offline  { background: #FDECEA; color: #C62828; }
+    .status-inactive { background: #F4F6F9; color: #90A4AE; }
+
+    .batt-bar {
+      width: 60px; height: 8px; background: #EEF0F3; border-radius: 4px; overflow: hidden;
+    }
+    .batt-fill { height: 100%; border-radius: 4px; }
+    .batt-high   { background: #34C4A0; }
+    .batt-mid    { background: #FFC107; }
+    .batt-low    { background: #E53935; }
+
+    .btn-action {
+      height: 30px; padding: 0 10px; border-radius: 6px;
+      font-family: 'Noto Sans KR', sans-serif; font-size: 12px; font-weight: 500;
+      cursor: pointer; border: 1px solid #D1D9E6; background: #fff; color: #546E7A;
+      transition: all 0.15s; margin-right: 4px;
+    }
+    .btn-action:hover { border-color: #2B7FE0; color: #2B7FE0; background: #EBF3FF; }
+    .btn-action.danger:hover { border-color: #E53935; color: #E53935; background: #FDECEA; }
+
+    /* ── 모달 ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.5); align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 20px; width: 520px;
+      max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+    .modal-sm { width: 400px; }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 28px 18px; border-bottom: 1px solid #F0F2F5; position: sticky; top: 0; background: #fff;
+    }
+    .modal-title { font-size: 17px; font-weight: 700; }
+    .modal-close {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #F4F6F9; border: none; cursor: pointer;
+      font-size: 16px; display: flex; align-items: center; justify-content: center; color: #546E7A;
+    }
+    .modal-close:hover { background: #EEF0F3; }
+    .modal-body { padding: 24px 28px; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 28px 24px; border-top: 1px solid #F0F2F5; }
+
+    /* 폼 */
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 7px; }
+    .required { color: #E53935; margin-left: 2px; }
+    .form-row { display: flex; gap: 12px; }
+    .form-row .form-group { flex: 1; margin-bottom: 0; }
+    .form-input, .form-select, .form-textarea {
+      width: 100%; height: 42px; padding: 0 12px;
+      border: 1px solid #D1D9E6; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif; font-size: 13px; color: #1A2332;
+      outline: none; background: #fff; transition: border-color 0.15s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #34C4A0; box-shadow: 0 0 0 3px rgba(52,196,160,0.12); }
+    .form-textarea { height: auto; padding: 10px 12px; resize: vertical; }
+
+    /* 기기 상세 */
+    .detail-section { margin-bottom: 20px; }
+    .detail-section-title {
+      font-size: 12px; font-weight: 700; color: #546E7A;
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;
+    }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .detail-item { }
+    .detail-label { font-size: 11px; color: #90A4AE; margin-bottom: 3px; }
+    .detail-val   { font-size: 13px; font-weight: 600; }
+    .detail-val.mono { font-family: monospace; font-size: 12px; }
+
+    .device-big-icon {
+      width: 64px; height: 64px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 16px;
+    }
+
+    /* 확인 모달 */
+    .confirm-box {
+      background: #fff; border-radius: 16px; width: 380px;
+      padding: 32px 28px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); text-align: center;
+    }
+    .confirm-icon  { font-size: 40px; margin-bottom: 14px; }
+    .confirm-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .confirm-desc  { font-size: 13px; color: #546E7A; line-height: 1.7; margin-bottom: 24px; }
+    .confirm-btns  { display: flex; gap: 10px; justify-content: center; }
+
+    /* 토스트 */
+    .toast {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: #1A2332; color: #fff; border-radius: 10px;
+      padding: 12px 22px; font-size: 14px; font-weight: 500;
+      z-index: 500; transition: transform 0.3s; white-space: nowrap;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<header class="header">
+  <div class="header-logo">
+    <div class="logo-icon">🏥</div>
+    <div>
+      <div class="logo-text">서울중앙병원</div>
+      <div class="logo-sub"><span class="portal-badge">운영자 포털</span></div>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <div class="header-title">기기 관리</div>
+  <div class="header-right">
+    <div class="header-notif">🔔<div class="notif-badge">3</div></div>
+    <div class="header-user">
+      <div class="user-avatar">⌚</div>
+      <div style="display:flex;flex-direction:column;">
+        <div class="user-name">이민수</div>
+        <div class="user-role">서울중앙병원 · 와치관리자</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- 사이드바 -->
+  <nav class="sidebar">
+    <div class="hosp-card">
+      <div class="hosp-card-name">🏥 서울중앙병원</div>
+      <div class="hosp-card-meta">
+        <span>📍 서울특별시 중구</span>
+        <span>🏷️ 코드 SCH-001</span>
+      </div>
+    </div>
+    <div class="nav-section-label">메인 메뉴</div>
+    <a href="dashboard.html"  class="nav-item"><span class="nav-icon">📊</span> 대시보드</a>
+    <a href="device.html"     class="nav-item active"><span class="nav-icon">📟</span> 기기 관리</a>
+    <a href="matching.html"   class="nav-item"><span class="nav-icon">🔗</span> 계정 관리</a>
+    <a href="notice.html"     class="nav-item"><span class="nav-icon">📢</span> 공지사항</a>
+    <a class="nav-item disabled"><span class="nav-icon">👁️</span> 계정 조회</a>
+    <div class="sidebar-footer">
+      <a href="my-account.html" class="sidebar-footer-item"><span>👤</span> 내 계정</a>
+      <div class="sidebar-footer-item"><span>🚪</span> 로그아웃</div>
+    </div>
+  </nav>
+
+  <!-- 메인 -->
+  <main class="main">
+
+    <div class="page-header">
+      <div>
+        <div class="page-title">와치 기기 관리</div>
+        <div class="page-subtitle">병원에 등록된 HC Watch 기기를 관리합니다.</div>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-outline" onclick="openFirmwareModal()">🔄 펌웨어 업데이트 확인</button>
+        <button class="btn btn-green" onclick="openAddModal()">+ 기기 등록</button>
+      </div>
+    </div>
+
+    <!-- 통계 -->
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-icon">📟</div>
+        <div>
+          <div class="stat-val" id="stat-total">0</div>
+          <div class="stat-label">전체 기기</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div>
+          <div class="stat-val" id="stat-matched">0</div>
+          <div class="stat-label">매칭된 기기</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🆓</div>
+        <div>
+          <div class="stat-val" id="stat-free">0</div>
+          <div class="stat-label">미배정 기기</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⚠️</div>
+        <div>
+          <div class="stat-val" id="stat-offline">0</div>
+          <div class="stat-label">오프라인/배터리 부족</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 필터 바 -->
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="search-input" placeholder="모델명 또는 시리얼 검색" oninput="renderTable()">
+      </div>
+      <select class="filter-select" id="filter-status" onchange="renderTable()">
+        <option value="">전체 상태</option>
+        <option value="matched">매칭됨</option>
+        <option value="free">미배정</option>
+        <option value="offline">오프라인</option>
+        <option value="inactive">비활성</option>
+      </select>
+      <select class="filter-select" id="filter-model" onchange="renderTable()">
+        <option value="">전체 모델</option>
+        <option value="HC Watch Pro 3">HC Watch Pro 3</option>
+        <option value="HC Watch Lite 2">HC Watch Lite 2</option>
+      </select>
+      <span class="result-count" id="result-count"></span>
+    </div>
+
+    <!-- 테이블 -->
+    <div class="card">
+      <table class="data-table" id="device-table">
+        <thead>
+          <tr>
+            <th>기기 정보</th>
+            <th>시리얼 번호</th>
+            <th>상태</th>
+            <th>연결된 시니어</th>
+            <th>배터리</th>
+            <th>마지막 연결</th>
+            <th>등록일</th>
+            <th>관리</th>
+          </tr>
+        </thead>
+        <tbody id="device-tbody"></tbody>
+      </table>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══ 기기 등록 모달 ══ -->
+<div class="modal-overlay" id="modal-add">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📟 기기 등록</div>
+      <button class="modal-close" onclick="closeModal('modal-add')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">모델 <span class="required">*</span></label>
+        <select class="form-select" id="add-model">
+          <option value="">-- 모델을 선택하세요 --</option>
+          <option value="HC Watch Pro 3">HC Watch Pro 3</option>
+          <option value="HC Watch Lite 2">HC Watch Lite 2</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">시리얼 번호 <span class="required">*</span></label>
+        <input type="text" class="form-input" id="add-serial" placeholder="예: HCW-2025-0099">
+      </div>
+      <div class="form-row" style="gap:12px;">
+        <div class="form-group">
+          <label class="form-label">구매일</label>
+          <input type="date" class="form-input" id="add-purchase">
+        </div>
+        <div class="form-group">
+          <label class="form-label">펌웨어 버전</label>
+          <input type="text" class="form-input" id="add-firmware" placeholder="예: v3.2.1">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">메모</label>
+        <textarea class="form-textarea" id="add-memo" rows="3" placeholder="기기 관련 메모 (선택 사항)"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-add')">취소</button>
+      <button class="btn-save" onclick="saveDevice()">등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 기기 상세 모달 ══ -->
+<div class="modal-overlay" id="modal-detail">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="detail-title">기기 상세</div>
+      <button class="modal-close" onclick="closeModal('modal-detail')">✕</button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-detail')">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 펌웨어 모달 ══ -->
+<div class="modal-overlay" id="modal-firmware">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title">🔄 펌웨어 업데이트 현황</div>
+      <button class="modal-close" onclick="closeModal('modal-firmware')">✕</button>
+    </div>
+    <div class="modal-body" id="firmware-body"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-firmware')">닫기</button>
+      <button class="btn-primary" onclick="alert('전체 업데이트 요청이 전송되었습니다.')">전체 업데이트 요청</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 비활성화 확인 모달 ══ -->
+<div class="modal-overlay" id="modal-confirm" style="align-items:center;justify-content:center;">
+  <div class="confirm-box">
+    <div class="confirm-icon" id="confirm-icon">⚠️</div>
+    <div class="confirm-title" id="confirm-title"></div>
+    <div class="confirm-desc"  id="confirm-desc"></div>
+    <div class="confirm-btns">
+      <button class="btn-cancel" style="height:44px;padding:0 20px;" onclick="closeModal('modal-confirm')">취소</button>
+      <button class="btn-danger" id="confirm-ok" onclick="">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- 토스트 -->
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ════ 데이터 ════ */
+  let devices = [
+    { id:'W001', model:'HC Watch Pro 3',  serial:'HCW-2024-0031', status:'matched',  battery:82, lastSeen:'2026-05-10 09:32', regDate:'2024-01-15', firmware:'v3.2.1', seniorId:'S001', memo:'' },
+    { id:'W002', model:'HC Watch Pro 3',  serial:'HCW-2024-0032', status:'matched',  battery:55, lastSeen:'2026-05-10 08:14', regDate:'2024-01-15', firmware:'v3.2.1', seniorId:'S002', memo:'' },
+    { id:'W003', model:'HC Watch Lite 2', serial:'HCW-2023-0158', status:'matched',  battery:34, lastSeen:'2026-05-09 23:48', regDate:'2023-11-03', firmware:'v2.4.0', seniorId:'S003', memo:'' },
+    { id:'W004', model:'HC Watch Pro 3',  serial:'HCW-2024-0033', status:'free',     battery:100,lastSeen:'2026-05-08 14:20', regDate:'2024-01-15', firmware:'v3.2.1', seniorId:null,   memo:'신규 미사용' },
+    { id:'W005', model:'HC Watch Lite 2', serial:'HCW-2023-0159', status:'free',     battery:67, lastSeen:'2026-05-07 11:05', regDate:'2023-11-03', firmware:'v2.4.0', seniorId:null,   memo:'' },
+    { id:'W006', model:'HC Watch Pro 3',  serial:'HCW-2025-0011', status:'offline',  battery:8,  lastSeen:'2026-05-03 07:22', regDate:'2025-03-20', firmware:'v3.1.0', seniorId:null,   memo:'배터리 점검 필요' },
+    { id:'W007', model:'HC Watch Lite 2', serial:'HCW-2023-0160', status:'free',     battery:91, lastSeen:'2026-05-10 07:58', regDate:'2023-11-03', firmware:'v2.4.0', seniorId:null,   memo:'' },
+    { id:'W008', model:'HC Watch Pro 3',  serial:'HCW-2025-0012', status:'inactive', battery:0,  lastSeen:'2025-12-01 00:00', regDate:'2025-03-20', firmware:'v3.0.2', seniorId:null,   memo:'AS 입고 중' },
+  ];
+
+  const seniors = {
+    S001: { name:'김순자' }, S002: { name:'이정수' }, S003: { name:'박희순' },
+    S004: { name:'최영수' }, S005: { name:'정미옥' },
+  };
+
+  let nextDeviceNum = 9;
+
+  /* ════ 상태 레이블 ════ */
+  const STATUS_LABEL = { matched:'매칭됨', free:'미배정', offline:'오프라인', inactive:'비활성' };
+  const STATUS_CLASS = { matched:'status-matched', free:'status-free', offline:'status-offline', inactive:'status-inactive' };
+  const STATUS_DOT   = { matched:'🟢', free:'🔵', offline:'🔴', inactive:'⚫' };
+  const FIRMWARE_LATEST = { 'HC Watch Pro 3': 'v3.2.1', 'HC Watch Lite 2': 'v2.4.0' };
+
+  /* ════ 테이블 렌더링 ════ */
+  function renderTable() {
+    const q  = document.getElementById('search-input').value.trim().toLowerCase();
+    const fs = document.getElementById('filter-status').value;
+    const fm = document.getElementById('filter-model').value;
+
+    const filtered = devices.filter(d => {
+      const qMatch = !q || d.model.toLowerCase().includes(q) || d.serial.toLowerCase().includes(q);
+      const sMatch = !fs || d.status === fs;
+      const mMatch = !fm || d.model === fm;
+      return qMatch && sMatch && mMatch;
+    });
+
+    document.getElementById('result-count').textContent = `${filtered.length}개`;
+
+    const tbody = document.getElementById('device-tbody');
+    tbody.innerHTML = '';
+    filtered.forEach(d => {
+      const isOld = FIRMWARE_LATEST[d.model] && d.firmware !== FIRMWARE_LATEST[d.model];
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <div class="device-cell">
+            <div class="device-icon ${d.model === 'HC Watch Pro 3' ? 'device-icon-pro' : 'device-icon-lite'}">⌚</div>
+            <div>
+              <div class="cell-name">${d.model}</div>
+              <div class="cell-id">${d.id}</div>
+            </div>
+          </div>
+        </td>
+        <td><span style="font-family:monospace;font-size:12px;">${d.serial}</span></td>
+        <td><span class="status-badge ${STATUS_CLASS[d.status]}">${STATUS_DOT[d.status]} ${STATUS_LABEL[d.status]}</span></td>
+        <td>
+          ${d.seniorId && seniors[d.seniorId]
+            ? `<div class="senior-cell">
+                 <div class="senior-avatar-sm">${seniors[d.seniorId].name[0]}</div>
+                 <div>
+                   <div style="font-size:13px;font-weight:600;">${seniors[d.seniorId].name}</div>
+                   <div style="font-size:11px;color:#90A4AE;font-family:monospace;">${d.seniorId}</div>
+                 </div>
+               </div>`
+            : '<span style="color:#90A4AE;font-size:12px;">—</span>'}
+        </td>
+        <td>
+          ${d.status !== 'inactive' ? `
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="batt-bar"><div class="batt-fill ${d.battery>=50?'batt-high':d.battery>=20?'batt-mid':'batt-low'}" style="width:${d.battery}%"></div></div>
+            <span style="font-size:12px;font-weight:600;${d.battery<20?'color:#E53935':''}">${d.battery}%</span>
+          </div>` : '<span style="color:#90A4AE;font-size:12px;">—</span>'}
+        </td>
+        <td style="font-size:12px;color:${d.status==='offline'?'#E53935':'#546E7A'};">${d.lastSeen}</td>
+        <td style="font-size:12px;color:#546E7A;">${d.regDate}</td>
+        <td>
+          <button class="btn-action" onclick="openDetailModal('${d.id}')">상세</button>
+          ${isOld ? `<button class="btn-action" style="border-color:#FF9800;color:#E65100;background:#FFF8E1;" onclick="updateFirmware('${d.id}')">업데이트</button>` : ''}
+          ${d.status !== 'inactive' ? `<button class="btn-action danger" onclick="confirmDeactivate('${d.id}')">비활성화</button>` : `<button class="btn-action" onclick="confirmActivate('${d.id}')">활성화</button>`}
+        </td>`;
+      tbody.appendChild(tr);
+    });
+
+    updateStats();
+  }
+
+  /* ════ 통계 ════ */
+  function updateStats() {
+    document.getElementById('stat-total').textContent   = devices.length;
+    document.getElementById('stat-matched').textContent = devices.filter(d => d.status === 'matched').length;
+    document.getElementById('stat-free').textContent    = devices.filter(d => d.status === 'free').length;
+    document.getElementById('stat-offline').textContent = devices.filter(d => d.status === 'offline' || (d.status !== 'inactive' && d.battery < 20)).length;
+  }
+
+  /* ════ 모달 공통 ════ */
+  function openModal(id)  { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  /* ════ 기기 등록 ════ */
+  function openAddModal() {
+    document.getElementById('add-model').value    = '';
+    document.getElementById('add-serial').value   = '';
+    document.getElementById('add-purchase').value = '';
+    document.getElementById('add-firmware').value = '';
+    document.getElementById('add-memo').value     = '';
+    document.getElementById('add-serial').style.borderColor = '';
+    document.getElementById('add-model').style.borderColor  = '';
+    openModal('modal-add');
+  }
+
+  function saveDevice() {
+    const model   = document.getElementById('add-model').value;
+    const serial  = document.getElementById('add-serial').value.trim();
+    const purchase= document.getElementById('add-purchase').value;
+    const firmware= document.getElementById('add-firmware').value.trim() || FIRMWARE_LATEST[model] || '';
+    const memo    = document.getElementById('add-memo').value.trim();
+
+    let ok = true;
+    if (!model)  { document.getElementById('add-model').style.borderColor  = '#E53935'; ok = false; }
+    else           document.getElementById('add-model').style.borderColor  = '';
+    if (!serial) { document.getElementById('add-serial').style.borderColor = '#E53935'; ok = false; }
+    else           document.getElementById('add-serial').style.borderColor = '';
+    if (!ok) return;
+
+    const newId = 'W' + String(nextDeviceNum++).padStart(3, '0');
+    devices.push({
+      id: newId, model, serial, status: 'free', battery: 100,
+      lastSeen: '—', regDate: new Date().toISOString().slice(0,10),
+      firmware, seniorId: null, memo,
+    });
+
+    closeModal('modal-add');
+    renderTable();
+    showToast('✅ 기기가 등록되었습니다');
+  }
+
+  /* ════ 기기 상세 ════ */
+  function openDetailModal(id) {
+    const d = devices.find(x => x.id === id);
+    if (!d) return;
+
+    const isOld = FIRMWARE_LATEST[d.model] && d.firmware !== FIRMWARE_LATEST[d.model];
+    document.getElementById('detail-title').textContent = `${d.model} 상세`;
+
+    const senior = d.seniorId && seniors[d.seniorId] ? seniors[d.seniorId] : null;
+
+    document.getElementById('detail-body').innerHTML = `
+      <div style="text-align:center;margin-bottom:20px;">
+        <div class="device-big-icon ${d.model==='HC Watch Pro 3'?'device-icon-pro':'device-icon-lite'}" style="margin:0 auto 12px;">⌚</div>
+        <div style="font-size:18px;font-weight:700;">${d.model}</div>
+        <div style="font-size:12px;color:#90A4AE;font-family:monospace;margin-top:4px;">${d.id}</div>
+        <div style="margin-top:10px;"><span class="status-badge ${STATUS_CLASS[d.status]}">${STATUS_DOT[d.status]} ${STATUS_LABEL[d.status]}</span></div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title">기기 정보</div>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-label">시리얼 번호</div>
+            <div class="detail-val mono">${d.serial}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">등록일</div>
+            <div class="detail-val">${d.regDate}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">펌웨어</div>
+            <div class="detail-val">${d.firmware} ${isOld ? '<span style="font-size:10px;background:#FFF8E1;color:#E65100;padding:2px 6px;border-radius:10px;font-weight:600;">업데이트 필요</span>' : '<span style="font-size:10px;background:#E6F9F5;color:#1E9C80;padding:2px 6px;border-radius:10px;font-weight:600;">최신</span>'}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">마지막 연결</div>
+            <div class="detail-val">${d.lastSeen}</div>
+          </div>
+        </div>
+      </div>
+
+      ${d.status !== 'inactive' ? `
+      <div class="detail-section">
+        <div class="detail-section-title">배터리</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="flex:1;height:10px;background:#EEF0F3;border-radius:5px;overflow:hidden;">
+            <div style="width:${d.battery}%;height:100%;border-radius:5px;background:${d.battery>=50?'#34C4A0':d.battery>=20?'#FFC107':'#E53935'};"></div>
+          </div>
+          <span style="font-size:16px;font-weight:700;${d.battery<20?'color:#E53935':''}">${d.battery}%</span>
+        </div>
+      </div>` : ''}
+
+      <div class="detail-section">
+        <div class="detail-section-title">연결된 시니어</div>
+        ${senior
+          ? `<div class="senior-cell">
+               <div class="senior-avatar-sm" style="width:38px;height:38px;font-size:14px;">${senior.name[0]}</div>
+               <div>
+                 <div style="font-size:14px;font-weight:700;">${senior.name}</div>
+                 <div style="font-size:11px;color:#90A4AE;font-family:monospace;">${d.seniorId}</div>
+               </div>
+             </div>`
+          : '<div style="font-size:13px;color:#90A4AE;">연결된 시니어가 없습니다.</div>'}
+      </div>
+
+      ${d.memo ? `
+      <div class="detail-section">
+        <div class="detail-section-title">메모</div>
+        <div style="font-size:13px;color:#546E7A;background:#F8FAFB;border-radius:8px;padding:12px;">${d.memo}</div>
+      </div>` : ''}
+    `;
+
+    openModal('modal-detail');
+  }
+
+  /* ════ 펌웨어 현황 ════ */
+  function openFirmwareModal() {
+    const rows = devices.map(d => {
+      const isOld = FIRMWARE_LATEST[d.model] && d.firmware !== FIRMWARE_LATEST[d.model];
+      return `<tr>
+        <td style="padding:10px 0;border-bottom:1px solid #F0F2F5;font-size:13px;font-weight:600;">${d.id}</td>
+        <td style="padding:10px 8px;border-bottom:1px solid #F0F2F5;font-size:12px;">${d.model}</td>
+        <td style="padding:10px 8px;border-bottom:1px solid #F0F2F5;font-size:12px;font-family:monospace;">${d.firmware}</td>
+        <td style="padding:10px 0;border-bottom:1px solid #F0F2F5;">
+          ${isOld
+            ? `<span style="font-size:11px;background:#FFF8E1;color:#E65100;padding:3px 8px;border-radius:10px;font-weight:600;">업데이트 가능 ${FIRMWARE_LATEST[d.model]}</span>`
+            : `<span style="font-size:11px;background:#E6F9F5;color:#1E9C80;padding:3px 8px;border-radius:10px;font-weight:600;">최신</span>`}
+        </td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('firmware-body').innerHTML = `
+      <div style="font-size:13px;color:#546E7A;margin-bottom:14px;">
+        최신 버전 — HC Watch Pro 3: <strong>v3.2.1</strong> · HC Watch Lite 2: <strong>v2.4.0</strong>
+      </div>
+      <table style="width:100%;border-collapse:collapse;">${rows}</table>
+    `;
+    openModal('modal-firmware');
+  }
+
+  /* ════ 펌웨어 단건 업데이트 ════ */
+  function updateFirmware(id) {
+    const d = devices.find(x => x.id === id);
+    if (!d) return;
+    d.firmware = FIRMWARE_LATEST[d.model];
+    renderTable();
+    showToast(`✅ ${d.id} 펌웨어 업데이트 완료`);
+  }
+
+  /* ════ 비활성화/활성화 확인 ════ */
+  function confirmDeactivate(id) {
+    const d = devices.find(x => x.id === id);
+    document.getElementById('confirm-icon').textContent  = '⛔';
+    document.getElementById('confirm-title').textContent = '기기를 비활성화하겠습니까?';
+    document.getElementById('confirm-desc').textContent  = `${d.model} (${d.serial}) 기기가 비활성 상태로 변경됩니다. 매칭된 시니어가 있는 경우 매칭도 해제됩니다.`;
+    document.getElementById('confirm-ok').onclick = () => { deactivateDevice(id); closeModal('modal-confirm'); };
+    openModal('modal-confirm');
+  }
+
+  function deactivateDevice(id) {
+    const d = devices.find(x => x.id === id);
+    if (!d) return;
+    d.status   = 'inactive';
+    d.seniorId = null;
+    d.battery  = 0;
+    renderTable();
+    showToast('기기가 비활성화되었습니다');
+  }
+
+  function confirmActivate(id) {
+    const d = devices.find(x => x.id === id);
+    document.getElementById('confirm-icon').textContent  = '✅';
+    document.getElementById('confirm-title').textContent = '기기를 활성화하겠습니까?';
+    document.getElementById('confirm-desc').textContent  = `${d.model} (${d.serial}) 기기가 미배정 상태로 활성화됩니다.`;
+    document.getElementById('confirm-ok').onclick = () => { activateDevice(id); closeModal('modal-confirm'); };
+    openModal('modal-confirm');
+  }
+
+  function activateDevice(id) {
+    const d = devices.find(x => x.id === id);
+    if (!d) return;
+    d.status  = 'free';
+    d.battery = 100;
+    d.lastSeen = new Date().toISOString().slice(0,16).replace('T',' ');
+    renderTable();
+    showToast('기기가 활성화되었습니다');
+  }
+
+  /* ════ 토스트 ════ */
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  /* ════ 초기화 ════ */
+  renderTable();
+</script>
+</body>
+</html>

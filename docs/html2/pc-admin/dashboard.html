@@ -1,0 +1,811 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>관리자 포털 - 대시보드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #F4F6F9;
+      color: #1A2332;
+      min-width: 1280px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── 헤더 ── */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 60px;
+      background: #FFFFFF;
+      border-bottom: 1px solid #D1D9E6;
+      display: flex; align-items: center;
+      padding: 0 24px;
+      gap: 12px;
+    }
+    .header-logo {
+      display: flex; align-items: center; gap: 10px;
+      width: 216px;
+    }
+    .logo-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, #2B7FE0, #34C4A0);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 16px; font-weight: 700;
+    }
+    .logo-text { font-size: 15px; font-weight: 700; color: #1A2332; }
+    .logo-sub  { font-size: 11px; color: #546E7A; margin-top: 1px; }
+    .header-divider { width: 1px; height: 28px; background: #D1D9E6; margin: 0 8px; }
+    .header-title { font-size: 14px; font-weight: 600; color: #2B7FE0; flex: 1; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .header-notif {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #F4F6F9; border: 1px solid #D1D9E6;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative; font-size: 16px;
+    }
+    .notif-badge {
+      position: absolute; top: -3px; right: -3px;
+      background: #E53935; color: #fff;
+      font-size: 9px; font-weight: 700;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid #fff;
+    }
+    .header-user {
+      display: flex; align-items: center; gap: 8px; cursor: pointer;
+    }
+    .user-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #2B7FE0, #1A5FB4);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 13px; font-weight: 600;
+    }
+    .user-info { display: flex; flex-direction: column; }
+    .user-name  { font-size: 13px; font-weight: 600; color: #1A2332; }
+    .user-role  { font-size: 11px; color: #546E7A; }
+
+    /* ── 레이아웃 ── */
+    .layout {
+      display: flex;
+      padding-top: 60px;
+      height: 100vh;
+    }
+
+    /* ── 사이드바 ── */
+    .sidebar {
+      width: 240px; min-width: 240px;
+      background: #FFFFFF;
+      border-right: 1px solid #D1D9E6;
+      display: flex; flex-direction: column;
+      padding: 20px 0;
+      overflow-y: auto;
+      position: fixed; top: 60px; bottom: 0; left: 0;
+    }
+    .nav-section-label {
+      font-size: 10px; font-weight: 600; color: #546E7A;
+      letter-spacing: 0.8px; text-transform: uppercase;
+      padding: 0 20px 8px;
+      margin-top: 8px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px 10px 10px;
+      cursor: pointer;
+      font-size: 14px; color: #546E7A;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    .nav-item:hover { background: #F4F6F9; color: #1A2332; }
+    .nav-item.active {
+      background: #EBF3FF; color: #2B7FE0;
+      border-left-color: #2B7FE0; font-weight: 600;
+    }
+    .nav-icon { font-size: 17px; width: 20px; text-align: center; }
+    .nav-badge {
+      margin-left: auto;
+      background: #E53935; color: #fff;
+      font-size: 10px; font-weight: 700;
+      padding: 1px 6px; border-radius: 10px;
+    }
+    .nav-badge.yellow { background: #F5A623; }
+    .sidebar-footer {
+      margin-top: auto; padding: 16px 20px;
+      border-top: 1px solid #D1D9E6;
+    }
+    .sidebar-footer-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; cursor: pointer;
+      font-size: 13px; color: #546E7A;
+    }
+    .sidebar-footer-item:hover { color: #1A2332; }
+
+    /* ── 메인 콘텐츠 ── */
+    .main {
+      flex: 1;
+      margin-left: 240px;
+      padding: 32px;
+      overflow-y: auto;
+      height: calc(100vh - 60px);
+    }
+
+    /* ── 페이지 헤더 ── */
+    .page-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .page-title { font-size: 22px; font-weight: 700; color: #1A2332; }
+    .page-subtitle { font-size: 13px; color: #546E7A; margin-top: 4px; }
+    .page-actions { display: flex; gap: 10px; align-items: center; }
+    .btn {
+      height: 44px; padding: 0 20px; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      border: none; display: flex; align-items: center; gap: 6px;
+      text-decoration: none;
+    }
+    .btn-primary { background: #2B7FE0; color: #fff; }
+    .btn-primary:hover { background: #1A5FB4; }
+    .btn-outline {
+      background: #fff; color: #2B7FE0;
+      border: 1px solid #2B7FE0;
+    }
+    .btn-outline:hover { background: #EBF3FF; }
+    .btn-sm { height: 36px; padding: 0 14px; font-size: 13px; }
+    .toast {
+      position: fixed; bottom: 32px; right: 32px; z-index: 9999;
+      background: #1A2332; color: #fff;
+      padding: 14px 22px; border-radius: 10px;
+      font-size: 14px; font-weight: 500;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .toast.show { opacity: 1; pointer-events: auto; }
+
+    /* ── 요약 카드 ── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+    .summary-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      display: flex; flex-direction: column;
+    }
+    .summary-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .summary-card-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+    .icon-blue   { background: #EBF3FF; }
+    .icon-teal   { background: #E6F9F5; }
+    .icon-red    { background: #FDECEA; }
+    .icon-yellow { background: #FEF6E9; }
+    .summary-trend {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 12px; color: #546E7A;
+    }
+    .trend-up   { color: #34C4A0; }
+    .trend-warn { color: #F5A623; }
+    .trend-danger { color: #E53935; }
+    .summary-value {
+      font-size: 32px; font-weight: 700; color: #1A2332;
+      line-height: 1;
+    }
+    .summary-value.danger { color: #E53935; }
+    .summary-value.warning { color: #F5A623; }
+    .summary-label {
+      font-size: 13px; color: #546E7A; margin-top: 6px;
+    }
+    .summary-sub {
+      font-size: 11px; color: #90A4AE; margin-top: 4px;
+    }
+
+    /* ── 그리드 레이아웃 ── */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .grid-full { margin-bottom: 20px; }
+
+    /* ── 카드 공통 ── */
+    .card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid #F0F2F5;
+    }
+    .card-title {
+      font-size: 15px; font-weight: 700; color: #1A2332;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title-badge {
+      background: #FDECEA; color: #E53935;
+      font-size: 11px; font-weight: 600; padding: 2px 8px;
+      border-radius: 12px;
+    }
+    .card-title-badge.yellow { background: #FEF6E9; color: #F5A623; }
+    .card-body { padding: 20px 24px; }
+    .card-link {
+      font-size: 13px; color: #2B7FE0; font-weight: 500; cursor: pointer;
+    }
+    .card-link:hover { text-decoration: underline; }
+
+    /* ── 이벤트 목록 ── */
+    .event-list { display: flex; flex-direction: column; gap: 12px; }
+    .event-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px; border-radius: 12px;
+      border: 1px solid #F0F2F5;
+      background: #FAFBFC;
+    }
+    .event-item.critical { border-color: #FDECEA; background: #FFF8F8; }
+    .event-item.progress { border-color: #FEF6E9; background: #FFFAF3; }
+    .event-severity {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .severity-red    { background: #E53935; box-shadow: 0 0 0 3px rgba(229,57,53,0.15); }
+    .severity-yellow { background: #F5A623; box-shadow: 0 0 0 3px rgba(245,166,35,0.15); }
+    .event-info { flex: 1; }
+    .event-type  { font-size: 13px; font-weight: 600; color: #1A2332; }
+    .event-detail { font-size: 12px; color: #546E7A; margin-top: 2px; }
+    .event-time  { font-size: 12px; color: #90A4AE; white-space: nowrap; }
+    .event-status {
+      font-size: 12px; font-weight: 600; padding: 4px 10px;
+      border-radius: 20px; white-space: nowrap;
+    }
+    .status-done     { background: #E6F9F5; color: #34C4A0; }
+    .status-progress { background: #FEF6E9; color: #F5A623; }
+    .status-danger   { background: #FDECEA; color: #E53935; }
+
+    /* ── 바 차트 ── */
+    .bar-chart { padding: 8px 0; }
+    .bar-chart-row {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 10px;
+    }
+    .bar-label { font-size: 12px; color: #546E7A; width: 44px; text-align: right; flex-shrink: 0; }
+    .bar-track {
+      flex: 1; height: 28px; background: #F4F6F9;
+      border-radius: 6px; overflow: hidden;
+      position: relative;
+    }
+    .bar-fill {
+      height: 100%; border-radius: 6px;
+      background: linear-gradient(90deg, #2B7FE0, #34C4A0);
+      display: flex; align-items: center; justify-content: flex-end;
+      padding-right: 8px;
+      transition: width 0.4s ease;
+    }
+    .bar-fill-val { font-size: 12px; font-weight: 700; color: #fff; }
+    .bar-count { font-size: 12px; color: #546E7A; width: 28px; text-align: right; flex-shrink: 0; }
+
+    /* ── 승인 대기 목록 ── */
+    .approval-list { display: flex; flex-direction: column; gap: 0; }
+    .approval-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #F0F2F5;
+    }
+    .approval-item:last-child { border-bottom: none; }
+    .approval-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 600; color: #fff; flex-shrink: 0;
+    }
+    .approval-info { flex: 1; }
+    .approval-name { font-size: 14px; font-weight: 600; color: #1A2332; }
+    .approval-meta { font-size: 12px; color: #546E7A; margin-top: 2px; }
+    .approval-date { font-size: 12px; color: #90A4AE; white-space: nowrap; }
+    .approval-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .btn-approve {
+      height: 32px; padding: 0 12px; border-radius: 6px;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      border: none; font-family: 'Noto Sans KR', sans-serif;
+    }
+    .btn-approve.approve { background: #2B7FE0; color: #fff; }
+    .btn-approve.approve:hover { background: #1A5FB4; }
+    .btn-approve.reject  { background: #F4F6F9; color: #546E7A; border: 1px solid #D1D9E6; }
+    .btn-approve.reject:hover  { background: #FDECEA; color: #E53935; border-color: #E53935; }
+
+    /* ── 시스템 상태 ── */
+    .system-status-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    }
+    .sys-item { display: flex; flex-direction: column; gap: 6px; }
+    .sys-label { font-size: 12px; color: #546E7A; }
+    .sys-bar-track {
+      height: 8px; background: #F4F6F9; border-radius: 4px; overflow: hidden;
+    }
+    .sys-bar-fill { height: 100%; border-radius: 4px; }
+    .sys-bar-fill.good    { background: #34C4A0; }
+    .sys-bar-fill.warn    { background: #F5A623; }
+    .sys-bar-fill.danger  { background: #E53935; }
+    .sys-val { font-size: 13px; font-weight: 700; color: #1A2332; }
+    .sys-desc { font-size: 11px; color: #90A4AE; }
+
+    /* ── 역할 뱃지 ── */
+    .role-badge {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      padding: 2px 8px; border-radius: 10px;
+    }
+    .role-senior  { background: #EBF3FF; color: #2B7FE0; }
+    .role-child   { background: #E6F9F5; color: #34C4A0; }
+    .role-doctor  { background: #F0F0FF; color: #5C6BC0; }
+    .role-watch   { background: #FEF6E9; color: #F5A623; }
+    .role-admin   { background: #FDECEA; color: #E53935; }
+
+    /* ── 스크롤바 ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #D1D9E6; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #B0BEC5; }
+
+    /* ── 사이드바 토글 ── */
+    .sidebar-toggle-btn {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: transparent; border: none;
+      font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #546E7A; transition: background 0.15s; flex-shrink: 0;
+    }
+    .sidebar-toggle-btn:hover { background: #F4F6F9; color: #1A2332; }
+    .sidebar { transition: transform 0.25s ease; }
+    .main    { transition: margin-left 0.25s ease; }
+    body.sidebar-hidden .sidebar { transform: translateX(-240px); }
+    body.sidebar-hidden .main    { margin-left: 0; }  </style>
+</head>
+<body>
+
+<!-- ── 헤더 ── -->
+<header class="header">
+  <button class="sidebar-toggle-btn" onclick="document.body.classList.toggle('sidebar-hidden')" title="메뉴 접기/펼치기">☰</button>
+
+  <div class="header-logo">
+    <div class="logo-icon">HC</div>
+    <div>
+      <div class="logo-text">HealthCare Watch</div>
+      <div class="logo-sub">관리자 포털</div>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <span class="header-title">관리자 포털</span>
+  <div class="header-right">
+    <div class="header-notif">
+      🔔
+      <span class="notif-badge">3</span>
+    </div>
+    <div class="header-user">
+      <div class="user-avatar">관</div>
+      <div class="user-info">
+        <span class="user-name">김관리자</span>
+        <span class="user-role">최고 관리자</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── 레이아웃 ── -->
+<div class="layout">
+
+  <!-- ── 사이드바 ── -->
+  <nav class="sidebar">
+    <a class="nav-item active"  href="dashboard.html"><span class="nav-icon">📊</span> 대시보드</a>
+    <a class="nav-item"  href="notice.html"><span class="nav-icon">📢</span> 공지사항</a>
+    <a class="nav-item"  href="hospitals.html"><span class="nav-icon">🏥</span> 병원·기관 관리</a>
+    <a class="nav-item"  href="operators.html"><span class="nav-icon">👨‍💼</span> 운영자 관리</a>
+    <a class="nav-item"  href="accounts.html"><span class="nav-icon">👥</span> 계정 관리<span class="nav-badge yellow">5</span></a>
+    <a class="nav-item"  href="permissions.html"><span class="nav-icon">🔐</span> 권한 관리</a>
+    <a class="nav-item" href="peer-averages.html"><span class="nav-icon">📈</span> 또래 평균 관리</a>
+    <a class="nav-item"  href="settings.html"><span class="nav-icon">⚙️</span> 시스템 설정</a>
+
+  <div class="sidebar-footer">
+      <a href="profile.html" class="sidebar-footer-item">
+        <span>👤</span> 내 계정
+      </a>
+      <div class="sidebar-footer-item">
+        <span>🚪</span> 로그아웃
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── 메인 ── -->
+  <main class="main">
+
+    <!-- 페이지 헤더 -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">대시보드</div>
+        <div class="page-subtitle">2026년 4월 25일 (토) · 마지막 동기화: 오전 11:42</div>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-outline btn-sm" onclick="downloadReport()">📥 리포트 다운로드</button>
+        <button class="btn btn-primary btn-sm" onclick="showToast('🔄 데이터를 새로고침했습니다.')">🔄 새로고침</button>
+      </div>
+    </div>
+
+    <!-- 요약 카드 4개 -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-card-header">
+          <div class="summary-card-icon icon-blue">👥</div>
+          <div class="summary-trend trend-up">▲ 12명 증가</div>
+        </div>
+        <div class="summary-value">203</div>
+        <div class="summary-label">전체 가입자</div>
+        <div class="summary-sub">이번 달 +12명 신규 가입</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-header">
+          <div class="summary-card-icon icon-teal">⌚</div>
+          <div class="summary-trend trend-up">▲ 3대 증가</div>
+        </div>
+        <div class="summary-value">44</div>
+        <div class="summary-label">활성 기기</div>
+        <div class="summary-sub">등록 기기 총 61대 중</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-header">
+          <div class="summary-card-icon icon-red">🚨</div>
+          <div class="summary-trend trend-danger">● 실시간 모니터링</div>
+        </div>
+        <div class="summary-value danger">2</div>
+        <div class="summary-label">오늘 긴급 이벤트</div>
+        <div class="summary-sub">처리 중 1건 · 완료 1건</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-header">
+          <div class="summary-card-icon icon-yellow">⏳</div>
+          <div class="summary-trend trend-warn">▲ 주의 필요</div>
+        </div>
+        <div class="summary-value warning">5</div>
+        <div class="summary-label">승인 대기 계정</div>
+        <div class="summary-sub">7일 이내 승인 권장</div>
+      </div>
+    </div>
+
+    <!-- 긴급 이벤트 + 최근 가입 현황 -->
+    <div class="grid-2col">
+
+      <!-- 긴급 이벤트 내역 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            🚨 긴급 이벤트 내역
+            <span class="card-title-badge">오늘 2건</span>
+          </div>
+          <span class="card-link">전체 보기</span>
+        </div>
+        <div class="card-body">
+          <div class="event-list">
+
+            <div class="event-item critical">
+              <div class="event-severity severity-red"></div>
+              <div class="event-info">
+                <div class="event-type">SOS 발생</div>
+                <div class="event-detail">시니어 김순자 · 위치: 서울 강남구 자택</div>
+              </div>
+              <div class="event-time">오전 10:23</div>
+              <div class="event-status status-done">✅ 처리 완료</div>
+            </div>
+
+            <div class="event-item progress">
+              <div class="event-severity severity-yellow"></div>
+              <div class="event-info">
+                <div class="event-type">비정상 심박수</div>
+                <div class="event-detail">시니어 이철수 · 심박수 148 bpm 감지</div>
+              </div>
+              <div class="event-time">오후 2:15</div>
+              <div class="event-status status-progress">🔄 처리 중</div>
+            </div>
+
+            <!-- 이전 이벤트 -->
+            <div class="event-item" style="opacity:0.6;">
+              <div class="event-severity" style="background:#90A4AE;width:8px;height:8px;border-radius:50%;flex-shrink:0;"></div>
+              <div class="event-info">
+                <div class="event-type">낙상 감지</div>
+                <div class="event-detail">시니어 박영희 · 어제 오전 8:47</div>
+              </div>
+              <div class="event-time">어제</div>
+              <div class="event-status status-done">✅ 처리 완료</div>
+            </div>
+
+            <div class="event-item" style="opacity:0.6;">
+              <div class="event-severity" style="background:#90A4AE;width:8px;height:8px;border-radius:50%;flex-shrink:0;"></div>
+              <div class="event-info">
+                <div class="event-type">SOS 발생</div>
+                <div class="event-detail">시니어 최기동 · 어제 오후 6:02</div>
+              </div>
+              <div class="event-time">어제</div>
+              <div class="event-status status-done">✅ 처리 완료</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- 최근 가입 현황 바 차트 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📈 최근 가입 현황</div>
+          <span class="card-link">상세 통계</span>
+        </div>
+        <div class="card-body">
+          <div style="font-size:12px;color:#546E7A;margin-bottom:14px;">최근 7일 · 총 28명 가입</div>
+          <div class="bar-chart">
+            <div class="bar-chart-row">
+              <div class="bar-label">04/19</div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:35%"><span class="bar-fill-val">5</span></div>
+              </div>
+              <div class="bar-count">5명</div>
+            </div>
+            <div class="bar-chart-row">
+              <div class="bar-label">04/20</div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:21%"><span class="bar-fill-val">3</span></div>
+              </div>
+              <div class="bar-count">3명</div>
+            </div>
+            <div class="bar-chart-row">
+              <div class="bar-label">04/21</div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:50%"><span class="bar-fill-val">7</span></div>
+              </div>
+              <div class="bar-count">7명</div>
+            </div>
+            <div class="bar-chart-row">
+              <div class="bar-label">04/22</div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:14%"><span class="bar-fill-val">2</span></div>
+              </div>
+              <div class="bar-count">2명</div>
+            </div>
+            <div class="bar-chart-row">
+              <div class="bar-label">04/23</div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:28%"><span class="bar-fill-val">4</span></div>
+              </div>
+              <div class="bar-count">4명</div>
+            </div>
+            <div class="bar-chart-row">
+              <div class="bar-label">04/24</div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:100%"><span class="bar-fill-val">14</span></div>
+              </div>
+              <div class="bar-count">14명</div>
+            </div>
+            <div class="bar-chart-row">
+              <div class="bar-label">04/25</div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:21%"><span class="bar-fill-val">3</span></div>
+              </div>
+              <div class="bar-count">3명</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /grid-2col -->
+
+    <!-- 승인 대기 계정 + 시스템 상태 -->
+    <div class="grid-2col">
+
+      <!-- 승인 대기 계정 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            ⏳ 승인 대기 계정
+            <span class="card-title-badge yellow">5건</span>
+          </div>
+          <a class="card-link" href="accounts.html">전체 보기</a>
+        </div>
+        <div class="card-body">
+          <div class="approval-list">
+
+            <div class="approval-item">
+              <div class="approval-avatar" style="background:linear-gradient(135deg,#5C6BC0,#3F51B5);">박</div>
+              <div class="approval-info">
+                <div class="approval-name">박원장 <span class="role-badge role-doctor">의료진</span></div>
+                <div class="approval-meta">park@seoul-hospital.com</div>
+              </div>
+              <div class="approval-date">2025-02-01</div>
+              <div class="approval-actions">
+                <button class="btn-approve approve">승인</button>
+                <button class="btn-approve reject">거절</button>
+              </div>
+            </div>
+
+            <div class="approval-item">
+              <div class="approval-avatar" style="background:linear-gradient(135deg,#F5A623,#E6920F);">정</div>
+              <div class="approval-info">
+                <div class="approval-name">정간호 <span class="role-badge role-doctor">의료진</span></div>
+                <div class="approval-meta">jung@asan-med.co.kr</div>
+              </div>
+              <div class="approval-date">2025-02-12</div>
+              <div class="approval-actions">
+                <button class="btn-approve approve">승인</button>
+                <button class="btn-approve reject">거절</button>
+              </div>
+            </div>
+
+            <div class="approval-item">
+              <div class="approval-avatar" style="background:linear-gradient(135deg,#34C4A0,#2AA08A);">이</div>
+              <div class="approval-info">
+                <div class="approval-name">이자녀 <span class="role-badge role-child">자녀</span></div>
+                <div class="approval-meta">lee.child@gmail.com</div>
+              </div>
+              <div class="approval-date">2025-03-05</div>
+              <div class="approval-actions">
+                <button class="btn-approve approve">승인</button>
+                <button class="btn-approve reject">거절</button>
+              </div>
+            </div>
+
+            <div class="approval-item">
+              <div class="approval-avatar" style="background:linear-gradient(135deg,#E53935,#C62828);">오</div>
+              <div class="approval-info">
+                <div class="approval-name">오와치 <span class="role-badge role-watch">와치관리자</span></div>
+                <div class="approval-meta">oh@watchcare.kr</div>
+              </div>
+              <div class="approval-date">2025-03-18</div>
+              <div class="approval-actions">
+                <button class="btn-approve approve">승인</button>
+                <button class="btn-approve reject">거절</button>
+              </div>
+            </div>
+
+            <div class="approval-item">
+              <div class="approval-avatar" style="background:linear-gradient(135deg,#2B7FE0,#1A5FB4);">강</div>
+              <div class="approval-info">
+                <div class="approval-name">강의사 <span class="role-badge role-doctor">의료진</span></div>
+                <div class="approval-meta">kang@kangnam-clinic.com</div>
+              </div>
+              <div class="approval-date">2025-04-20</div>
+              <div class="approval-actions">
+                <button class="btn-approve approve">승인</button>
+                <button class="btn-approve reject">거절</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- 시스템 상태 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🖥️ 시스템 상태</div>
+          <span class="card-link">상세 보기</span>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;padding:12px 16px;background:#E6F9F5;border-radius:10px;">
+            <span style="font-size:18px;">✅</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:#34C4A0;">시스템 정상 운영 중</div>
+              <div style="font-size:11px;color:#546E7A;margin-top:2px;">마지막 확인: 2026-04-25 11:42:00</div>
+            </div>
+          </div>
+          <div class="system-status-grid">
+            <div class="sys-item">
+              <div class="sys-label">API 서버</div>
+              <div class="sys-bar-track"><div class="sys-bar-fill good" style="width:92%"></div></div>
+              <div class="sys-val">92%</div>
+              <div class="sys-desc">응답률</div>
+            </div>
+            <div class="sys-item">
+              <div class="sys-label">DB 사용량</div>
+              <div class="sys-bar-track"><div class="sys-bar-fill warn" style="width:68%"></div></div>
+              <div class="sys-val">68%</div>
+              <div class="sys-desc">용량</div>
+            </div>
+            <div class="sys-item">
+              <div class="sys-label">푸시 서비스</div>
+              <div class="sys-bar-track"><div class="sys-bar-fill good" style="width:99%"></div></div>
+              <div class="sys-val">99%</div>
+              <div class="sys-desc">가용성</div>
+            </div>
+            <div class="sys-item">
+              <div class="sys-label">CPU 사용률</div>
+              <div class="sys-bar-track"><div class="sys-bar-fill good" style="width:34%"></div></div>
+              <div class="sys-val">34%</div>
+              <div class="sys-desc">현재</div>
+            </div>
+            <div class="sys-item">
+              <div class="sys-label">메모리</div>
+              <div class="sys-bar-track"><div class="sys-bar-fill warn" style="width:71%"></div></div>
+              <div class="sys-val">71%</div>
+              <div class="sys-desc">사용 중</div>
+            </div>
+            <div class="sys-item">
+              <div class="sys-label">WebSocket</div>
+              <div class="sys-bar-track"><div class="sys-bar-fill good" style="width:44%"></div></div>
+              <div class="sys-val">44</div>
+              <div class="sys-desc">연결 수</div>
+            </div>
+          </div>
+
+          <div style="margin-top:20px;padding-top:16px;border-top:1px solid #F0F2F5;">
+            <div style="font-size:12px;color:#546E7A;margin-bottom:10px;font-weight:600;">최근 에러 로그</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+                <span style="color:#F5A623;">⚠</span>
+                <span style="color:#546E7A;">DB 연결 지연 35ms 초과</span>
+                <span style="color:#90A4AE;margin-left:auto;">11:38</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+                <span style="color:#34C4A0;">✓</span>
+                <span style="color:#546E7A;">자동 복구 완료</span>
+                <span style="color:#90A4AE;margin-left:auto;">11:38</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+                <span style="color:#90A4AE;">·</span>
+                <span style="color:#90A4AE;">이전 24시간 에러 없음</span>
+                <span style="color:#90A4AE;margin-left:auto;">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /grid-2col -->
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 3000);
+  }
+
+  function downloadReport() {
+    var rows = [
+      ['항목', '수치', '변화'],
+      ['전체 사용자', '1,247명', '+23'],
+      ['활성 사용자', '891명', '+15'],
+      ['오늘 측정 완료', '634명', '+8'],
+      ['이상 지표 감지', '12명', '-3'],
+    ];
+    var csv = rows.map(function(r) { return r.join(','); }).join('\n');
+    var blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'dashboard-report-' + new Date().toISOString().slice(0,10) + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('📥 리포트가 다운로드되었습니다.');
+  }
+</script>
+</body>
+</html>

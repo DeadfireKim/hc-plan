@@ -1,0 +1,970 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>관리자 포털 - 권한 관리</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #F4F6F9;
+      color: #1A2332;
+      min-width: 1280px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── 헤더 ── */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 60px;
+      background: #FFFFFF;
+      border-bottom: 1px solid #D1D9E6;
+      display: flex; align-items: center;
+      padding: 0 24px;
+      gap: 12px;
+    }
+    .header-logo { display: flex; align-items: center; gap: 10px; width: 216px; }
+    .logo-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, #2B7FE0, #34C4A0);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 16px; font-weight: 700;
+    }
+    .logo-text { font-size: 15px; font-weight: 700; color: #1A2332; }
+    .logo-sub  { font-size: 11px; color: #546E7A; margin-top: 1px; }
+    .header-divider { width: 1px; height: 28px; background: #D1D9E6; margin: 0 8px; }
+    .header-title { font-size: 14px; font-weight: 600; color: #2B7FE0; flex: 1; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .header-notif {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #F4F6F9; border: 1px solid #D1D9E6;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative; font-size: 16px;
+    }
+    .notif-badge {
+      position: absolute; top: -3px; right: -3px;
+      background: #E53935; color: #fff;
+      font-size: 9px; font-weight: 700;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid #fff;
+    }
+    .header-user { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .user-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #2B7FE0, #1A5FB4);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 13px; font-weight: 600;
+    }
+    .user-info { display: flex; flex-direction: column; }
+    .user-name  { font-size: 13px; font-weight: 600; color: #1A2332; }
+    .user-role  { font-size: 11px; color: #546E7A; }
+
+    /* ── 레이아웃 ── */
+    .layout { display: flex; padding-top: 60px; height: 100vh; }
+
+    /* ── 사이드바 ── */
+    .sidebar {
+      width: 240px; min-width: 240px;
+      background: #FFFFFF;
+      border-right: 1px solid #D1D9E6;
+      display: flex; flex-direction: column;
+      padding: 20px 0;
+      overflow-y: auto;
+      position: fixed; top: 60px; bottom: 0; left: 0;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px 10px 10px;
+      cursor: pointer;
+      font-size: 14px; color: #546E7A;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    .nav-item:hover { background: #F4F6F9; color: #1A2332; }
+    .nav-item.active {
+      background: #EBF3FF; color: #2B7FE0;
+      border-left-color: #2B7FE0; font-weight: 600;
+    }
+    .nav-badge {
+      margin-left: auto; background: #E53935; color: #fff;
+      font-size: 10px; font-weight: 700;
+      padding: 1px 6px; border-radius: 10px;
+    }
+    .nav-badge.yellow { background: #F5A623; }
+    .nav-icon { font-size: 17px; width: 20px; text-align: center; }
+    .sidebar-footer {
+      margin-top: auto; padding: 16px 20px;
+      border-top: 1px solid #D1D9E6;
+    }
+    .sidebar-footer-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; cursor: pointer;
+      font-size: 13px; color: #546E7A;
+    }
+    .sidebar-footer-item:hover { color: #1A2332; }
+
+    /* ── 메인 콘텐츠 ── */
+    .main {
+      flex: 1;
+      margin-left: 240px;
+      padding: 32px;
+      overflow-y: auto;
+      height: calc(100vh - 60px);
+    }
+
+    /* ── 페이지 헤더 ── */
+    .page-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .page-title { font-size: 22px; font-weight: 700; color: #1A2332; }
+    .page-subtitle { font-size: 13px; color: #546E7A; margin-top: 4px; line-height: 1.6; }
+    .page-actions { display: flex; gap: 10px; align-items: center; }
+
+    /* ── 버튼 ── */
+    .btn {
+      height: 40px; padding: 0 18px; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      border: none; display: inline-flex; align-items: center; gap: 6px;
+      text-decoration: none; transition: background 0.15s;
+    }
+    .btn-sm { height: 34px; padding: 0 14px; font-size: 13px; }
+    .btn-primary { background: #2B7FE0; color: #fff; }
+    .btn-primary:hover { background: #1A5FB4; }
+    .btn-outline { background: #fff; color: #2B7FE0; border: 1px solid #2B7FE0; }
+    .btn-outline:hover { background: #EBF3FF; }
+
+    /* ── 카드 ── */
+    .card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+    .card-header {
+      padding: 20px 24px 0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-title { font-size: 16px; font-weight: 700; color: #1A2332; }
+    .card-desc  { font-size: 12px; color: #546E7A; margin-top: 3px; }
+    .card-body  { padding: 20px 24px 24px; }
+
+    /* ── 역할 요약 바 ── */
+    .role-summary {
+      display: flex; gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .role-card {
+      flex: 1; min-width: 140px;
+      border-radius: 12px; padding: 14px 16px;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .role-card.senior   { background: #E8F5E9; border: 1px solid #C8E6C9; }
+    .role-card.child    { background: #E3F2FD; border: 1px solid #BBDEFB; }
+    .role-card.medical  { background: #FFF3E0; border: 1px solid #FFE0B2; }
+    .role-card.watch    { background: #F3E5F5; border: 1px solid #E1BEE7; }
+    .role-card.operator { background: #E8EAF6; border: 1px solid #C5CAE9; }
+    .role-card-icon { font-size: 22px; line-height: 1; }
+    .role-card-info {}
+    .role-card-name { font-size: 13px; font-weight: 700; }
+    .role-card.senior   .role-card-name { color: #2E7D32; }
+    .role-card.child    .role-card-name { color: #1565C0; }
+    .role-card.medical  .role-card-name { color: #E65100; }
+    .role-card.watch    .role-card-name { color: #7B1FA2; }
+    .role-card.operator .role-card-name { color: #283593; }
+    .role-card-desc { font-size: 11px; color: #546E7A; margin-top: 3px; line-height: 1.5; }
+
+    /* ── 탭 ── */
+    .tab-nav-wrap { padding: 0 24px; border-bottom: 1px solid #D1D9E6; }
+    .tab-nav { display: flex; }
+    .tab-btn {
+      padding: 13px 22px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; font-weight: 600; color: #78909C;
+      background: transparent; border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer; transition: all 0.15s;
+      margin-bottom: -1px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .tab-btn:hover { color: #2B7FE0; background: #F8FAFD; }
+    .tab-btn.active { color: #2B7FE0; border-bottom-color: #2B7FE0; }
+    .tab-btn-desc { font-size: 11px; font-weight: 400; color: #90A4AE; margin-top: 1px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── 권한 테이블 ── */
+    .perm-table-wrap { overflow-x: auto; }
+    .perm-table {
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+      font-size: 14px;
+      min-width: 820px;
+    }
+    .perm-table th:not(.feature-col) { width: calc((100% - 220px) / 5); }
+    .perm-table thead tr {
+      background: #EEF3FA;
+      border-bottom: 2px solid #C4D4E8;
+    }
+    .perm-table th {
+      padding: 16px 12px;
+      text-align: center;
+      font-size: 13px; font-weight: 600; color: #546E7A;
+      white-space: nowrap;
+    }
+    .perm-table th.feature-col { text-align: left; width: 220px; }
+    .perm-table th .role-sub { font-size: 11px; font-weight: 500; color: #6B8CAE; margin-top: 5px; }
+    /* 역할 컬럼별 상단 컬러 강조선 */
+    .perm-table thead th:nth-child(2) { border-top: 3px solid #43A047; }
+    .perm-table thead th:nth-child(3) { border-top: 3px solid #1E88E5; }
+    .perm-table thead th:nth-child(4) { border-top: 3px solid #FB8C00; }
+    .perm-table thead th:nth-child(5) { border-top: 3px solid #8E24AA; }
+    .perm-table thead th:nth-child(6) { border-top: 3px solid #3949AB; }
+    .perm-table tbody tr {
+      border-bottom: 1px solid #F0F2F5;
+      transition: background 0.12s;
+    }
+    .perm-table tbody tr:hover { background: #FAFBFD; }
+    .perm-table tbody tr:last-child { border-bottom: none; }
+    .perm-table td {
+      padding: 12px 12px;
+      text-align: center; vertical-align: middle;
+    }
+    .perm-table td.feature-cell { text-align: left; }
+    .feature-name { font-size: 14px; font-weight: 500; color: #1A2332; }
+    .feature-cat-badge {
+      display: inline-block;
+      font-size: 10px; font-weight: 600;
+      padding: 1px 7px; border-radius: 10px; margin-top: 3px;
+    }
+    .cat-health  { background: #E3F2FD; color: #1565C0; }
+    .cat-meds    { background: #E8F5E9; color: #2E7D32; }
+    .cat-sched   { background: #FFF8E1; color: #F57F17; }
+    .cat-comm    { background: #F3E5F5; color: #7B1FA2; }
+    .cat-doc     { background: #FFF3E0; color: #E65100; }
+    .cat-device  { background: #E8EAF6; color: #283593; }
+    .cat-system  { background: #FCE4EC; color: #C62828; }
+    .cat-phone   { background: #E0F7FA; color: #00697A; }
+
+    /* 그룹 구분 행 */
+    .perm-table tr.group-row td {
+      background: #EDF2FA;
+      padding: 10px 12px 10px 16px;
+      font-size: 15px; font-weight: 700; color: #1A3A6E;
+      letter-spacing: 0.3px; text-align: left;
+      border-bottom: 1px solid #B8CCE8;
+      border-top: 2px solid #B8CCE8;
+      border-left: 4px solid #2B7FE0;
+    }
+
+    /* 하위 메뉴 행 — 대메뉴와 연결 */
+    .perm-table tbody tr:not(.group-row) td.feature-cell {
+      border-left: 4px solid #B8CCE8;
+      padding-left: 20px;
+      background: #FAFBFD;
+    }
+    .perm-table tbody tr:not(.group-row):last-child td.feature-cell {
+      border-bottom-left-radius: 0;
+    }
+
+    /* 역할 헤더 칩 */
+    .role-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 20px;
+      font-size: 13px; font-weight: 700;
+    }
+    .role-chip.senior   { background: #C8E6C9; color: #1B5E20; border: 1px solid #A5D6A7; }
+    .role-chip.child    { background: #BBDEFB; color: #0D47A1; border: 1px solid #90CAF9; }
+    .role-chip.medical  { background: #FFE0B2; color: #BF360C; border: 1px solid #FFCC80; }
+    .role-chip.watch    { background: #E1BEE7; color: #4A148C; border: 1px solid #CE93D8; }
+    .role-chip.operator { background: #C5CAE9; color: #1A237E; border: 1px solid #9FA8DA; }
+
+    /* ── 토글 스위치 ── */
+    .toggle-wrap { text-align: center; vertical-align: middle; }
+    .toggle { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0;
+      background: #D1D9E6; border-radius: 12px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 18px; height: 18px; left: 3px; top: 3px;
+      background: #fff; border-radius: 50%;
+      transition: transform 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .toggle input:checked + .toggle-slider { background: #2B7FE0; }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+    .toggle.always-on input:checked + .toggle-slider { background: #34C4A0; }
+    .toggle.always-on { opacity: 0.7; }
+
+    /* 데이터 공개 범위 셀렉트 */
+    .perm-select {
+      height: 32px; padding: 0 8px;
+      border: 1px solid #D1D9E6; border-radius: 6px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 12px; color: #1A2332;
+      background: #fff; cursor: pointer; width: 100px;
+    }
+    .perm-select:focus { outline: none; border-color: #2B7FE0; }
+    .always-on-select { background: #F4F6F9; color: #78909C; }
+
+    /* 저장 영역 */
+    .save-bar {
+      display: flex; justify-content: flex-end; align-items: center;
+      gap: 12px; margin-top: 20px; padding-top: 16px;
+      border-top: 1px solid #D1D9E6;
+    }
+    .save-note { font-size: 13px; color: #546E7A; }
+
+    /* 이력 테이블 */
+    .history-table {
+      width: 100%; border-collapse: collapse; font-size: 14px;
+    }
+    .history-table thead tr { background: #F4F6F9; border-bottom: 2px solid #D1D9E6; }
+    .history-table th {
+      padding: 11px 14px; text-align: left;
+      font-size: 12px; font-weight: 600; color: #546E7A; white-space: nowrap;
+    }
+    .history-table tbody tr { border-bottom: 1px solid #F0F2F5; transition: background 0.12s; }
+    .history-table tbody tr:hover { background: #FAFBFD; }
+    .history-table tbody tr:last-child { border-bottom: none; }
+    .history-table td { padding: 12px 14px; vertical-align: middle; }
+    .change-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 700;
+    }
+    .badge-on  { background: #E8F5E9; color: #2E7D32; }
+    .badge-off { background: #FFEBEE; color: #C62828; }
+    .badge-changed { background: #FFF3E0; color: #E65100; }
+
+    /* 알림 토스트 */
+    .toast {
+      position: fixed; bottom: 32px; right: 32px; z-index: 9999;
+      background: #1A2332; color: #fff;
+      padding: 14px 22px; border-radius: 10px;
+      font-size: 14px; font-weight: 500;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .toast.show { opacity: 1; pointer-events: auto; }
+
+    /* 안내 박스 */
+    .info-box {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px 16px; border-radius: 10px;
+      font-size: 12px; line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .info-box.yellow { background: #FFF8E1; color: #7B5800; border-left: 3px solid #F5A623; }
+    .info-box.blue   { background: #EBF3FF; color: #1A4F9C; border-left: 3px solid #2B7FE0; }
+    .info-box-icon   { font-size: 16px; margin-top: 1px; }
+
+    /* ── 사이드바 토글 ── */
+    .sidebar-toggle-btn {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: transparent; border: none;
+      font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #546E7A; transition: background 0.15s; flex-shrink: 0;
+    }
+    .sidebar-toggle-btn:hover { background: #F4F6F9; color: #1A2332; }
+    .sidebar { transition: transform 0.25s ease; }
+    .main    { transition: margin-left 0.25s ease; }
+    body.sidebar-hidden .sidebar { transform: translateX(-240px); }
+    body.sidebar-hidden .main    { margin-left: 0; }  </style>
+</head>
+<body>
+
+<!-- ── 헤더 ── -->
+<header class="header">
+  <button class="sidebar-toggle-btn" onclick="document.body.classList.toggle('sidebar-hidden')" title="메뉴 접기/펼치기">☰</button>
+
+  <div class="header-logo">
+    <div class="logo-icon">H</div>
+    <div>
+      <div class="logo-text">HealthCare Portal</div>
+      <div class="logo-sub">관리자 포털</div>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <div class="header-title">권한 관리</div>
+  <div class="header-right">
+    <div class="header-notif">🔔<div class="notif-badge">3</div></div>
+    <div class="header-user">
+      <div class="user-avatar">관</div>
+      <div class="user-info">
+        <div class="user-name">김선숙</div>
+        <div class="user-role">시스템 운영자</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── 레이아웃 ── -->
+<div class="layout">
+
+  <!-- ── 사이드바 ── -->
+  <nav class="sidebar">
+    <a class="nav-item"  href="dashboard.html"><span class="nav-icon">📊</span> 대시보드</a>
+    <a class="nav-item"  href="notice.html"><span class="nav-icon">📢</span> 공지사항</a>
+    <a class="nav-item"  href="hospitals.html"><span class="nav-icon">🏥</span> 병원·기관 관리</a>
+    <a class="nav-item"  href="operators.html"><span class="nav-icon">👨‍💼</span> 운영자 관리</a>
+    <a class="nav-item"  href="accounts.html"><span class="nav-icon">👥</span> 계정 관리<span class="nav-badge yellow">5</span></a>
+    <a class="nav-item active" href="permissions.html"><span class="nav-icon">🔐</span> 권한 관리</a>
+    <a class="nav-item" href="peer-averages.html"><span class="nav-icon">📈</span> 또래 평균 관리</a>
+    <a class="nav-item"  href="settings.html"><span class="nav-icon">⚙️</span> 시스템 설정</a>
+
+  <div class="sidebar-footer">
+    <a href="profile.html" class="sidebar-footer-item"><span>👤</span> 내 계정</a>
+    <div class="sidebar-footer-item"><span>🚪</span> 로그아웃</div>
+  </div>
+  </nav>
+
+  <!-- ── 메인 ── -->
+  <main class="main">
+
+    <!-- 페이지 헤더 -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">권한 관리</div>
+        <div class="page-subtitle">앱에서 각 역할이 어떤 기능을 사용할 수 있는지, 어떤 건강 데이터를 볼 수 있는지 설정합니다.<br>변경 사항은 저장 후 즉시 반영됩니다.</div>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-outline" onclick="resetAll()">↺ 초기화</button>
+        <button class="btn btn-primary" onclick="savePermissions()">💾 변경사항 저장</button>
+      </div>
+    </div>
+
+    <!-- 역할 요약 -->
+    <div class="role-summary">
+      <div class="role-card senior">
+        <div class="role-card-icon">🧓</div>
+        <div class="role-card-info">
+          <div class="role-card-name">시니어</div>
+          <div class="role-card-desc">서비스 이용 주 대상자.<br>자신의 데이터에 전체 접근</div>
+        </div>
+      </div>
+      <div class="role-card child">
+        <div class="role-card-icon">👨‍👩‍👧</div>
+        <div class="role-card-info">
+          <div class="role-card-name">자녀 (보호자)</div>
+          <div class="role-card-desc">시니어가 허용한 범위에서<br>데이터 조회·알림 수신</div>
+        </div>
+      </div>
+      <div class="role-card medical">
+        <div class="role-card-icon">🩺</div>
+        <div class="role-card-info">
+          <div class="role-card-name">의료진</div>
+          <div class="role-card-desc">담당 시니어 건강 데이터 열람<br>및 소견서 작성</div>
+        </div>
+      </div>
+      <div class="role-card watch">
+        <div class="role-card-icon">⌚</div>
+        <div class="role-card-info">
+          <div class="role-card-name">와치관리자</div>
+          <div class="role-card-desc">기기 수집·매칭 관리.<br>개인 건강 데이터 열람 제한</div>
+        </div>
+      </div>
+      <div class="role-card operator">
+        <div class="role-card-icon">🛡️</div>
+        <div class="role-card-info">
+          <div class="role-card-name">운영자</div>
+          <div class="role-card-desc">시스템 전체 관리자.<br>모든 기능 접근 가능 (변경 불가)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 권한 설정 카드 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">권한 설정</div>
+        </div>
+      </div>
+      <div class="tab-nav-wrap">
+        <div class="tab-nav">
+          <button class="tab-btn active" onclick="switchTab('perm', this)">
+            🔧 기능 접근 권한
+          </button>
+          <button class="tab-btn" onclick="switchTab('data', this)">
+            👁️ 건강 데이터 공개 범위
+          </button>
+        </div>
+      </div>
+
+      <!-- 탭 1: 기능 접근 권한 -->
+      <div class="tab-panel active" id="panel-perm">
+        <div class="card-body">
+          <div class="info-box blue">
+            <div class="info-box-icon">💡</div>
+            <div>각 기능에 대한 역할별 접근 권한을 ON/OFF로 설정합니다. <strong>운영자</strong>는 모든 기능에 항상 접근 가능하며 변경할 수 없습니다.</div>
+          </div>
+          <div class="perm-table-wrap">
+            <table class="perm-table" id="permTable">
+              <thead>
+                <tr>
+                  <th class="feature-col">기능 항목</th>
+                  <th>
+                    <span class="role-chip senior">🧓 시니어</span>
+                    <div class="role-sub">본인 데이터</div>
+                  </th>
+                  <th>
+                    <span class="role-chip child">👨‍👩‍👧 자녀</span>
+                    <div class="role-sub">보호자</div>
+                  </th>
+                  <th>
+                    <span class="role-chip medical">🩺 의료진</span>
+                    <div class="role-sub">담당 시니어만</div>
+                  </th>
+                  <th>
+                    <span class="role-chip watch">⌚ 와치관리자</span>
+                    <div class="role-sub">기기 담당</div>
+                  </th>
+                  <th>
+                    <span class="role-chip operator">🛡️ 운영자</span>
+                    <div class="role-sub">변경 불가</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- 건강 모니터링 -->
+                <tr class="group-row">
+                  <td colspan="6">🩻 건강 모니터링</td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">건강 데이터 조회</div>
+                    <span class="feature-cat-badge cat-health">건강 모니터링</span>
+                  </td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle always-on"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label></td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">건강 데이터 수정</div>
+                    <span class="feature-cat-badge cat-health">건강 모니터링</span>
+                  </td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle always-on"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label></td>
+                </tr>
+                <!-- 복약 관리 -->
+                <tr class="group-row">
+                  <td colspan="6">💊 복약 관리</td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">복약 정보 조회</div>
+                    <span class="feature-cat-badge cat-meds">복약 관리</span>
+                  </td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle always-on"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label></td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">복약 정보 수정</div>
+                    <span class="feature-cat-badge cat-meds">복약 관리</span>
+                  </td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle always-on"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label></td>
+                </tr>
+                <!-- 일정 관리 -->
+                <tr class="group-row">
+                  <td colspan="6">📅 일정 관리</td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">일정 조회</div>
+                    <span class="feature-cat-badge cat-sched">일정 관리</span>
+                  </td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle always-on"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label></td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">일정 수정</div>
+                    <span class="feature-cat-badge cat-sched">일정 관리</span>
+                  </td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle always-on"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label></td>
+                </tr>
+                <!-- 커뮤니케이션 -->
+                <tr class="group-row">
+                  <td colspan="6">💬 커뮤니케이션 · 의료 문서</td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">의료진 메시지</div>
+                    <span class="feature-cat-badge cat-comm">커뮤니케이션</span>
+                  </td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle always-on"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label></td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">소견서 조회</div>
+                    <span class="feature-cat-badge cat-doc">의료 문서</span>
+                  </td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle always-on"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label></td>
+                </tr>
+                <!-- 스마트폰 사용 패턴 분석 -->
+                <tr class="group-row">
+                  <td colspan="6">📱 스마트폰 사용 패턴 분석</td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">사용 패턴 조회</div>
+                    <span class="feature-cat-badge cat-phone">패턴 분석</span>
+                  </td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle always-on"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label></td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">이상 패턴 알림</div>
+                    <span class="feature-cat-badge cat-phone">패턴 분석</span>
+                  </td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle always-on"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label></td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">패턴 분석 리포트</div>
+                    <span class="feature-cat-badge cat-phone">패턴 분석</span>
+                  </td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle always-on"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label></td>
+                </tr>
+
+                <!-- 디바이스 · 시스템 -->
+                <tr class="group-row">
+                  <td colspan="6">📟 디바이스 관리 · 시스템</td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">기기 설정</div>
+                    <span class="feature-cat-badge cat-device">디바이스 관리</span>
+                  </td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle always-on"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label></td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">의료진-시니어 매칭</div>
+                    <span class="feature-cat-badge cat-device">디바이스 관리</span>
+                  </td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle always-on"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label></td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">계정 관리</div>
+                    <span class="feature-cat-badge cat-system">시스템</span>
+                  </td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle"><input type="checkbox" onchange="markDirty()"><span class="toggle-slider"></span></label></td>
+                  <td class="toggle-wrap"><label class="toggle always-on"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="save-bar">
+            <span class="save-note" id="saveNote">변경 사항이 없습니다.</span>
+            <button class="btn btn-sm btn-outline" onclick="resetAll()">↺ 초기화</button>
+            <button class="btn btn-sm btn-primary" onclick="savePermissions()">💾 저장</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 탭 2: 건강 데이터 공개 범위 -->
+      <div class="tab-panel" id="panel-data">
+        <div class="card-body">
+          <div class="info-box yellow">
+            <div class="info-box-icon">⚠️</div>
+            <div>시니어 본인이 앱에서 공개 범위를 개별 변경한 경우, 해당 시니어에 한해 여기 설정보다 더 제한적으로 적용됩니다. <strong>운영자</strong>는 항상 전체 공개 상태입니다.</div>
+          </div>
+          <div class="perm-table-wrap">
+            <table class="perm-table">
+              <thead>
+                <tr>
+                  <th class="feature-col">건강 데이터 항목</th>
+                  <th>
+                    <span class="role-chip child">👨‍👩‍👧 자녀</span>
+                    <div class="role-sub">보호자</div>
+                  </th>
+                  <th>
+                    <span class="role-chip medical">🩺 의료진</span>
+                    <div class="role-sub">담당 시니어만</div>
+                  </th>
+                  <th>
+                    <span class="role-chip watch">⌚ 와치관리자</span>
+                    <div class="role-sub">기기 담당</div>
+                  </th>
+                  <th>
+                    <span class="role-chip operator">🛡️ 운영자</span>
+                    <div class="role-sub">변경 불가</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- 활력징후 -->
+                <tr class="group-row">
+                  <td colspan="5">❤️ 활력징후</td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">심박수</div>
+                    <span class="feature-cat-badge cat-health">활력징후</span>
+                  </td>
+                  <td><select class="perm-select" onchange="markDirty()"><option>전체 공개</option><option>요약만</option><option>비공개</option></select></td>
+                  <td><select class="perm-select" onchange="markDirty()"><option>전체 공개</option><option>요약만</option><option>비공개</option></select></td>
+                  <td><select class="perm-select" onchange="markDirty()"><option>전체 공개</option><option>요약만</option><option>비공개</option></select></td>
+                  <td><select class="perm-select always-on-select" disabled><option>전체 공개</option></select></td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">혈압</div>
+                    <span class="feature-cat-badge cat-health">활력징후</span>
+                  </td>
+                  <td><select class="perm-select" onchange="markDirty()"><option>전체 공개</option><option>요약만</option><option>비공개</option></select></td>
+                  <td><select class="perm-select" onchange="markDirty()"><option>전체 공개</option><option>요약만</option><option>비공개</option></select></td>
+                  <td><select class="perm-select" onchange="markDirty()"><option>전체 공개</option><option>요약만</option><option>비공개</option></select></td>
+                  <td><select class="perm-select always-on-select" disabled><option>전체 공개</option></select></td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">혈중 산소</div>
+                    <span class="feature-cat-badge cat-health">활력징후</span>
+                  </td>
+                  <td><select class="perm-select" onchange="markDirty()"><option>전체 공개</option><option>요약만</option><option>비공개</option></select></td>
+                  <td><select class="perm-select" onchange="markDirty()"><option>전체 공개</option><option>요약만</option><option>비공개</option></select></td>
+                  <td><select class="perm-select" onchange="markDirty()"><option>전체 공개</option><option>요약만</option><option>비공개</option></select></td>
+                  <td><select class="perm-select always-on-select" disabled><option>전체 공개</option></select></td>
+                </tr>
+                <!-- 일상 활동 -->
+                <tr class="group-row">
+                  <td colspan="5">🚶 일상 활동</td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">수면 패턴</div>
+                    <span class="feature-cat-badge cat-sched">일상 활동</span>
+                  </td>
+                  <td><select class="perm-select" onchange="markDirty()"><option>전체 공개</option><option>요약만</option><option selected>비공개</option></select></td>
+                  <td><select class="perm-select" onchange="markDirty()"><option>전체 공개</option><option>요약만</option><option>비공개</option></select></td>
+                  <td><select class="perm-select" onchange="markDirty()"><option selected>요약만</option><option>전체 공개</option><option>비공개</option></select></td>
+                  <td><select class="perm-select always-on-select" disabled><option>전체 공개</option></select></td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">걸음수·활동량</div>
+                    <span class="feature-cat-badge cat-sched">일상 활동</span>
+                  </td>
+                  <td><select class="perm-select" onchange="markDirty()"><option>전체 공개</option><option>요약만</option><option>비공개</option></select></td>
+                  <td><select class="perm-select" onchange="markDirty()"><option>전체 공개</option><option>요약만</option><option>비공개</option></select></td>
+                  <td><select class="perm-select" onchange="markDirty()"><option>전체 공개</option><option>요약만</option><option>비공개</option></select></td>
+                  <td><select class="perm-select always-on-select" disabled><option>전체 공개</option></select></td>
+                </tr>
+                <!-- 복약 · 식이 -->
+                <tr class="group-row">
+                  <td colspan="5">🍽️ 복약 · 식이</td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">복약 기록</div>
+                    <span class="feature-cat-badge cat-meds">복약 관리</span>
+                  </td>
+                  <td><select class="perm-select" onchange="markDirty()"><option>전체 공개</option><option>요약만</option><option>비공개</option></select></td>
+                  <td><select class="perm-select" onchange="markDirty()"><option>전체 공개</option><option>요약만</option><option>비공개</option></select></td>
+                  <td><select class="perm-select" onchange="markDirty()"><option selected>비공개</option><option>요약만</option><option>전체 공개</option></select></td>
+                  <td><select class="perm-select always-on-select" disabled><option>전체 공개</option></select></td>
+                </tr>
+                <tr>
+                  <td class="feature-cell">
+                    <div class="feature-name">식사 기록</div>
+                    <span class="feature-cat-badge cat-meds">식이 관리</span>
+                  </td>
+                  <td><select class="perm-select" onchange="markDirty()"><option>전체 공개</option><option selected>요약만</option><option>비공개</option></select></td>
+                  <td><select class="perm-select" onchange="markDirty()"><option>전체 공개</option><option>요약만</option><option>비공개</option></select></td>
+                  <td><select class="perm-select" onchange="markDirty()"><option selected>비공개</option><option>요약만</option><option>전체 공개</option></select></td>
+                  <td><select class="perm-select always-on-select" disabled><option>전체 공개</option></select></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="save-bar">
+            <span class="save-note" id="saveNote2">변경 사항이 없습니다.</span>
+            <button class="btn btn-sm btn-primary" onclick="savePermissions()">💾 저장</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 권한 변경 이력 카드 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">권한 변경 이력</div>
+          <div class="card-desc">최근 30일간 권한 설정 변경 내역입니다.</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th style="width:160px;">변경 일시</th>
+              <th>변경 항목</th>
+              <th style="width:80px;">대상 역할</th>
+              <th style="width:110px;">변경 전</th>
+              <th style="width:110px;">변경 후</th>
+              <th style="width:90px;">처리자</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:#546E7A; font-size:13px;">2026-04-25 14:32</td>
+              <td><span style="font-weight:500;">소견서 조회</span></td>
+              <td><span class="role-chip child" style="font-size:11px; padding:2px 8px;">자녀</span></td>
+              <td><span class="change-badge badge-off">OFF</span></td>
+              <td><span class="change-badge badge-on">ON</span></td>
+              <td style="font-size:13px; color:#1A2332;">김선숙</td>
+            </tr>
+            <tr>
+              <td style="color:#546E7A; font-size:13px;">2026-04-22 09:15</td>
+              <td><span style="font-weight:500;">수면 패턴 공개 범위</span></td>
+              <td><span class="role-chip child" style="font-size:11px; padding:2px 8px;">자녀</span></td>
+              <td><span class="change-badge badge-changed">전체 공개</span></td>
+              <td><span class="change-badge badge-changed">비공개</span></td>
+              <td style="font-size:13px; color:#1A2332;">김선숙</td>
+            </tr>
+            <tr>
+              <td style="color:#546E7A; font-size:13px;">2026-04-18 11:40</td>
+              <td><span style="font-weight:500;">건강 데이터 수정</span></td>
+              <td><span class="role-chip medical" style="font-size:11px; padding:2px 8px;">의료진</span></td>
+              <td><span class="change-badge badge-off">OFF</span></td>
+              <td><span class="change-badge badge-on">ON</span></td>
+              <td style="font-size:13px; color:#1A2332;">김선숙</td>
+            </tr>
+            <tr>
+              <td style="color:#546E7A; font-size:13px;">2026-04-10 16:05</td>
+              <td><span style="font-weight:500;">복약 정보 조회</span></td>
+              <td><span class="role-chip watch" style="font-size:11px; padding:2px 8px;">와치관리자</span></td>
+              <td><span class="change-badge badge-on">ON</span></td>
+              <td><span class="change-badge badge-off">OFF</span></td>
+              <td style="font-size:13px; color:#1A2332;">김선숙</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- 토스트 -->
+<div class="toast" id="toast"></div>
+
+<script>
+  let isDirty = false;
+
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + id).classList.add('active');
+  }
+
+  function markDirty() {
+    isDirty = true;
+    ['saveNote', 'saveNote2'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.textContent = '저장되지 않은 변경 사항이 있습니다.'; el.style.color = '#F5A623'; }
+    });
+  }
+
+  function savePermissions() {
+    isDirty = false;
+    ['saveNote', 'saveNote2'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.textContent = '변경 사항이 없습니다.'; el.style.color = '#546E7A'; }
+    });
+    showToast('✅ 권한 설정이 저장되었습니다.');
+  }
+
+  function resetAll() {
+    if (!confirm('모든 권한 설정을 초기값으로 되돌리시겠습니까?')) return;
+    isDirty = false;
+    ['saveNote', 'saveNote2'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.textContent = '변경 사항이 없습니다.'; el.style.color = '#546E7A'; }
+    });
+    showToast('🔄 권한 설정이 초기화되었습니다.');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>

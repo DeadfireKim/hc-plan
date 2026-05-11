@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>조언 메시지 작성 — 헬스케어 포털</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto Sans KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #2B7FE0;
+      --primary-dark: #1A5FB4;
+      --secondary: #34C4A0;
+      --danger: #E53935;
+      --warning: #F5A623;
+      --bg: #F4F6F9;
+      --surface: #FFFFFF;
+      --border: #D1D9E6;
+      --text-primary: #1A2332;
+      --text-secondary: #546E7A;
+      --sidebar-w: 240px;
+      --header-h: 60px;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-width: 1280px;
+      min-height: 100vh;
+    }
+
+    /* ── 헤더 ── */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: var(--header-h); background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 24px; gap: 16px;
+    }
+    .header-logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; color: var(--primary); text-decoration: none; min-width: 200px; }
+    .header-logo .logo-icon { width: 32px; height: 32px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; font-weight: 700; }
+    .header-title { font-size: 14px; font-weight: 500; color: var(--text-secondary); padding-left: 16px; border-left: 1px solid var(--border); }
+    .header-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+    .header-notif { position: relative; width: 36px; height: 36px; background: var(--bg); border-radius: 8px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 17px; }
+    .header-notif .badge { position: absolute; top: -4px; right: -4px; width: 16px; height: 16px; background: var(--danger); border-radius: 50%; font-size: 10px; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: center; }
+    .header-account { display: flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border: 1px solid var(--border); border-radius: 24px; cursor: pointer; background: var(--surface); }
+    .header-account .avatar { width: 30px; height: 30px; background: var(--primary); border-radius: 50%; color: #fff; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+    .header-account span { font-size: 14px; font-weight: 500; }
+    .header-account .caret { color: var(--text-secondary); font-size: 11px; }
+
+    /* ── 사이드바 ── */
+    .sidebar { position: fixed; top: var(--header-h); left: 0; bottom: 0; width: var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 16px 0; overflow-y: auto; }
+    .sidebar-section-label { font-size: 11px; font-weight: 600; letter-spacing: .6px; color: var(--text-secondary); padding: 12px 20px 6px; text-transform: uppercase; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; font-size: 14px; font-weight: 500; color: var(--text-secondary); text-decoration: none; cursor: pointer; transition: background .12s, color .12s; position: relative; }
+    .nav-item:hover { background: var(--bg); color: var(--text-primary); }
+    .nav-item.active { color: var(--primary); background: #EBF3FD; font-weight: 600; }
+    .nav-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--primary); border-radius: 0 2px 2px 0; }
+    .nav-item .nav-icon { font-size: 18px; width: 22px; text-align: center; }
+    .nav-badge { margin-left: auto; background: var(--danger); color: #fff; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 10px; }
+    .nav-badge.warn { background: var(--warning); }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 10px 20px; }
+    .sidebar-footer { margin-top: auto; padding: 12px 20px; font-size: 12px; color: var(--text-secondary); }
+
+    /* ── 메인 ── */
+    .main { margin-top: var(--header-h); margin-left: var(--sidebar-w); padding: 32px; min-height: calc(100vh - var(--header-h)); }
+
+    .btn { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; transition: background .15s; font-family: inherit; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-outline { background: var(--surface); color: var(--text-primary); border: 1px solid var(--border); }
+    .btn-outline:hover { background: var(--bg); }
+    .btn-sm { height: 34px; padding: 0 14px; font-size: 13px; border-radius: 6px; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-danger:hover { background: #C62828; }
+    .btn-secondary { background: var(--secondary); color: #fff; }
+    .btn-secondary:hover { background: #28A98A; }
+    .btn-lg { height: 52px; padding: 0 32px; font-size: 15px; border-radius: 10px; }
+
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .page-title  { font-size: 22px; font-weight: 700; }
+    .page-subtitle { font-size: 14px; color: var(--text-secondary); margin-top: 3px; }
+
+    /* ── 2컬럼 레이아웃 ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* 공통 카드 */
+    .card {
+      background: var(--surface);
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+    .card-body  { padding: 24px; }
+
+    /* 폼 요소 공통 */
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; letter-spacing: .3px; }
+    .form-label .required { color: var(--danger); margin-left: 2px; }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%; padding: 0 14px; height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 8px; font-size: 14px;
+      font-family: inherit; color: var(--text-primary);
+      background: var(--surface);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(43,127,224,.12);
+    }
+    .form-textarea { height: auto; padding-top: 12px; padding-bottom: 12px; resize: vertical; line-height: 1.65; }
+
+    /* 검색 드롭다운 */
+    .search-dropdown-wrap { position: relative; }
+    .search-dropdown-wrap .dropdown-icon {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--text-secondary); pointer-events: none;
+    }
+    .patient-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 5px 12px 5px 8px;
+      background: #EBF3FD; border-radius: 20px;
+      font-size: 13px; font-weight: 600; color: var(--primary);
+      margin-top: 10px;
+    }
+    .patient-chip .chip-avatar {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--danger); color: #fff;
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .patient-chip .chip-remove {
+      cursor: pointer; color: var(--text-secondary);
+      font-size: 14px; line-height: 1;
+    }
+    .patient-chip .chip-remove:hover { color: var(--danger); }
+
+    /* 체크박스 */
+    .checkbox-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px; cursor: pointer;
+      font-size: 14px; font-weight: 500;
+      transition: background .12s, border-color .12s;
+    }
+    .checkbox-row:hover { background: var(--bg); border-color: var(--primary); }
+    .checkbox-row input[type=checkbox] {
+      width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer;
+    }
+    .checkbox-row .cb-icon { font-size: 16px; }
+
+    /* 메시지 유형 선택 */
+    .type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .type-option { position: relative; }
+    .type-option input[type=radio] { position: absolute; opacity: 0; width: 0; height: 0; }
+    .type-label {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 16px 10px; border: 2px solid var(--border);
+      border-radius: 12px; cursor: pointer;
+      transition: border-color .15s, background .15s;
+      text-align: center; gap: 8px;
+    }
+    .type-label:hover { border-color: var(--primary); background: #EBF3FD; }
+    .type-option input[type=radio]:checked + .type-label {
+      border-color: var(--primary); background: #EBF3FD;
+    }
+    .type-option input[type=radio]:checked + .type-label .type-icon { transform: scale(1.1); }
+    .type-icon { font-size: 28px; transition: transform .15s; }
+    .type-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .type-desc { font-size: 11px; color: var(--text-secondary); }
+
+    /* 긴급 선택 시 강조 */
+    #type-urgent:checked + .type-label {
+      border-color: var(--danger); background: #FFEBEE;
+    }
+
+    /* 빠른 삽입 버튼 */
+    .quick-btns { display: flex; flex-direction: column; gap: 8px; }
+    .quick-btn {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px; cursor: pointer;
+      background: var(--surface); font-family: inherit;
+      text-align: left; transition: background .12s, border-color .12s;
+    }
+    .quick-btn:hover { background: var(--bg); border-color: var(--primary); }
+    .quick-btn .qb-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .quick-btn .qb-content { flex: 1; }
+    .quick-btn .qb-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .quick-btn .qb-preview { font-size: 12px; color: var(--text-secondary); margin-top: 3px; line-height: 1.4; }
+    .quick-btn .qb-arrow { color: var(--text-secondary); font-size: 14px; flex-shrink: 0; align-self: center; }
+
+    /* 전송 버튼 영역 */
+    .send-area {
+      padding: 20px 24px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .char-count { font-size: 12px; color: var(--text-secondary); margin-left: auto; }
+    .char-count span { font-weight: 600; color: var(--text-primary); }
+
+    /* ── 우측 히스토리 패널 ── */
+    .history-list { }
+    .history-item {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: background .12s;
+    }
+    .history-item:last-child { border-bottom: none; }
+    .history-item:hover { background: var(--bg); }
+    .history-item.unread { background: #EBF3FD; }
+    .history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .history-recipient { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .history-time { font-size: 11px; color: var(--text-secondary); }
+    .history-type {
+      font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px;
+    }
+    .ht-normal  { background: #E3F2FD; color: var(--primary); }
+    .ht-urgent  { background: #FFEBEE; color: var(--danger); }
+    .ht-meds    { background: #E8F5E9; color: #2E7D32; }
+    .history-preview { font-size: 13px; color: var(--text-secondary); line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .history-meta { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+    .history-avatar { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; }
+    .read-check { font-size: 12px; color: var(--secondary); font-weight: 600; }
+    .unread-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); margin-left: auto; }
+
+    /* 태그 */
+    .tag { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 12px; }
+    .tag-info { background: #E3F2FD; color: var(--primary); }
+
+    /* 통계 미니 카드 */
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 16px 20px; background: var(--bg); }
+    .stat-item { background: var(--surface); border-radius: 10px; padding: 12px; text-align: center; }
+    .stat-value { font-size: 20px; font-weight: 700; color: var(--primary); }
+    .stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- ── 헤더 ── -->
+<header class="header">
+  <a class="header-logo" href="#">
+    <div class="logo-icon">H</div>
+    HealthCare
+  </a>
+  <span class="header-title">의료진 포털</span>
+  <div class="header-right">
+    <div class="header-notif">🔔<span class="badge">5</span></div>
+    <div class="header-account">
+      <div class="avatar">박</div>
+      <span>박원장</span>
+      <span class="caret">▾</span>
+    </div>
+  </div>
+</header>
+
+<!-- ── 사이드바 ── -->
+<nav class="sidebar">
+  <span class="sidebar-section-label">메인</span>
+  <a class="nav-item" href="dashboard.html"><span class="nav-icon">📊</span> 대시보드</a>
+  <a class="nav-item" href="#"><span class="nav-icon">👥</span> 환자 목록<span class="nav-badge">12</span></a>
+  <a class="nav-item active" href="#"><span class="nav-icon">💬</span> 메시지<span class="nav-badge">5</span></a>
+  <a class="nav-item" href="#"><span class="nav-icon">📅</span> 상담 일정<span class="nav-badge warn">2</span></a>
+  <div class="sidebar-divider"></div>
+  <span class="sidebar-section-label">문서</span>
+  <a class="nav-item" href="#"><span class="nav-icon">📋</span> 소견서</a>
+  <a class="nav-item" href="#"><span class="nav-icon">💊</span> 처방</a>
+  <div class="sidebar-divider"></div>
+  <span class="sidebar-section-label">설정</span>
+  <a class="nav-item" href="#"><span class="nav-icon">👤</span> 내 계정</a>
+  <div class="sidebar-footer">v2.4.1 · © 2026 HealthCare</div>
+</nav>
+
+<!-- ── 메인 ── -->
+<main class="main">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">조언 메시지 작성</h1>
+      <p class="page-subtitle">환자 또는 보호자에게 건강 관련 메시지를 전송합니다</p>
+    </div>
+    <a href="dashboard.html" class="btn btn-outline">← 대시보드로</a>
+  </div>
+
+  <div class="two-col">
+
+    <!-- 좌측: 메시지 작성 -->
+    <div>
+
+      <!-- 수신 대상 선택 -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📍 수신 대상 선택</span>
+        </div>
+        <div class="card-body">
+
+          <!-- 환자 검색 -->
+          <div class="form-group">
+            <label class="form-label">환자 선택 <span class="required">*</span></label>
+            <div class="search-dropdown-wrap">
+              <input class="form-input" type="text" placeholder="🔍  환자 이름 또는 생년월일 검색..." value="">
+              <span class="dropdown-icon">▾</span>
+            </div>
+            <!-- 선택된 환자 칩 -->
+            <div style="margin-top:10px;">
+              <div class="patient-chip">
+                <div class="chip-avatar">김</div>
+                김순자
+                <span style="font-size:12px; color:var(--text-secondary);">(75세 · 위험)</span>
+                <span class="chip-remove" onclick="this.closest('.patient-chip').remove()">✕</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 자녀 동시 전송 -->
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">추가 수신 설정</label>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <label class="checkbox-row">
+                <input type="checkbox" checked>
+                <span class="cb-icon">👨‍👩‍👧</span>
+                <div>
+                  <div style="font-size:14px; font-weight:600;">자녀에게 동시 전송</div>
+                  <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">김민준 (아들) · 010-3421-xxxx</div>
+                </div>
+              </label>
+              <label class="checkbox-row">
+                <input type="checkbox">
+                <span class="cb-icon">📱</span>
+                <div>
+                  <div style="font-size:14px; font-weight:600;">SMS 문자 동시 발송</div>
+                  <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">앱 미설치 수신자에게도 문자로 전송</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 메시지 유형 -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📂 메시지 유형 선택</span>
+        </div>
+        <div class="card-body">
+          <div class="type-grid">
+
+            <div class="type-option">
+              <input type="radio" name="msgtype" id="type-normal" value="normal" checked>
+              <label class="type-label" for="type-normal">
+                <span class="type-icon">💬</span>
+                <span class="type-name">일반 조언</span>
+                <span class="type-desc">생활 습관 개선, 일상 건강 조언</span>
+              </label>
+            </div>
+
+            <div class="type-option">
+              <input type="radio" name="msgtype" id="type-urgent" value="urgent">
+              <label class="type-label" for="type-urgent">
+                <span class="type-icon">🚨</span>
+                <span class="type-name">긴급 주의</span>
+                <span class="type-desc">즉각적 조치 필요, 푸시 알림 강조</span>
+              </label>
+            </div>
+
+            <div class="type-option">
+              <input type="radio" name="msgtype" id="type-meds" value="meds">
+              <label class="type-label" for="type-meds">
+                <span class="type-icon">💊</span>
+                <span class="type-name">복약 안내</span>
+                <span class="type-desc">복용 방법, 일정, 주의사항 안내</span>
+              </label>
+            </div>
+
+          </div>
+
+          <!-- 긴급 선택 시 경고 안내 -->
+          <div id="urgent-notice" style="display:none; margin-top:14px; padding:12px 16px; background:#FFEBEE; border-radius:8px; font-size:13px; color:var(--danger); font-weight:500;">
+            ⚠️ 긴급 주의 메시지는 환자 앱 최상단 팝업 + 보호자 즉시 알림으로 발송됩니다.
+          </div>
+        </div>
+      </div>
+
+      <!-- 메시지 작성 -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">✏️ 메시지 내용</span>
+          <span style="font-size:13px; color:var(--text-secondary);">환자에게 표시되는 내용입니다</span>
+        </div>
+        <div class="card-body" style="padding-bottom:0;">
+
+          <!-- 제목 -->
+          <div class="form-group">
+            <label class="form-label">제목 <span class="required">*</span></label>
+            <input class="form-input" type="text" placeholder="메시지 제목을 입력하세요" value="혈압 수치 관련 주의사항 안내">
+          </div>
+
+          <!-- 본문 -->
+          <div class="form-group">
+            <label class="form-label">본문 <span class="required">*</span></label>
+            <textarea class="form-textarea" rows="8" id="msg-body" oninput="updateCount()" placeholder="환자에게 전달할 건강 조언을 작성하세요...">김순자 환자님, 안녕하세요. 박원장입니다.
+
+오늘 오전 측정하신 혈압이 158/95로 다소 높게 나왔습니다. 아래 사항을 꼭 지켜주세요.
+
+1. 오늘 처방해드린 암로디핀을 빠짐없이 복용해주세요.
+2. 짜게 드시지 마시고, 국물 섭취를 줄여주세요.
+3. 갑자기 일어나지 말고 천천히 움직여주세요.
+4. 어지러움, 두통, 호흡 곤란이 생기면 즉시 연락 주세요.
+
+궁금한 점이 있으시면 언제든 메시지 주세요. 건강하세요!</textarea>
+          </div>
+
+          <!-- 자주 쓰는 문구 빠른 삽입 -->
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">빠른 문구 삽입</label>
+            <div class="quick-btns">
+              <button class="quick-btn" onclick="insertText('저나트륨 식단 안내')">
+                <span class="qb-icon">🥗</span>
+                <div class="qb-content">
+                  <div class="qb-title">저나트륨 식단 안내</div>
+                  <div class="qb-preview">국물, 젓갈, 김치 섭취를 줄이고 싱겁게 드세요. 하루 나트륨 2,000mg 이하를 목표로...</div>
+                </div>
+                <span class="qb-arrow">↙ 삽입</span>
+              </button>
+              <button class="quick-btn" onclick="insertText('복약 지도')">
+                <span class="qb-icon">💊</span>
+                <div class="qb-content">
+                  <div class="qb-title">복약 지도</div>
+                  <div class="qb-preview">처방된 약은 반드시 정해진 시간에 복용하시고, 임의로 중단하지 마세요. 부작용이...</div>
+                </div>
+                <span class="qb-arrow">↙ 삽입</span>
+              </button>
+              <button class="quick-btn" onclick="insertText('운동 권장')">
+                <span class="qb-icon">🚶</span>
+                <div class="qb-content">
+                  <div class="qb-title">가벼운 운동 권장</div>
+                  <div class="qb-preview">식사 후 30분 후 10–15분 천천히 걷기를 권장합니다. 무릎에 무리가 가지 않도록...</div>
+                </div>
+                <span class="qb-arrow">↙ 삽입</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 전송 버튼 영역 -->
+        <div class="send-area">
+          <button class="btn btn-outline" onclick="saveDraft()">💾 임시저장</button>
+          <button class="btn btn-primary btn-lg" onclick="sendMsg()">📤 메시지 전송</button>
+          <div class="char-count"><span id="char-cnt">232</span>자</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 우측: 메시지 히스토리 -->
+    <div>
+
+      <!-- 통계 -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📊 이번 달 전송 현황</span>
+        </div>
+        <div class="stat-row">
+          <div class="stat-item">
+            <div class="stat-value">38</div>
+            <div class="stat-label">전송 메시지</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" style="color:var(--secondary);">94%</div>
+            <div class="stat-label">읽음 률</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" style="color:var(--warning);">5</div>
+            <div class="stat-label">미확인</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 히스토리 목록 -->
+      <div class="card" style="margin-bottom:0;">
+        <div class="card-header">
+          <span class="card-title">📨 이전에 보낸 메시지</span>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-outline btn-sm" style="font-size:12px;">전체</button>
+            <button class="btn btn-primary btn-sm" style="font-size:12px;">미확인 5</button>
+          </div>
+        </div>
+        <div class="history-list">
+
+          <!-- 1 -->
+          <div class="history-item unread">
+            <div class="history-header">
+              <div class="history-recipient">
+                <div class="history-avatar" style="background:var(--danger);">김</div>
+                김순자
+                <span class="history-type ht-urgent">긴급 주의</span>
+              </div>
+              <span class="history-time">오늘 08:00</span>
+            </div>
+            <div class="history-preview">오늘 혈압이 많이 높게 측정되었네요. 오전 중으로 저에게 전화 주시겠어요? 체크 후 약물 조정이 필요할 수 있습니다.</div>
+            <div class="history-meta">
+              <span class="read-check">✔✔ 읽음</span>
+              <div class="unread-dot"></div>
+            </div>
+          </div>
+
+          <!-- 2 -->
+          <div class="history-item">
+            <div class="history-header">
+              <div class="history-recipient">
+                <div class="history-avatar" style="background:#F5A623;">이</div>
+                이철수
+                <span class="history-type ht-normal">일반 조언</span>
+              </div>
+              <span class="history-time">어제 14:22</span>
+            </div>
+            <div class="history-preview">심박수가 다소 높아 보입니다. 커피 섭취를 줄이고 스트레스 관리에 신경 써주세요.</div>
+            <div class="history-meta">
+              <span class="read-check">✔✔ 읽음</span>
+            </div>
+          </div>
+
+          <!-- 3 -->
+          <div class="history-item unread">
+            <div class="history-header">
+              <div class="history-recipient">
+                <div class="history-avatar" style="background:#F5A623;">박</div>
+                박영자
+                <span class="history-type ht-meds">복약 안내</span>
+              </div>
+              <span class="history-time">어제 09:30</span>
+            </div>
+            <div class="history-preview">오늘부터 메트포르민 용량을 500mg에서 750mg으로 조정합니다. 저녁 식사 후 복용해주세요.</div>
+            <div class="history-meta">
+              <span style="font-size:12px; color:var(--text-secondary);">✔ 전송됨 (미열람)</span>
+              <div class="unread-dot"></div>
+            </div>
+          </div>
+
+          <!-- 4 -->
+          <div class="history-item">
+            <div class="history-header">
+              <div class="history-recipient">
+                <div class="history-avatar" style="background:#34C4A0;">최</div>
+                최기범
+                <span class="history-type ht-normal">일반 조언</span>
+              </div>
+              <span class="history-time">4/24 16:05</span>
+            </div>
+            <div class="history-preview">콜레스테롤 수치가 안정적으로 유지되고 있습니다. 식이요법 잘 지켜주셔서 감사합니다.</div>
+            <div class="history-meta">
+              <span class="read-check">✔✔ 읽음</span>
+            </div>
+          </div>
+
+          <!-- 5 -->
+          <div class="history-item">
+            <div class="history-header">
+              <div class="history-recipient">
+                <div class="history-avatar" style="background:#2B7FE0;">정</div>
+                정명희
+                <span class="history-type ht-meds">복약 안내</span>
+              </div>
+              <span class="history-time">4/23 11:00</span>
+            </div>
+            <div class="history-preview">칼슘제는 반드시 식사와 함께 복용해주세요. 빈속 복용 시 위장 장애가 생길 수 있습니다.</div>
+            <div class="history-meta">
+              <span class="read-check">✔✔ 읽음</span>
+            </div>
+          </div>
+
+          <!-- 6 -->
+          <div class="history-item">
+            <div class="history-header">
+              <div class="history-recipient">
+                <div class="history-avatar" style="background:#9C27B0;">윤</div>
+                윤성민
+                <span class="history-type ht-urgent">긴급 주의</span>
+              </div>
+              <span class="history-time">4/22 08:45</span>
+            </div>
+            <div class="history-preview">심박수가 55로 낮게 측정되었습니다. 오늘 오전 중 내원 부탁드립니다. 운동 중 어지러움 있으시면 즉시 연락주세요.</div>
+            <div class="history-meta">
+              <span class="read-check">✔✔ 읽음</span>
+            </div>
+          </div>
+
+          <div style="padding:14px 20px; text-align:center;">
+            <button class="btn btn-outline btn-sm" style="width:100%;">더 보기 (32건)</button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<!-- 임시저장 토스트 (숨김) -->
+<div id="toast" style="
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: #1A2332; color: #fff; padding: 14px 24px; border-radius: 12px;
+  font-size: 14px; font-weight: 500; opacity: 0; transition: all .3s;
+  display: flex; align-items: center; gap: 10px; z-index: 9999;
+">💾 임시저장 완료</div>
+
+<script>
+  // 글자 수 업데이트
+  function updateCount() {
+    const el = document.getElementById('msg-body');
+    document.getElementById('char-cnt').textContent = el.value.length;
+  }
+  updateCount();
+
+  // 긴급 유형 선택 시 안내 표시
+  document.querySelectorAll('input[name=msgtype]').forEach(r => {
+    r.addEventListener('change', () => {
+      const notice = document.getElementById('urgent-notice');
+      notice.style.display = r.value === 'urgent' && r.checked ? 'block' : 'none';
+    });
+  });
+
+  // 빠른 삽입
+  function insertText(type) {
+    const textarea = document.getElementById('msg-body');
+    const snippets = {
+      '저나트륨 식단 안내': '\n\n[식단 안내] 국물, 젓갈, 김치 섭취를 줄이고 싱겁게 드세요. 하루 나트륨 2,000mg 이하를 목표로 해주세요.',
+      '복약 지도': '\n\n[복약 지도] 처방된 약은 반드시 정해진 시간에 복용하시고, 임의로 중단하지 마세요.',
+      '운동 권장': '\n\n[운동 권장] 식사 후 30분 뒤 10–15분 천천히 걷기를 권장합니다. 무릎에 무리가 가지 않도록 평지를 이용해주세요.'
+    };
+    textarea.value += snippets[type] || '';
+    updateCount();
+    textarea.focus();
+    textarea.scrollTop = textarea.scrollHeight;
+  }
+
+  // 임시저장 토스트
+  function saveDraft() {
+    const toast = document.getElementById('toast');
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateX(-50%) translateY(0)';
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(-50%) translateY(80px)';
+    }, 2500);
+  }
+
+  // 전송 확인
+  function sendMsg() {
+    const body = document.getElementById('msg-body').value.trim();
+    if (!body) { alert('메시지 내용을 입력해주세요.'); return; }
+    if (confirm('김순자 환자에게 메시지를 전송하시겠습니까?\n자녀(김민준)에게도 동시 전송됩니다.')) {
+      const toast = document.getElementById('toast');
+      toast.textContent = '📤 메시지가 성공적으로 전송되었습니다!';
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(80px)';
+        toast.textContent = '💾 임시저장 완료';
+      }, 2800);
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>목표 설정 | 헬스케어 앱</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary:        #2B7FE0;
+      --primary-dark:   #1A5FB4;
+      --secondary:      #34C4A0;
+      --danger:         #E53935;
+      --warning:        #F5A623;
+      --bg:             #F4F6F9;
+      --surface:        #FFFFFF;
+      --border:         #D1D9E6;
+      --text-primary:   #1A2332;
+      --text-secondary: #546E7A;
+      --text-disabled:  #B0BEC5;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: #C8D0DC; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 16px;
+      color: var(--text-primary);
+      background: var(--bg);
+      max-width: 390px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding-bottom: 100px;
+    }
+
+    /* ===== 헤더 ===== */
+    .page-header {
+      background: var(--surface);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .back-btn {
+      width: 36px; height: 36px;
+      border: none; background: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 8px; color: var(--text-primary);
+      font-size: 20px; flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .back-btn:hover { background: var(--bg); }
+    .page-title { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+    .page-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+
+    /* ===== 본문 ===== */
+    .content { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+    /* ===== 안내 박스 ===== */
+    .info-box {
+      background: #EBF3FF;
+      border-left: 3px solid var(--primary);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #1A4F9C;
+      line-height: 1.5;
+    }
+
+    /* ===== 목표 카드 ===== */
+    .goal-card {
+      background: var(--surface);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .goal-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .goal-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .goal-card-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+    .goal-card-current { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+
+    /* ===== 입력 필드 ===== */
+    .goal-field { margin-bottom: 12px; }
+    .goal-field:last-child { margin-bottom: 0; }
+    .field-label {
+      font-size: 12px; font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      display: block;
+    }
+    .field-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .goal-input {
+      flex: 1;
+      height: 44px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 0 14px;
+      font-size: 16px;
+      font-family: inherit;
+      font-weight: 700;
+      color: var(--text-primary);
+      background: var(--surface);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .goal-input:focus { border-color: var(--primary); }
+    .field-unit {
+      font-size: 14px; font-weight: 600;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    /* 범위 입력 (혈압, 심박수) */
+    .range-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .range-sep { font-size: 14px; color: var(--text-secondary); font-weight: 600; }
+    .goal-input.range { flex: 1; }
+
+    /* ===== 달성 현황 배지 ===== */
+    .current-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-left: auto;
+    }
+    .status-ok   { background: #E8F5E9; color: #2E7D32; }
+    .status-miss { background: #FFF3E0; color: #E65100; }
+
+    /* ===== 저장 바 ===== */
+    .save-bar {
+      position: fixed;
+      bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 100%; max-width: 390px;
+      padding: 12px 16px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+    }
+    .btn-cancel {
+      flex: 1;
+      height: 48px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-cancel:hover { background: var(--bg); }
+    .btn-save {
+      flex: 2;
+      height: 48px;
+      border: none;
+      border-radius: 12px;
+      background: var(--primary);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-save:hover { background: var(--primary-dark); }
+
+    /* ===== 저장 완료 토스트 ===== */
+    .toast {
+      position: fixed;
+      bottom: 80px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1A2332;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 헤더 -->
+  <header class="page-header">
+    <button class="back-btn" onclick="history.back()" aria-label="뒤로 가기">←</button>
+    <div>
+      <div class="page-title">🎯 목표 설정</div>
+      <div class="page-subtitle">개인 건강 목표를 설정하세요</div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- 안내 -->
+    <div class="info-box">
+      목표는 담당 간호사·운동 처방사와 상의하여 설정하면 더욱 효과적입니다.<br>
+      설정된 목표는 홈 화면 <strong>목표 비교</strong>에 반영됩니다.
+    </div>
+
+    <!-- 걸음수 -->
+    <div class="goal-card">
+      <div class="goal-card-header">
+        <div class="goal-icon" style="background:#E8FAF5;">🚶</div>
+        <div>
+          <div class="goal-card-title">걸음수</div>
+          <div class="goal-card-current">오늘 현재: 3,240보</div>
+        </div>
+        <span class="current-status status-miss">미달</span>
+      </div>
+      <div class="goal-field">
+        <label class="field-label">일일 목표 걸음수</label>
+        <div class="field-row">
+          <input type="number" class="goal-input" id="goal-steps" value="5000" min="1000" max="20000" step="500">
+          <span class="field-unit">보 / 일</span>
+        </div>
+      </div>
+      <div class="goal-field">
+        <label class="field-label">주간 목표 걸음수</label>
+        <div class="field-row">
+          <input type="number" class="goal-input" id="goal-steps-week" value="35000" min="7000" max="140000" step="1000">
+          <span class="field-unit">보 / 주</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 수면 -->
+    <div class="goal-card">
+      <div class="goal-card-header">
+        <div class="goal-icon" style="background:#EDE7F6;">🌙</div>
+        <div>
+          <div class="goal-card-title">수면</div>
+          <div class="goal-card-current">오늘 현재: 7.1시간</div>
+        </div>
+        <span class="current-status status-ok">달성 ✓</span>
+      </div>
+      <div class="goal-field">
+        <label class="field-label">목표 수면 시간</label>
+        <div class="field-row">
+          <input type="number" class="goal-input" id="goal-sleep" value="7.0" min="5" max="12" step="0.5">
+          <span class="field-unit">시간 / 일</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 심박수 -->
+    <div class="goal-card">
+      <div class="goal-card-header">
+        <div class="goal-icon" style="background:#FFEAEA;">❤️</div>
+        <div>
+          <div class="goal-card-title">심박수</div>
+          <div class="goal-card-current">오늘 현재: 72bpm</div>
+        </div>
+        <span class="current-status status-ok">달성 ✓</span>
+      </div>
+      <div class="goal-field">
+        <label class="field-label">목표 안정 심박수 범위</label>
+        <div class="range-row">
+          <input type="number" class="goal-input range" id="goal-heart-min" value="60" min="40" max="100" step="1">
+          <span class="range-sep">~</span>
+          <input type="number" class="goal-input range" id="goal-heart-max" value="80" min="60" max="120" step="1">
+          <span class="field-unit">bpm</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 혈압 -->
+    <div class="goal-card">
+      <div class="goal-card-header">
+        <div class="goal-icon" style="background:#E8F4FD;">🩺</div>
+        <div>
+          <div class="goal-card-title">혈압</div>
+          <div class="goal-card-current">오늘 현재: 118/76 mmHg</div>
+        </div>
+        <span class="current-status status-ok">달성 ✓</span>
+      </div>
+      <div class="goal-field">
+        <label class="field-label">수축기 혈압 목표 상한</label>
+        <div class="field-row">
+          <input type="number" class="goal-input" id="goal-bp-sys" value="130" min="100" max="180" step="1">
+          <span class="field-unit">mmHg 이하</span>
+        </div>
+      </div>
+      <div class="goal-field">
+        <label class="field-label">이완기 혈압 목표 상한</label>
+        <div class="field-row">
+          <input type="number" class="goal-input" id="goal-bp-dia" value="85" min="60" max="120" step="1">
+          <span class="field-unit">mmHg 이하</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 체중 -->
+    <div class="goal-card">
+      <div class="goal-card-header">
+        <div class="goal-icon" style="background:#FFF8E1;">⚖️</div>
+        <div>
+          <div class="goal-card-title">체중</div>
+          <div class="goal-card-current">오늘 현재: 61.2kg</div>
+        </div>
+        <span class="current-status status-miss">진행 중</span>
+      </div>
+      <div class="goal-field">
+        <label class="field-label">목표 체중</label>
+        <div class="field-row">
+          <input type="number" class="goal-input" id="goal-weight" value="60.0" min="30" max="150" step="0.5">
+          <span class="field-unit">kg</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 혈중산소 -->
+    <div class="goal-card">
+      <div class="goal-card-header">
+        <div class="goal-icon" style="background:#E8F5E9;">💨</div>
+        <div>
+          <div class="goal-card-title">혈중산소 (SpO₂)</div>
+          <div class="goal-card-current">오늘 현재: 97%</div>
+        </div>
+        <span class="current-status status-ok">달성 ✓</span>
+      </div>
+      <div class="goal-field">
+        <label class="field-label">목표 최소 산소포화도</label>
+        <div class="field-row">
+          <input type="number" class="goal-input" id="goal-spo2" value="95" min="85" max="100" step="1">
+          <span class="field-unit">% 이상</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 저장 바 -->
+  <div class="save-bar">
+    <button class="btn-cancel" onclick="history.back()">취소</button>
+    <button class="btn-save" onclick="saveGoals()">목표 저장</button>
+  </div>
+
+  <!-- 토스트 메시지 -->
+  <div class="toast" id="toast">✅ 목표가 저장되었습니다</div>
+
+  <script>
+    function saveGoals() {
+      var toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(function() {
+        toast.classList.remove('show');
+        setTimeout(function() { history.back(); }, 400);
+      }, 1600);
+    }
+  </script>
+</body>
+</html>

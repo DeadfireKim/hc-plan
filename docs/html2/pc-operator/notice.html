@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>운영자 포털 - 공지사항 관리</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #F4F6F9;
+      color: #1A2332;
+      min-width: 1280px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── 헤더 ── */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 60px;
+      background: #FFFFFF;
+      border-bottom: 1px solid #D1D9E6;
+      display: flex; align-items: center;
+      padding: 0 24px;
+      gap: 12px;
+    }
+    .header-logo {
+      display: flex; align-items: center; gap: 10px;
+      width: 216px;
+    }
+    .logo-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: linear-gradient(135deg, #1565C0, #1976D2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    .logo-text { font-size: 15px; font-weight: 700; color: #1A2332; }
+    .logo-sub  { font-size: 11px; color: #546E7A; margin-top: 2px; }
+    .portal-badge {
+      display: inline-flex; align-items: center;
+      background: #E6F9F5; color: #1E9C80;
+      font-size: 10px; font-weight: 700;
+      padding: 2px 8px; border-radius: 10px;
+    }
+    .hosp-card {
+      margin: 4px 16px 16px;
+      background: linear-gradient(135deg, #EBF3FF 0%, #E6F9F5 100%);
+      border-radius: 12px; padding: 14px 16px;
+      border: 1px solid #BBDEFB;
+    }
+    .hosp-card-name { font-size: 13px; font-weight: 700; color: #1A2332; }
+    .hosp-card-meta {
+      font-size: 11px; color: #546E7A;
+      margin-top: 6px; display: flex; flex-direction: column; gap: 3px;
+    }
+    .header-divider { width: 1px; height: 28px; background: #D1D9E6; margin: 0 8px; }
+    .header-title { font-size: 14px; font-weight: 600; color: #34C4A0; flex: 1; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .header-notif {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #F4F6F9; border: 1px solid #D1D9E6;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative; font-size: 16px;
+    }
+    .notif-badge {
+      position: absolute; top: -3px; right: -3px;
+      background: #E53935; color: #fff;
+      font-size: 9px; font-weight: 700;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid #fff;
+    }
+    .header-user {
+      display: flex; align-items: center; gap: 8px; cursor: pointer;
+    }
+    .user-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #8E24AA, #6A1B9A);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 13px; font-weight: 600;
+    }
+    .user-info { display: flex; flex-direction: column; }
+    .user-name  { font-size: 13px; font-weight: 600; color: #1A2332; }
+    .user-role  { font-size: 11px; color: #546E7A; }
+
+    /* ── 레이아웃 ── */
+    .layout {
+      display: flex;
+      padding-top: 60px;
+      height: 100vh;
+    }
+
+    /* ── 사이드바 ── */
+    .sidebar {
+      width: 240px; min-width: 240px;
+      background: #FFFFFF;
+      border-right: 1px solid #D1D9E6;
+      display: flex; flex-direction: column;
+      padding: 20px 0;
+      overflow-y: auto;
+      position: fixed; top: 60px; bottom: 0; left: 0;
+    }
+    .nav-section-label {
+      font-size: 10px; font-weight: 600; color: #546E7A;
+      letter-spacing: 0.8px; text-transform: uppercase;
+      padding: 0 20px 8px;
+      margin-top: 8px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 14px; color: #546E7A;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    .nav-item:hover { background: #F4F6F9; color: #1A2332; }
+    .nav-item.active {
+      background: #E6F9F5; color: #34C4A0;
+      border-left-color: #34C4A0; font-weight: 600;
+    }
+    .nav-icon { font-size: 17px; width: 20px; text-align: center; }
+    .sidebar-footer {
+      margin-top: auto; padding: 16px 20px;
+      border-top: 1px solid #D1D9E6;
+    }
+    .sidebar-footer-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; cursor: pointer;
+      font-size: 13px; color: #546E7A;
+      text-decoration: none;
+    }
+    .sidebar-footer-item:hover { color: #1A2332; }
+
+    /* ── 메인 콘텐츠 ── */
+    .main {
+      flex: 1;
+      margin-left: 240px;
+      padding: 32px;
+      overflow-y: auto;
+      height: calc(100vh - 60px);
+    }
+
+    /* ── 페이지 헤더 ── */
+    .page-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .page-title { font-size: 22px; font-weight: 700; color: #1A2332; }
+    .page-subtitle { font-size: 13px; color: #546E7A; margin-top: 4px; }
+    .page-actions { display: flex; gap: 10px; align-items: center; }
+
+    .btn-primary {
+      height: 44px; padding: 0 20px; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      border: none; display: flex; align-items: center; gap: 6px;
+      background: #2B7FE0; color: #fff;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: #1A5FB4; }
+
+    /* ── 테이블 카드 ── */
+    .card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    .data-table {
+      width: 100%; border-collapse: collapse;
+    }
+    .data-table th {
+      background: #F8FAFB;
+      font-size: 12px; font-weight: 600; color: #546E7A;
+      padding: 11px 16px; text-align: left;
+      border-bottom: 1px solid #EEF0F3;
+      white-space: nowrap;
+    }
+    .data-table td {
+      padding: 14px 16px;
+      font-size: 13px; color: #1A2332;
+      border-bottom: 1px solid #F0F2F5;
+      vertical-align: middle;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #FAFBFC; }
+
+    .status-badge {
+      font-size: 12px; font-weight: 600; padding: 4px 10px;
+      border-radius: 20px; white-space: nowrap; display: inline-block;
+    }
+    .status-sent     { background: #E6F9F5; color: #1E9C80; }
+    .status-reserved { background: #EBF3FF; color: #2B7FE0; }
+
+    .target-badge {
+      font-size: 11px; font-weight: 600; padding: 3px 8px;
+      border-radius: 10px; display: inline-block;
+      background: #F4F6F9; color: #546E7A;
+    }
+
+    .btn-action {
+      height: 30px; padding: 0 10px; border-radius: 6px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 12px; font-weight: 500; cursor: pointer;
+      border: 1px solid #D1D9E6;
+      background: #fff; color: #546E7A;
+      transition: all 0.15s;
+      margin-right: 4px;
+    }
+    .btn-action:hover { border-color: #2B7FE0; color: #2B7FE0; background: #EBF3FF; }
+    .btn-action.danger:hover { border-color: #E53935; color: #E53935; background: #FDECEA; }
+
+    /* ── 모달 오버레이 ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.45);
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: #fff;
+      border-radius: 20px;
+      width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 24px 28px 20px;
+      border-bottom: 1px solid #F0F2F5;
+    }
+    .modal-title { font-size: 17px; font-weight: 700; color: #1A2332; }
+    .modal-close {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #F4F6F9; border: none; cursor: pointer;
+      font-size: 16px; display: flex; align-items: center; justify-content: center;
+      color: #546E7A; transition: background 0.15s;
+    }
+    .modal-close:hover { background: #EEF0F3; }
+    .modal-body { padding: 24px 28px; }
+    .modal-footer {
+      display: flex; justify-content: flex-end; gap: 10px;
+      padding: 16px 28px 24px;
+      border-top: 1px solid #F0F2F5;
+    }
+
+    /* ── 폼 요소 ── */
+    .form-group { margin-bottom: 20px; }
+    .form-label {
+      display: block;
+      font-size: 13px; font-weight: 600; color: #1A2332;
+      margin-bottom: 8px;
+    }
+    .form-label .required { color: #E53935; margin-left: 2px; }
+    .form-input {
+      width: 100%; height: 42px;
+      padding: 0 12px;
+      border: 1px solid #D1D9E6; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 13px; color: #1A2332;
+      outline: none; transition: border-color 0.15s;
+    }
+    .form-input:focus { border-color: #34C4A0; box-shadow: 0 0 0 3px rgba(52,196,160,0.12); }
+    .form-textarea {
+      width: 100%; min-height: 120px;
+      padding: 12px;
+      border: 1px solid #D1D9E6; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 13px; color: #1A2332;
+      outline: none; resize: vertical;
+      transition: border-color 0.15s;
+    }
+    .form-textarea:focus { border-color: #34C4A0; box-shadow: 0 0 0 3px rgba(52,196,160,0.12); }
+
+    .checkbox-group {
+      display: flex; flex-wrap: wrap; gap: 12px;
+    }
+    .checkbox-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; color: #1A2332; cursor: pointer;
+    }
+    .checkbox-item input[type="checkbox"] {
+      width: 16px; height: 16px; accent-color: #34C4A0; cursor: pointer;
+    }
+
+    .radio-group { display: flex; gap: 20px; }
+    .radio-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; color: #1A2332; cursor: pointer;
+    }
+    .radio-item input[type="radio"] {
+      width: 16px; height: 16px; accent-color: #34C4A0; cursor: pointer;
+    }
+
+    .schedule-row {
+      display: flex; gap: 10px; margin-top: 12px;
+    }
+    .form-input-datetime {
+      flex: 1; height: 42px;
+      padding: 0 12px;
+      border: 1px solid #D1D9E6; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 13px; color: #1A2332;
+      outline: none;
+    }
+    .form-input-datetime:focus { border-color: #34C4A0; }
+
+    .btn-cancel {
+      height: 44px; padding: 0 20px; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      border: 1px solid #D1D9E6;
+      background: #fff; color: #546E7A;
+      transition: all 0.15s;
+    }
+    .btn-cancel:hover { background: #F4F6F9; }
+    .btn-save {
+      height: 44px; padding: 0 24px; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      border: none;
+      background: #34C4A0; color: #fff;
+      transition: background 0.15s;
+    }
+    .btn-save:hover { background: #1E9C80; }
+
+    #schedule-fields { display: none; }
+
+    /* ── 권한 안내 배너 ── */
+    .perm-banner {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px 18px; border-radius: 12px; margin-bottom: 20px;
+      background: #F3E5F5; border-left: 4px solid #8E24AA;
+    }
+    .perm-banner-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .perm-banner-title { font-size: 13px; font-weight: 700; color: #4A148C; margin-bottom: 6px; }
+    .perm-banner-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .perm-chip {
+      font-size: 11px; font-weight: 600;
+      padding: 3px 10px; border-radius: 20px;
+    }
+    .perm-chip.allow { background: #E8F5E9; color: #2E7D32; }
+    .perm-chip.deny  { background: #FFEBEE; color: #C62828; text-decoration: line-through; }
+
+    .nav-item.disabled {
+      opacity: 0.4; pointer-events: none; cursor: default;
+    }
+  </style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<header class="header">
+  <div class="header-logo">
+    <div class="logo-icon">🏥</div>
+    <div>
+      <div class="logo-text">서울중앙병원</div>
+      <div class="logo-sub"><span class="portal-badge">운영자 포털</span></div>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <div class="header-title">공지사항 관리</div>
+  <div class="header-right">
+    <div class="header-notif">
+      🔔
+      <div class="notif-badge">3</div>
+    </div>
+    <div class="header-user">
+      <div class="user-avatar">⌚</div>
+      <div class="user-info">
+        <div class="user-name">이민수</div>
+        <div class="user-role">서울중앙병원 · 와치관리자</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- 레이아웃 -->
+<div class="layout">
+
+  <!-- 사이드바 -->
+  <nav class="sidebar">
+    <div class="hosp-card">
+      <div class="hosp-card-name">🏥 서울중앙병원</div>
+      <div class="hosp-card-meta">
+        <span>📍 서울특별시 중구</span>
+        <span>🏷️ 코드 SCH-001</span>
+      </div>
+    </div>
+    <div class="nav-section-label">메인 메뉴</div>
+    <a href="dashboard.html" class="nav-item">
+      <span class="nav-icon">📊</span> 대시보드
+    </a>
+    <a href="device.html" class="nav-item">
+      <span class="nav-icon">📟</span> 기기 관리
+    </a>
+    <a href="matching.html" class="nav-item">
+      <span class="nav-icon">🔗</span> 계정 관리
+    </a>
+    <a href="notice.html" class="nav-item active">
+      <span class="nav-icon">📢</span> 공지사항
+    </a>
+    <a class="nav-item disabled" title="권한 없음">
+      <span class="nav-icon">👁️</span> 계정 조회
+    </a>
+
+    <div class="sidebar-footer">
+      <a href="my-account.html" class="sidebar-footer-item">
+        <span>👤</span> 내 계정
+      </a>
+      <div class="sidebar-footer-item">
+        <span>🚪</span> 로그아웃
+      </div>
+    </div>
+  </nav>
+
+  <!-- 메인 -->
+  <main class="main">
+
+    <!-- 페이지 헤더 -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">공지사항 관리</div>
+        <div class="page-subtitle">공지사항을 작성하고 대상 역할에 발송합니다.</div>
+      </div>
+      <div class="page-actions">
+        <button class="btn-primary" onclick="openModal()">
+          + 새 공지 작성
+        </button>
+      </div>
+    </div>
+
+    <!-- 와치관리자 권한 안내 -->
+    <div class="perm-banner">
+      <div class="perm-banner-icon">⌚</div>
+      <div>
+        <div class="perm-banner-title">와치관리자 권한으로 접속 중입니다</div>
+        <div class="perm-banner-list">
+          <span class="perm-chip allow">✅ 기기 설정</span>
+          <span class="perm-chip allow">✅ 의료진-시니어 매칭</span>
+          <span class="perm-chip allow">✅ 건강 데이터 조회</span>
+          <span class="perm-chip allow">✅ 복약 정보 조회</span>
+          <span class="perm-chip allow">✅ 공지사항 관리</span>
+          <span class="perm-chip deny">계정 관리</span>
+          <span class="perm-chip deny">일정 관리</span>
+          <span class="perm-chip deny">커뮤니케이션</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 공지 목록 테이블 -->
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>제목</th>
+            <th>대상</th>
+            <th>작성일</th>
+            <th>예약 발송</th>
+            <th>상태</th>
+            <th>관리</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>5월 정기 점검 안내</strong></td>
+            <td><span class="target-badge">전체</span></td>
+            <td>2026-04-20</td>
+            <td style="color:#90A4AE;">-</td>
+            <td><span class="status-badge status-sent">발송완료</span></td>
+            <td>
+              <button class="btn-action">수정</button>
+              <button class="btn-action danger">삭제</button>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>복약 알림 기능 개선 안내</strong></td>
+            <td>
+              <span class="target-badge">시니어</span>
+              <span class="target-badge" style="margin-left:4px;">자녀</span>
+            </td>
+            <td>2026-04-22</td>
+            <td style="color:#90A4AE;">-</td>
+            <td><span class="status-badge status-sent">발송완료</span></td>
+            <td>
+              <button class="btn-action">수정</button>
+              <button class="btn-action danger">삭제</button>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>시스템 정기 점검 예정 (5/10 오전 2~4시)</strong></td>
+            <td><span class="target-badge">전체</span></td>
+            <td>2026-04-26</td>
+            <td>2026-05-08</td>
+            <td><span class="status-badge status-reserved">예약</span></td>
+            <td>
+              <button class="btn-action">수정</button>
+              <button class="btn-action danger">취소</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+</div>
+
+<!-- 새 공지 작성 모달 -->
+<div class="modal-overlay" id="modal-new-notice">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">새 공지 작성</div>
+      <button class="modal-close" onclick="closeModal()" aria-label="닫기">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- 제목 -->
+      <div class="form-group">
+        <label class="form-label">
+          제목 <span class="required">*</span>
+        </label>
+        <input type="text" class="form-input" placeholder="공지 제목을 입력하세요" />
+      </div>
+
+      <!-- 내용 -->
+      <div class="form-group">
+        <label class="form-label">
+          내용 <span class="required">*</span>
+        </label>
+        <textarea class="form-textarea" placeholder="공지 내용을 입력하세요"></textarea>
+      </div>
+
+      <!-- 대상 역할 -->
+      <div class="form-group">
+        <label class="form-label">대상 역할</label>
+        <div class="checkbox-group">
+          <label class="checkbox-item">
+            <input type="checkbox" id="chk-all" onchange="toggleAll(this)" /> 전체
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" class="role-chk" /> 시니어
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" class="role-chk" /> 자녀
+          </label>
+          <label class="checkbox-item" style="opacity:0.45;" title="와치관리자는 의료진에게 직접 공지할 수 없습니다">
+            <input type="checkbox" class="role-chk" disabled data-perm-disabled="true" /> 의료진
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" class="role-chk" /> 와치관리자
+          </label>
+        </div>
+        <div style="font-size:11px;color:#8E24AA;margin-top:6px;">⌚ 와치관리자는 의료진 대상 공지 발송 권한이 없습니다.</div>
+      </div>
+
+      <!-- 발송 방식 -->
+      <div class="form-group">
+        <label class="form-label">발송 방식</label>
+        <div class="radio-group">
+          <label class="radio-item">
+            <input type="radio" name="send-type" value="immediate" checked
+              onchange="toggleSchedule(false)" /> 즉시 발송
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="send-type" value="scheduled"
+              onchange="toggleSchedule(true)" /> 예약 발송
+          </label>
+        </div>
+        <div class="schedule-row" id="schedule-fields">
+          <input type="date" class="form-input-datetime" />
+          <input type="time" class="form-input-datetime" />
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-save" onclick="saveNotice()">저장</button>
+    </div>
+  </div>
+</div>
+
+<div style="position:fixed;bottom:28px;right:28px;z-index:9999;background:#1A2332;color:#fff;padding:14px 22px;border-radius:10px;font-size:14px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,0.2);opacity:0;pointer-events:none;transition:opacity 0.3s;" id="toast"></div>
+
+<script>
+  function openModal() {
+    document.getElementById('modal-new-notice').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal-new-notice').classList.remove('open');
+  }
+
+  function toggleAll(el) {
+    document.querySelectorAll('.role-chk:not([data-perm-disabled])').forEach(chk => {
+      chk.checked = el.checked;
+      chk.disabled = el.checked;
+    });
+  }
+
+  function toggleSchedule(show) {
+    document.getElementById('schedule-fields').style.display = show ? 'flex' : 'none';
+  }
+
+  function saveNotice() {
+    const title = document.querySelector('.form-input').value.trim();
+    if (!title) {
+      document.querySelector('.form-input').style.borderColor = '#E53935';
+      document.querySelector('.form-input').focus();
+      setTimeout(() => document.querySelector('.form-input').style.borderColor = '', 1500);
+      return;
+    }
+    closeModal();
+    showToast('✅ 공지사항이 저장되었습니다.');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.opacity = '1';
+    t.style.pointerEvents = 'auto';
+    setTimeout(() => { t.style.opacity = '0'; t.style.pointerEvents = 'none'; }, 3000);
+  }
+
+  document.getElementById('modal-new-notice').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+  });
+</script>
+
+</body>
+</html>

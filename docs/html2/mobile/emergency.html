@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M-11 긴급 연락처</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #F4F6F9;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .phone-shell {
+      width: 390px;
+      min-height: 100vh;
+      background: #F4F6F9;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    .header {
+      background: #FFFFFF;
+      padding: 52px 20px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid #D1D9E6;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-back {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      background: #F4F6F9;
+      cursor: pointer;
+      border: none;
+      flex-shrink: 0;
+    }
+    .header-back svg { display: block; }
+    .header-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1A2332;
+    }
+
+    /* Content */
+    .content {
+      padding: 24px 16px 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    /* SOS Button */
+    .sos-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+    }
+    .sos-btn {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: #E53935;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: 0 0 0 8px rgba(229, 57, 53, 0.15), 0 8px 32px rgba(229, 57, 53, 0.35);
+      transition: transform 0.1s, box-shadow 0.1s;
+      position: relative;
+    }
+    .sos-btn::before {
+      content: '';
+      position: absolute;
+      inset: -12px;
+      border-radius: 50%;
+      border: 2px dashed rgba(229, 57, 53, 0.35);
+      animation: pulse-ring 2s ease-in-out infinite;
+    }
+    @keyframes pulse-ring {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.08); opacity: 0.5; }
+    }
+    .sos-btn:active { transform: scale(0.96); box-shadow: 0 0 0 4px rgba(229, 57, 53, 0.15), 0 4px 16px rgba(229, 57, 53, 0.3); }
+    .sos-btn-label {
+      font-size: 28px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 2px;
+    }
+    .sos-btn-sub {
+      font-size: 10px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.85);
+      letter-spacing: 0.5px;
+    }
+    .sos-desc {
+      font-size: 13px;
+      color: #546E7A;
+      text-align: center;
+      line-height: 1.6;
+      max-width: 280px;
+    }
+    .sos-desc strong { color: #E53935; font-weight: 700; }
+
+    /* Section label */
+    .section-label {
+      width: 100%;
+      font-size: 13px;
+      font-weight: 700;
+      color: #546E7A;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    /* Contact Cards */
+    .contact-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .contact-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .contact-card.danger {
+      border: 1.5px solid rgba(229, 57, 53, 0.25);
+      background: #FFF5F5;
+    }
+
+    .contact-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: #EBF3FD;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .contact-card.danger .contact-icon {
+      background: rgba(229, 57, 53, 0.1);
+    }
+
+    .contact-info { flex: 1; min-width: 0; }
+    .contact-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1A2332;
+      margin-bottom: 2px;
+    }
+    .contact-card.danger .contact-name { color: #E53935; }
+    .contact-number {
+      font-size: 13px;
+      color: #546E7A;
+    }
+    .contact-card.danger .contact-number {
+      color: #E53935;
+      font-weight: 600;
+    }
+
+    .contact-relation {
+      font-size: 11px;
+      color: #546E7A;
+      margin-top: 2px;
+    }
+
+    .call-btn {
+      height: 40px;
+      padding: 0 16px;
+      border-radius: 10px;
+      border: none;
+      background: #2B7FE0;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'Noto Sans KR', sans-serif;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .call-btn:hover { background: #1A5FB4; }
+    .contact-card.danger .call-btn {
+      background: #E53935;
+    }
+    .contact-card.danger .call-btn:hover { background: #c62828; }
+
+    /* Tab Bar */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      width: 390px;
+      height: 64px;
+      background: #FFFFFF;
+      border-top: 1px solid #D1D9E6;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      z-index: 200;
+    }
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      flex: 1;
+      padding: 8px 0;
+      text-decoration: none;
+      color: #546E7A;
+    }
+    .tab-item svg { width: 24px; height: 24px; }
+    .tab-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #546E7A;
+    }
+    .tab-item.active { color: #2B7FE0; }
+    .tab-item.active .tab-label { color: #2B7FE0; font-weight: 700; }
+  </style>
+</head>
+<body>
+<div class="phone-shell">
+
+  <!-- Header -->
+  <div class="header">
+    <button class="header-back" aria-label="뒤로가기">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M12 15L7 10L12 5" stroke="#1A2332" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <span class="header-title">긴급 연락처</span>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- SOS Button Section -->
+    <div class="sos-wrapper">
+      <button class="sos-btn" aria-label="SOS 긴급 호출">
+        <span class="sos-btn-label">SOS</span>
+        <span class="sos-btn-sub">긴급 호출</span>
+      </button>
+      <p class="sos-desc">
+        누르면 <strong>3초 후</strong> 자녀와 담당 의사에게<br />자동 전송됩니다
+      </p>
+    </div>
+
+    <!-- One-touch Contacts -->
+    <div class="section-label">원터치 연락처</div>
+    <div class="contact-list">
+
+      <!-- 딸 -->
+      <div class="contact-card">
+        <div class="contact-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4Z" fill="#EBF3FD" stroke="#2B7FE0" stroke-width="1.5"/>
+            <path d="M12 12C13.657 12 15 10.657 15 9C15 7.343 13.657 6 12 6C10.343 6 9 7.343 9 9C9 10.657 10.343 12 12 12Z" fill="#2B7FE0"/>
+            <path d="M6 18C6 15.791 8.686 14 12 14C15.314 14 18 15.791 18 18" stroke="#2B7FE0" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="contact-info">
+          <div class="contact-name">딸 김미영</div>
+          <div class="contact-number">010-1234-5678</div>
+          <div class="contact-relation">가족 · 보호자</div>
+        </div>
+        <button class="call-btn" onclick="window.location.href='tel:01012345678'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:4px">
+            <path d="M6.62 10.79C8.06 13.62 10.38 15.93 13.21 17.38L15.41 15.18C15.68 14.91 16.08 14.82 16.43 14.94C17.55 15.31 18.76 15.51 20 15.51C20.55 15.51 21 15.96 21 16.51V20C21 20.55 20.55 21 20 21C10.61 21 3 13.39 3 4C3 3.45 3.45 3 4 3H7.5C8.05 3 8.5 3.45 8.5 4C8.5 5.25 8.7 6.45 9.07 7.57C9.18 7.92 9.1 8.31 8.82 8.59L6.62 10.79Z" fill="#ffffff"/>
+          </svg>
+          전화
+        </button>
+      </div>
+
+      <!-- 담당의 -->
+      <div class="contact-card">
+        <div class="contact-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="18" height="18" rx="5" fill="#EBF3FD" stroke="#2B7FE0" stroke-width="1.5"/>
+            <path d="M12 7V17M7 12H17" stroke="#2B7FE0" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="contact-info">
+          <div class="contact-name">담당의 박원장</div>
+          <div class="contact-number">031-123-4567</div>
+          <div class="contact-relation">한마음내과 · 주치의</div>
+        </div>
+        <button class="call-btn" onclick="window.location.href='tel:0311234567'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:4px">
+            <path d="M6.62 10.79C8.06 13.62 10.38 15.93 13.21 17.38L15.41 15.18C15.68 14.91 16.08 14.82 16.43 14.94C17.55 15.31 18.76 15.51 20 15.51C20.55 15.51 21 15.96 21 16.51V20C21 20.55 20.55 21 20 21C10.61 21 3 13.39 3 4C3 3.45 3.45 3 4 3H7.5C8.05 3 8.5 3.45 8.5 4C8.5 5.25 8.7 6.45 9.07 7.57C9.18 7.92 9.1 8.31 8.82 8.59L6.62 10.79Z" fill="#ffffff"/>
+          </svg>
+          전화
+        </button>
+      </div>
+
+      <!-- 119 -->
+      <div class="contact-card danger">
+        <div class="contact-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" fill="rgba(229,57,53,0.1)" stroke="#E53935" stroke-width="1.5"/>
+            <path d="M12 7V13" stroke="#E53935" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="12" cy="16" r="1.2" fill="#E53935"/>
+          </svg>
+        </div>
+        <div class="contact-info">
+          <div class="contact-name">119 긴급구조</div>
+          <div class="contact-number">119</div>
+          <div class="contact-relation">소방청 응급구조</div>
+        </div>
+        <button class="call-btn" onclick="window.location.href='tel:119'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:4px">
+            <path d="M6.62 10.79C8.06 13.62 10.38 15.93 13.21 17.38L15.41 15.18C15.68 14.91 16.08 14.82 16.43 14.94C17.55 15.31 18.76 15.51 20 15.51C20.55 15.51 21 15.96 21 16.51V20C21 20.55 20.55 21 20 21C10.61 21 3 13.39 3 4C3 3.45 3.45 3 4 3H7.5C8.05 3 8.5 3.45 8.5 4C8.5 5.25 8.7 6.45 9.07 7.57C9.18 7.92 9.1 8.31 8.82 8.59L6.62 10.79Z" fill="#ffffff"/>
+          </svg>
+          전화
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <nav class="tab-bar" aria-label="하단 메뉴">
+    <a href="home-simple.html" class="tab-item active" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+      <span class="tab-label">홈</span>
+    </a>
+    <a href="health-data.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+      <span class="tab-label">건강</span>
+    </a>
+    <a href="medication.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      <span class="tab-label">복약</span>
+    </a>
+    <a href="schedule.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <span class="tab-label">일정</span>
+    </a>
+    <a href="settings.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+      </svg>
+      <span class="tab-label">설정</span>
+    </a>
+  </nav>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>운영자 포털 - 계정 관리</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #F4F6F9; color: #1A2332;
+      min-width: 1280px; display: flex; flex-direction: column;
+      height: 100vh; overflow: hidden;
+    }
+
+    /* ── 헤더 ── */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 60px; background: #fff; border-bottom: 1px solid #D1D9E6;
+      display: flex; align-items: center; padding: 0 24px; gap: 12px;
+    }
+    .header-logo { display: flex; align-items: center; gap: 10px; width: 216px; }
+    .logo-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: linear-gradient(135deg, #1565C0, #1976D2);
+      display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
+    }
+    .logo-text { font-size: 15px; font-weight: 700; }
+    .logo-sub  { font-size: 11px; color: #546E7A; margin-top: 2px; }
+    .portal-badge {
+      display: inline-flex; background: #E6F9F5; color: #1E9C80;
+      font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+    }
+    .header-divider { width: 1px; height: 28px; background: #D1D9E6; margin: 0 8px; }
+    .header-title { font-size: 14px; font-weight: 600; color: #34C4A0; flex: 1; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .header-notif {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #F4F6F9; border: 1px solid #D1D9E6;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative; font-size: 16px;
+    }
+    .notif-badge {
+      position: absolute; top: -3px; right: -3px;
+      background: #E53935; color: #fff; font-size: 9px; font-weight: 700;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; border: 2px solid #fff;
+    }
+    .header-user { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .user-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #8E24AA, #6A1B9A);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 13px; font-weight: 600;
+    }
+    .user-name { font-size: 13px; font-weight: 600; }
+    .user-role { font-size: 11px; color: #546E7A; }
+
+    /* ── 레이아웃 ── */
+    .layout { display: flex; padding-top: 60px; height: 100vh; }
+
+    /* ── 사이드바 ── */
+    .sidebar {
+      width: 240px; min-width: 240px; background: #fff;
+      border-right: 1px solid #D1D9E6; display: flex; flex-direction: column;
+      padding: 20px 0; overflow-y: auto; position: fixed; top: 60px; bottom: 0; left: 0;
+    }
+    .hosp-card {
+      margin: 4px 16px 16px;
+      background: linear-gradient(135deg, #EBF3FF 0%, #E6F9F5 100%);
+      border-radius: 12px; padding: 14px 16px; border: 1px solid #BBDEFB;
+    }
+    .hosp-card-name { font-size: 13px; font-weight: 700; }
+    .hosp-card-meta { font-size: 11px; color: #546E7A; margin-top: 6px; display: flex; flex-direction: column; gap: 3px; }
+    .nav-section-label {
+      font-size: 10px; font-weight: 600; color: #546E7A;
+      letter-spacing: 0.8px; text-transform: uppercase; padding: 0 20px 8px; margin-top: 8px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px 20px;
+      font-size: 14px; color: #546E7A; border-left: 3px solid transparent;
+      transition: all 0.15s; text-decoration: none; cursor: pointer;
+    }
+    .nav-item:hover { background: #F4F6F9; color: #1A2332; }
+    .nav-item.active { background: #E6F9F5; color: #34C4A0; border-left-color: #34C4A0; font-weight: 600; }
+    .nav-item.disabled { opacity: 0.4; pointer-events: none; }
+    .nav-icon { font-size: 17px; width: 20px; text-align: center; }
+    .sidebar-footer { margin-top: auto; padding: 16px 20px; border-top: 1px solid #D1D9E6; }
+    .sidebar-footer-item {
+      display: flex; align-items: center; gap: 10px; padding: 8px 0;
+      font-size: 13px; color: #546E7A; text-decoration: none; cursor: pointer;
+    }
+    .sidebar-footer-item:hover { color: #1A2332; }
+
+    /* ── 메인 ── */
+    .main { flex: 1; margin-left: 240px; padding: 28px 32px; overflow-y: auto; height: calc(100vh - 60px); }
+
+    /* ── 탭 ── */
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+    .page-title { font-size: 22px; font-weight: 700; }
+    .page-subtitle { font-size: 13px; color: #546E7A; margin-top: 4px; }
+
+    .tab-wrap { display: flex; border-bottom: 2px solid #E8ECF2; margin-bottom: 24px; }
+    .tab-btn {
+      padding: 10px 24px; font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; font-weight: 600; color: #78909C;
+      background: transparent; border: none; border-bottom: 3px solid transparent;
+      cursor: pointer; margin-bottom: -2px; transition: all 0.15s;
+    }
+    .tab-btn:hover { color: #2B7FE0; }
+    .tab-btn.active { color: #2B7FE0; border-bottom-color: #2B7FE0; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── 버튼 ── */
+    .btn {
+      height: 40px; padding: 0 18px; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px;
+      transition: background 0.15s;
+    }
+    .btn-primary { background: #2B7FE0; color: #fff; }
+    .btn-primary:hover { background: #1A5FB4; }
+    .btn-green { background: #34C4A0; color: #fff; }
+    .btn-green:hover { background: #1E9C80; }
+    .btn-outline { background: #fff; color: #546E7A; border: 1px solid #D1D9E6; }
+    .btn-outline:hover { background: #F4F6F9; }
+    .btn-sm { height: 32px; padding: 0 12px; font-size: 12px; }
+    .btn-cancel {
+      height: 44px; padding: 0 20px; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; border: 1px solid #D1D9E6; background: #fff; color: #546E7A;
+    }
+    .btn-save {
+      height: 44px; padding: 0 24px; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; border: none; background: #34C4A0; color: #fff;
+    }
+    .btn-save:hover { background: #1E9C80; }
+    .btn-danger {
+      height: 44px; padding: 0 24px; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; border: none; background: #E53935; color: #fff;
+    }
+    .btn-danger:hover { background: #C62828; }
+
+    /* ── 통계 ── */
+    .stat-row { display: flex; gap: 12px; margin-bottom: 20px; }
+    .stat-card {
+      flex: 1; background: #fff; border-radius: 12px; padding: 16px 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 14px;
+    }
+    .stat-icon { font-size: 26px; }
+    .stat-val  { font-size: 22px; font-weight: 700; }
+    .stat-label { font-size: 12px; color: #546E7A; margin-top: 2px; }
+
+    /* ── 시니어 카드 그리드 ── */
+    .senior-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .senior-card {
+      background: #fff; border-radius: 16px; padding: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      display: flex; flex-direction: column; gap: 14px;
+      border: 2px solid transparent; transition: border-color 0.15s;
+    }
+    .senior-card:hover { border-color: #D1D9E6; }
+    .senior-card-top { display: flex; align-items: flex-start; gap: 12px; }
+    .senior-card-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700; color: #2E7D32; flex-shrink: 0;
+    }
+    .senior-card-info { flex: 1; min-width: 0; }
+    .senior-card-name { font-size: 15px; font-weight: 700; }
+    .senior-card-sub  { font-size: 12px; color: #546E7A; margin-top: 3px; }
+    .senior-card-id   { font-size: 10px; color: #90A4AE; margin-top: 2px; font-family: monospace; }
+
+    .senior-qr-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 14px; border-top: 1px solid #F4F6F9;
+    }
+    .qr-wrap { width: 80px; height: 80px; flex-shrink: 0; }
+    .qr-wrap img { width: 80px !important; height: 80px !important; border-radius: 6px; }
+    .senior-qr-info { flex: 1; padding-left: 14px; }
+    .qr-status-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 700; padding: 4px 10px;
+      border-radius: 20px; margin-bottom: 8px;
+    }
+    .qr-matched   { background: #E6F9F5; color: #1E9C80; }
+    .qr-unmatched { background: #FFF8E1; color: #F57F17; }
+    .qr-match-info { font-size: 11px; color: #546E7A; line-height: 1.6; }
+    .senior-card-actions { display: flex; gap: 6px; }
+
+    /* ── 검색/필터 ── */
+    .filter-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; }
+    .search-wrap { position: relative; flex: 1; max-width: 300px; }
+    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: #90A4AE; }
+    .search-input {
+      width: 100%; height: 38px; padding: 0 12px 0 36px;
+      border: 1px solid #D1D9E6; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif; font-size: 13px; outline: none; background: #fff;
+    }
+    .search-input:focus { border-color: #2B7FE0; }
+    .filter-select {
+      height: 38px; padding: 0 10px; border: 1px solid #D1D9E6; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif; font-size: 13px; background: #fff; outline: none; cursor: pointer;
+    }
+    .result-count { font-size: 13px; color: #546E7A; margin-left: auto; }
+
+    /* ── 매칭 테이블 ── */
+    .card { background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+      background: #F8FAFB; font-size: 12px; font-weight: 600; color: #546E7A;
+      padding: 11px 16px; text-align: left; border-bottom: 1px solid #EEF0F3; white-space: nowrap;
+    }
+    .data-table td { padding: 13px 16px; font-size: 13px; border-bottom: 1px solid #F0F2F5; vertical-align: middle; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #FAFBFC; }
+
+    .watch-cell { display: flex; align-items: center; gap: 10px; }
+    .watch-icon-sm {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: #F3E5F5; display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+    .cell-name { font-size: 13px; font-weight: 600; }
+    .cell-sub  { font-size: 11px; color: #546E7A; margin-top: 1px; font-family: monospace; }
+
+    .senior-cell { display: flex; align-items: center; gap: 10px; }
+    .senior-avatar-sm {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #E8F5E9; color: #2E7D32;
+      display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;
+    }
+
+    .status-badge {
+      font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px;
+      display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+    }
+    .status-active  { background: #E6F9F5; color: #1E9C80; }
+    .status-paused  { background: #FFF8E1; color: #F57F17; }
+    .status-ended   { background: #F4F6F9; color: #90A4AE; }
+
+    .btn-action {
+      height: 30px; padding: 0 10px; border-radius: 6px;
+      font-family: 'Noto Sans KR', sans-serif; font-size: 12px; font-weight: 500;
+      cursor: pointer; border: 1px solid #D1D9E6; background: #fff; color: #546E7A;
+      transition: all 0.15s; margin-right: 4px;
+    }
+    .btn-action:hover { border-color: #2B7FE0; color: #2B7FE0; background: #EBF3FF; }
+    .btn-action.danger:hover { border-color: #E53935; color: #E53935; background: #FDECEA; }
+
+    /* ── 모달 ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.5); align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 20px; width: 500px;
+      max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+    .modal-lg { width: 640px; }
+    .modal-sm { width: 400px; }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 28px 18px; border-bottom: 1px solid #F0F2F5; position: sticky; top: 0; background: #fff;
+    }
+    .modal-title { font-size: 17px; font-weight: 700; }
+    .modal-close {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #F4F6F9; border: none; cursor: pointer;
+      font-size: 16px; display: flex; align-items: center; justify-content: center; color: #546E7A;
+    }
+    .modal-close:hover { background: #EEF0F3; }
+    .modal-body { padding: 24px 28px; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 28px 24px; border-top: 1px solid #F0F2F5; }
+
+    /* 폼 */
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 7px; }
+    .required { color: #E53935; margin-left: 2px; }
+    .form-row { display: flex; gap: 12px; }
+    .form-row .form-group { flex: 1; margin-bottom: 0; }
+    .form-input, .form-select {
+      width: 100%; height: 42px; padding: 0 12px;
+      border: 1px solid #D1D9E6; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif; font-size: 13px; color: #1A2332;
+      outline: none; background: #fff; transition: border-color 0.15s;
+    }
+    .form-input:focus, .form-select:focus { border-color: #34C4A0; box-shadow: 0 0 0 3px rgba(52,196,160,0.12); }
+
+    /* QR 크게 보기 */
+    .qr-view-wrap {
+      display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 8px 0;
+    }
+    .qr-large { width: 200px; height: 200px; }
+    .qr-large img { width: 200px !important; height: 200px !important; border-radius: 10px; }
+    .qr-senior-info { text-align: center; }
+    .qr-senior-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .qr-senior-detail { font-size: 13px; color: #546E7A; margin-bottom: 4px; }
+    .qr-senior-id { font-size: 12px; color: #90A4AE; font-family: monospace; }
+    .qr-guide {
+      background: #EBF3FF; border-radius: 10px; padding: 12px 16px;
+      font-size: 12px; color: #1A4F9C; line-height: 1.6; width: 100%;
+    }
+
+    /* QR 매칭 모달 — 스캔 그리드 */
+    .scan-step { margin-bottom: 20px; }
+    .step-label { font-size: 12px; font-weight: 700; color: #546E7A; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+    .scan-qr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .scan-qr-item {
+      border: 2px solid #D1D9E6; border-radius: 12px; padding: 14px;
+      text-align: center; cursor: pointer; transition: all 0.15s;
+    }
+    .scan-qr-item:hover { border-color: #34C4A0; background: #F0FBFA; }
+    .scan-qr-item.selected { border-color: #34C4A0; background: #E6F9F5; }
+    .scan-qr-item .sq-qr { width: 70px; height: 70px; margin: 0 auto 8px; }
+    .scan-qr-item .sq-qr img { width: 70px !important; height: 70px !important; border-radius: 4px; }
+    .scan-qr-item .sq-name { font-size: 13px; font-weight: 600; }
+    .scan-qr-item .sq-age  { font-size: 11px; color: #546E7A; margin-top: 2px; }
+
+    .match-preview-row {
+      display: flex; align-items: center; justify-content: center; gap: 20px;
+      background: #F0FBFA; border-radius: 12px; padding: 16px; margin-top: 4px;
+    }
+    .prev-item { text-align: center; }
+    .prev-icon { font-size: 28px; margin-bottom: 6px; }
+    .prev-name { font-size: 13px; font-weight: 700; }
+    .prev-sub  { font-size: 11px; color: #546E7A; }
+    .prev-arrow { font-size: 22px; color: #34C4A0; }
+
+    /* 확인 모달 */
+    .confirm-box {
+      background: #fff; border-radius: 16px; width: 380px;
+      padding: 32px 28px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); text-align: center;
+    }
+    .confirm-icon  { font-size: 40px; margin-bottom: 14px; }
+    .confirm-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .confirm-desc  { font-size: 13px; color: #546E7A; line-height: 1.7; margin-bottom: 24px; }
+    .confirm-btns  { display: flex; gap: 10px; justify-content: center; }
+  </style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<header class="header">
+  <div class="header-logo">
+    <div class="logo-icon">🏥</div>
+    <div>
+      <div class="logo-text">서울중앙병원</div>
+      <div class="logo-sub"><span class="portal-badge">운영자 포털</span></div>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <div class="header-title">계정 관리</div>
+  <div class="header-right">
+    <div class="header-notif">🔔<div class="notif-badge">3</div></div>
+    <div class="header-user">
+      <div class="user-avatar">⌚</div>
+      <div style="display:flex;flex-direction:column;">
+        <div class="user-name">이민수</div>
+        <div class="user-role">서울중앙병원 · 와치관리자</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- 사이드바 -->
+  <nav class="sidebar">
+    <div class="hosp-card">
+      <div class="hosp-card-name">🏥 서울중앙병원</div>
+      <div class="hosp-card-meta">
+        <span>📍 서울특별시 중구</span>
+        <span>🏷️ 코드 SCH-001</span>
+      </div>
+    </div>
+    <div class="nav-section-label">메인 메뉴</div>
+    <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span> 대시보드</a>
+    <a href="device.html"    class="nav-item"><span class="nav-icon">📟</span> 기기 관리</a>
+    <a href="matching.html"  class="nav-item active"><span class="nav-icon">🔗</span> 계정 관리</a>
+    <a href="notice.html"    class="nav-item"><span class="nav-icon">📢</span> 공지사항</a>
+    <a class="nav-item disabled"><span class="nav-icon">👁️</span> 계정 조회</a>
+    <div class="sidebar-footer">
+      <a href="my-account.html" class="sidebar-footer-item"><span>👤</span> 내 계정</a>
+      <div class="sidebar-footer-item"><span>🚪</span> 로그아웃</div>
+    </div>
+  </nav>
+
+  <!-- 메인 -->
+  <main class="main">
+
+    <div class="page-header">
+      <div>
+        <div class="page-title">계정 관리</div>
+        <div class="page-subtitle">시니어를 등록하고 와치 기기 및 의료진을 연결합니다.</div>
+      </div>
+    </div>
+
+    <!-- 탭 -->
+    <div class="tab-wrap">
+      <button class="tab-btn active" onclick="switchTab('senior', this)">🧓 시니어 관리</button>
+      <button class="tab-btn" onclick="switchTab('match', this)">🔗 와치 매칭</button>
+      <button class="tab-btn" onclick="switchTab('medical', this)">🩺 의료진 배정</button>
+    </div>
+
+    <!-- ══ 탭 1: 시니어 관리 ══ -->
+    <div class="tab-panel active" id="panel-senior">
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="display:flex;gap:12px;">
+          <div class="stat-card" style="min-width:140px;">
+            <div class="stat-icon">🧓</div>
+            <div><div class="stat-val" id="s-total">0</div><div class="stat-label">전체 시니어</div></div>
+          </div>
+          <div class="stat-card" style="min-width:140px;">
+            <div class="stat-icon">✅</div>
+            <div><div class="stat-val" id="s-matched">0</div><div class="stat-label">매칭됨</div></div>
+          </div>
+          <div class="stat-card" style="min-width:140px;">
+            <div class="stat-icon">⏳</div>
+            <div><div class="stat-val" id="s-unmatched">0</div><div class="stat-label">미매칭</div></div>
+          </div>
+        </div>
+        <button class="btn btn-green" onclick="openRegModal()">+ 시니어 등록</button>
+      </div>
+
+      <div class="senior-grid" id="senior-grid"></div>
+    </div>
+
+    <!-- ══ 탭 2: 매칭 현황 ══ -->
+    <div class="tab-panel" id="panel-match">
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-icon">🔗</div>
+          <div><div class="stat-val" id="m-total">0</div><div class="stat-label">전체 매칭</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div><div class="stat-val" id="m-active">0</div><div class="stat-label">활성 매칭</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⌚</div>
+          <div><div class="stat-val" id="m-free">0</div><div class="stat-label">미배정 기기</div></div>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="match-search" placeholder="시니어 이름 또는 기기 시리얼 검색" oninput="renderMatches()">
+        </div>
+        <select class="filter-select" id="match-filter" onchange="renderMatches()">
+          <option value="">전체 상태</option>
+          <option value="active">활성</option>
+          <option value="paused">일시정지</option>
+          <option value="ended">해제됨</option>
+        </select>
+        <span class="result-count" id="match-count"></span>
+        <button class="btn btn-primary" style="margin-left:auto;" onclick="openScanModal()">📷 QR로 매칭</button>
+      </div>
+
+      <div class="card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>와치 기기</th>
+              <th style="width:40px;"></th>
+              <th>시니어</th>
+              <th>시니어 ID</th>
+              <th>매칭 시작일</th>
+              <th>상태</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="match-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ 탭 3: 의료진 배정 ══ -->
+    <div class="tab-panel" id="panel-medical">
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-icon">🩺</div>
+          <div><div class="stat-val" id="md-total">0</div><div class="stat-label">전체 의료진</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div><div class="stat-val" id="md-assigned">0</div><div class="stat-label">시니어 배정됨</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🧓</div>
+          <div><div class="stat-val" id="md-seniors">0</div><div class="stat-label">배정된 시니어 수</div></div>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="md-search" placeholder="의료진 이름 검색" oninput="renderMedical()">
+        </div>
+        <span class="result-count" id="md-count"></span>
+        <button class="btn btn-green" style="margin-left:auto;" onclick="openMdRegModal()">+ 의료진 등록</button>
+      </div>
+
+      <div class="card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>의료진</th>
+              <th>직종</th>
+              <th>담당 시니어</th>
+              <th>배정 현황</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="medical-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══ 시니어 등록 모달 ══ -->
+<div class="modal-overlay" id="modal-reg">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🧓 시니어 등록</div>
+      <button class="modal-close" onclick="closeRegModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">이름 <span class="required">*</span></label>
+          <input type="text" class="form-input" id="reg-name" placeholder="예) 김순자">
+        </div>
+        <div class="form-group">
+          <label class="form-label">생년월일 <span class="required">*</span></label>
+          <input type="date" class="form-input" id="reg-birth">
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:18px;">
+        <label class="form-label">연락처</label>
+        <input type="tel" class="form-input" id="reg-phone" placeholder="010-0000-0000">
+      </div>
+      <div class="form-group">
+        <label class="form-label">주소</label>
+        <input type="text" class="form-input" id="reg-addr" placeholder="예) 서울시 중구">
+      </div>
+      <div style="background:#EBF3FF;border-radius:10px;padding:12px 16px;font-size:12px;color:#1A4F9C;line-height:1.7;margin-top:4px;">
+        💡 등록 완료 후 <strong>고유 QR 코드</strong>가 자동으로 생성됩니다.<br>
+        생성된 QR을 인쇄해 두면 와치 기기 매칭 시 빠르게 사용할 수 있습니다.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeRegModal()">취소</button>
+      <button class="btn-save" onclick="saveSenior()">등록 및 QR 생성</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ QR 크게 보기 모달 ══ -->
+<div class="modal-overlay" id="modal-qr">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title">QR 코드</div>
+      <button class="modal-close" onclick="closeQrModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="qr-view-wrap">
+        <div class="qr-large" id="qr-large-wrap"></div>
+        <div class="qr-senior-info">
+          <div class="qr-senior-name" id="qr-modal-name"></div>
+          <div class="qr-senior-detail" id="qr-modal-detail"></div>
+          <div class="qr-senior-id" id="qr-modal-id"></div>
+        </div>
+        <div class="qr-guide">
+          📷 이 QR 코드를 인쇄하여 시니어에게 배부하세요.<br>
+          와치 기기 등록 시 QR을 스캔하면 자동으로 매칭됩니다.
+        </div>
+        <button class="btn btn-outline" style="width:100%;justify-content:center;" onclick="window.print()">🖨️ 인쇄하기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ QR 매칭 모달 ══ -->
+<div class="modal-overlay" id="modal-scan">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title">📷 QR로 와치 매칭</div>
+      <button class="modal-close" onclick="closeScanModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Step 1: 기기 선택 -->
+      <div class="scan-step">
+        <div class="step-label">Step 1 — 와치 기기 선택</div>
+        <select class="form-select" id="scan-watch" onchange="onWatchSelect()">
+          <option value="">-- 매칭할 와치 기기를 선택하세요 --</option>
+        </select>
+      </div>
+
+      <!-- Step 2: QR 스캔 (시니어 선택) -->
+      <div class="scan-step" id="scan-step2" style="display:none;">
+        <div class="step-label">Step 2 — 시니어 QR 코드 스캔 <span style="font-size:11px;font-weight:400;color:#90A4AE;">(해당 시니어의 QR을 클릭하세요)</span></div>
+        <div class="scan-qr-grid" id="scan-qr-grid"></div>
+      </div>
+
+      <!-- 매칭 미리보기 -->
+      <div id="scan-preview" style="display:none;margin-top:4px;">
+        <div class="step-label">매칭 확인</div>
+        <div class="match-preview-row">
+          <div class="prev-item">
+            <div class="prev-icon">⌚</div>
+            <div class="prev-name" id="prev-w-model"></div>
+            <div class="prev-sub"  id="prev-w-serial"></div>
+          </div>
+          <div class="prev-arrow">→</div>
+          <div class="prev-item">
+            <div class="prev-icon">🧓</div>
+            <div class="prev-name" id="prev-s-name"></div>
+            <div class="prev-sub"  id="prev-s-age"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeScanModal()">취소</button>
+      <button class="btn-save" id="scan-save-btn" onclick="saveScanMatch()" disabled style="opacity:0.5;cursor:default;">매칭 등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 의료진 등록 모달 ══ -->
+<div class="modal-overlay" id="modal-md-reg">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title">🩺 의료진 등록</div>
+      <button class="modal-close" onclick="closeModal('modal-md-reg')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">이름 <span class="required">*</span></label>
+        <input type="text" class="form-input" id="md-reg-name" placeholder="예) 김건강">
+      </div>
+      <div class="form-group">
+        <label class="form-label">직종 <span class="required">*</span></label>
+        <select class="form-select" id="md-reg-specialty">
+          <option value="">직종 선택</option>
+          <option>내과 전문의</option>
+          <option>가정의학과 전문의</option>
+          <option>신경과 전문의</option>
+          <option>간호사</option>
+          <option>물리치료사</option>
+          <option>작업치료사</option>
+          <option>사회복지사</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">소속 부서</label>
+        <input type="text" class="form-input" id="md-reg-dept" placeholder="예) 내과 1팀">
+      </div>
+      <div class="form-group">
+        <label class="form-label">연락처</label>
+        <input type="tel" class="form-input" id="md-reg-phone" placeholder="010-0000-0000">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-md-reg')">취소</button>
+      <button class="btn-save" onclick="saveMedical()">등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 의료진 배정 모달 ══ -->
+<div class="modal-overlay" id="modal-md-assign">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title">🧓 시니어 배정 — <span id="assign-md-name"></span></div>
+      <button class="modal-close" onclick="closeModal('modal-md-assign')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:#546E7A;margin-bottom:16px;">담당할 시니어를 선택하세요. 여러 명 선택 가능합니다.</p>
+      <div id="assign-senior-list" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-md-assign')">취소</button>
+      <button class="btn-save" onclick="saveAssignment()">배정 저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 매칭 해제 확인 ══ -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="confirm-box">
+    <div class="confirm-icon">⚠️</div>
+    <div class="confirm-title" id="confirm-title">매칭을 해제하시겠습니까?</div>
+    <div class="confirm-desc"  id="confirm-desc"></div>
+    <div class="confirm-btns">
+      <button class="btn-cancel" onclick="closeConfirm()">취소</button>
+      <button class="btn-danger" id="confirm-ok">해제</button>
+    </div>
+  </div>
+</div>
+
+<!-- 토스트 -->
+<div id="toast" style="position:fixed;bottom:28px;right:28px;z-index:9999;background:#1A2332;color:#fff;padding:14px 22px;border-radius:10px;font-size:14px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,0.2);opacity:0;pointer-events:none;transition:opacity 0.3s;white-space:nowrap;"></div>
+
+<script>
+  /* ════ 마스터 데이터 ════ */
+  const HOSP = 'SCH-001';
+
+  const WATCHES = [
+    { id:'W001', model:'HC Watch Pro 3',  serial:'HCW-2024-0031' },
+    { id:'W002', model:'HC Watch Pro 3',  serial:'HCW-2024-0032' },
+    { id:'W003', model:'HC Watch Lite 2', serial:'HCW-2023-0158' },
+    { id:'W004', model:'HC Watch Pro 3',  serial:'HCW-2024-0033' },
+    { id:'W005', model:'HC Watch Lite 2', serial:'HCW-2023-0159' },
+    { id:'W006', model:'HC Watch Pro 3',  serial:'HCW-2025-0011' },
+    { id:'W007', model:'HC Watch Lite 2', serial:'HCW-2023-0160' },
+    { id:'W008', model:'HC Watch Pro 3',  serial:'HCW-2025-0012' },
+  ];
+
+  let seniors = [
+    { id:'S001', name:'김순자', birth:'1947-03-12', phone:'010-1234-5678', addr:'서울시 중구' },
+    { id:'S002', name:'이정수', birth:'1953-07-08', phone:'010-2345-6789', addr:'서울시 중구' },
+    { id:'S003', name:'박희순', birth:'1945-11-24', phone:'010-3456-7890', addr:'서울시 중구' },
+    { id:'S004', name:'최영수', birth:'1956-02-19', phone:'010-4567-8901', addr:'서울시 중구' },
+    { id:'S005', name:'정미옥', birth:'1950-09-03', phone:'010-5678-9012', addr:'서울시 중구' },
+  ];
+
+  let matches = [
+    { id:1, watchId:'W001', seniorId:'S001', startDate:'2025-11-03', status:'active' },
+    { id:2, watchId:'W002', seniorId:'S002', startDate:'2026-01-15', status:'active' },
+    { id:3, watchId:'W003', seniorId:'S003', startDate:'2025-09-20', status:'paused' },
+  ];
+
+  let nextSeniorNum = 6;
+  let nextMatchId   = 4;
+  let qrInstances   = {};
+
+  /* 의료진 데이터 */
+  let medicals = [
+    { id:'M001', name:'김건강', specialty:'내과 전문의',   dept:'내과 1팀',   phone:'010-1111-2222', seniorIds:['S001','S002'] },
+    { id:'M002', name:'이간호', specialty:'간호사',         dept:'병동 2팀',   phone:'010-3333-4444', seniorIds:['S003'] },
+    { id:'M003', name:'박물리', specialty:'물리치료사',     dept:'재활치료팀', phone:'010-5555-6666', seniorIds:[] },
+  ];
+  let nextMedicalNum = 4;
+  let assignTargetId = null;
+
+  /* ════ 헬퍼 ════ */
+  const getWatch  = id => WATCHES.find(w => w.id === id);
+  const getSenior = id => seniors.find(s => s.id === id);
+  const calcAge   = birth => {
+    const diff = new Date() - new Date(birth);
+    return Math.floor(diff / (365.25 * 24 * 3600 * 1000)) + '세';
+  };
+  const activeMatch = sid => matches.find(m => m.seniorId === sid && m.status !== 'ended');
+  const freeWatches = () => {
+    const used = new Set(matches.filter(m => m.status !== 'ended').map(m => m.watchId));
+    return WATCHES.filter(w => !used.has(w.id));
+  };
+  const freeSeniors = () => seniors.filter(s => !activeMatch(s.id));
+  const qrData      = s => `HC:${HOSP}:${s.id}:${s.name}`;
+
+  /* ════ QR 생성 ════ */
+  function makeQR(containerId, text, size) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    el.innerHTML = '';
+    new QRCode(el, { text, width: size, height: size, colorDark: '#1A2332', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+  }
+
+  /* ════ 탭 ════ */
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + id).classList.add('active');
+  }
+
+  /* ════ 시니어 카드 그리드 ════ */
+  function renderSeniors() {
+    const grid = document.getElementById('senior-grid');
+    grid.innerHTML = '';
+    seniors.forEach(s => {
+      const age = calcAge(s.birth);
+      const m   = activeMatch(s.id);
+      const qrId = 'qr-card-' + s.id;
+
+      const card = document.createElement('div');
+      card.className = 'senior-card';
+      card.innerHTML = `
+        <div class="senior-card-top">
+          <div class="senior-card-avatar">${s.name[0]}</div>
+          <div class="senior-card-info">
+            <div class="senior-card-name">${s.name}</div>
+            <div class="senior-card-sub">${age} · ${s.phone || '-'}</div>
+            <div class="senior-card-id">ID: ${s.id}</div>
+          </div>
+        </div>
+        <div class="senior-qr-row">
+          <div class="qr-wrap" id="${qrId}"></div>
+          <div class="senior-qr-info">
+            <div class="qr-status-badge ${m ? 'qr-matched' : 'qr-unmatched'}">
+              ${m ? '✅ 매칭됨' : '⏳ 미매칭'}
+            </div>
+            <div class="qr-match-info">
+              ${m ? `⌚ ${getWatch(m.watchId).model}<br><span style="font-family:monospace;font-size:10px;">${getWatch(m.watchId).serial}</span>` : '와치 기기가 연결되지 않았습니다'}
+            </div>
+          </div>
+        </div>
+        <div class="senior-card-actions">
+          <button class="btn btn-outline btn-sm" onclick="openQrModal('${s.id}')">🔍 QR 크게 보기</button>
+          ${m ? `<button class="btn btn-sm" style="background:#FDECEA;color:#C62828;border:1px solid #FFCDD2;" onclick="confirmRemove(${m.id})">매칭 해제</button>` : ''}
+        </div>`;
+      grid.appendChild(card);
+
+      setTimeout(() => makeQR(qrId, qrData(s), 80), 0);
+    });
+
+    const matched = seniors.filter(s => activeMatch(s.id)).length;
+    document.getElementById('s-total').textContent    = seniors.length;
+    document.getElementById('s-matched').textContent  = matched;
+    document.getElementById('s-unmatched').textContent = seniors.length - matched;
+  }
+
+  /* ════ 매칭 테이블 ════ */
+  function renderMatches() {
+    const q  = document.getElementById('match-search').value.trim().toLowerCase();
+    const st = document.getElementById('match-filter').value;
+    const STATUS_LABEL = { active:'활성', paused:'일시정지', ended:'해제됨' };
+    const STATUS_CLASS = { active:'status-active', paused:'status-paused', ended:'status-ended' };
+    const STATUS_DOT   = { active:'🟢', paused:'🟡', ended:'⚫' };
+
+    const filtered = matches.filter(m => {
+      const w = getWatch(m.watchId);
+      const s = getSenior(m.seniorId);
+      const qMatch = !q || (s && s.name.includes(q)) || (w && w.serial.toLowerCase().includes(q));
+      return qMatch && (!st || m.status === st);
+    });
+
+    const tbody = document.getElementById('match-tbody');
+    tbody.innerHTML = '';
+    if (!filtered.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:48px;color:#90A4AE;">매칭 내역이 없습니다.</td></tr>';
+    } else {
+      filtered.forEach(m => {
+        const w = getWatch(m.watchId);
+        const s = getSenior(m.seniorId);
+        if (!w || !s) return;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><div class="watch-cell">
+            <div class="watch-icon-sm">⌚</div>
+            <div><div class="cell-name">${w.model}</div><div class="cell-sub">${w.serial}</div></div>
+          </div></td>
+          <td style="text-align:center;color:#90A4AE;font-size:16px;">→</td>
+          <td><div class="senior-cell">
+            <div class="senior-avatar-sm">${s.name[0]}</div>
+            <div><div class="cell-name">${s.name}</div><div class="cell-sub">${calcAge(s.birth)} · ${s.phone || '-'}</div></div>
+          </div></td>
+          <td style="color:#90A4AE;font-family:monospace;font-size:12px;">${s.id}</td>
+          <td style="color:#546E7A;">${m.startDate}</td>
+          <td><span class="status-badge ${STATUS_CLASS[m.status]}">${STATUS_DOT[m.status]} ${STATUS_LABEL[m.status]}</span></td>
+          <td>${m.status !== 'ended'
+            ? `<button class="btn-action" onclick="togglePause(${m.id})">${m.status === 'active' ? '일시정지' : '재활성'}</button>
+               <button class="btn-action danger" onclick="confirmRemove(${m.id})">해제</button>`
+            : `<span style="font-size:12px;color:#B0BEC5;">해제됨</span>`}
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById('match-count').textContent = `총 ${filtered.length}건`;
+    document.getElementById('m-total').textContent  = matches.length;
+    document.getElementById('m-active').textContent = matches.filter(m => m.status === 'active').length;
+    document.getElementById('m-free').textContent   = freeWatches().length;
+  }
+
+  /* ════ 일시정지 / 재활성 ════ */
+  function togglePause(id) {
+    const m = matches.find(x => x.id === id);
+    if (!m) return;
+    m.status = m.status === 'active' ? 'paused' : 'active';
+    const s = getSenior(m.seniorId);
+    renderMatches(); renderSeniors();
+    showToast(m.status === 'active' ? `✅ ${s.name}님 매칭 재활성` : `⏸️ ${s.name}님 매칭 일시정지`);
+  }
+
+  /* ════ 매칭 해제 ════ */
+  function confirmRemove(id) {
+    const m = matches.find(x => x.id === id);
+    const w = getWatch(m.watchId);
+    const s = getSenior(m.seniorId);
+    document.getElementById('confirm-title').textContent = `${s.name}님의 매칭을 해제하시겠습니까?`;
+    document.getElementById('confirm-desc').textContent  = `${w.model} (${w.serial}) 기기가 미배정 상태로 돌아갑니다.`;
+    document.getElementById('confirm-ok').onclick = () => {
+      m.status = 'ended';
+      closeConfirm(); renderMatches(); renderSeniors();
+      showToast(`🔓 ${s.name}님 매칭이 해제됐습니다.`);
+    };
+    document.getElementById('modal-confirm').classList.add('open');
+  }
+  function closeConfirm() { document.getElementById('modal-confirm').classList.remove('open'); }
+
+  /* ════ 시니어 등록 모달 ════ */
+  function openRegModal() {
+    ['reg-name','reg-phone','reg-addr'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('reg-birth').value = '';
+    document.getElementById('modal-reg').classList.add('open');
+    setTimeout(() => document.getElementById('reg-name').focus(), 100);
+  }
+  function closeRegModal() { document.getElementById('modal-reg').classList.remove('open'); }
+
+  function saveSenior() {
+    const name  = document.getElementById('reg-name').value.trim();
+    const birth = document.getElementById('reg-birth').value;
+    if (!name)  { highlight('reg-name');  return; }
+    if (!birth) { highlight('reg-birth'); return; }
+    const id = 'S' + String(nextSeniorNum++).padStart(3, '0');
+    seniors.push({
+      id, name, birth,
+      phone: document.getElementById('reg-phone').value.trim(),
+      addr:  document.getElementById('reg-addr').value.trim(),
+    });
+    closeRegModal();
+    renderSeniors();
+    showToast(`✅ ${name}님이 등록됐습니다. QR 코드가 생성됐어요.`);
+  }
+
+  /* ════ QR 크게 보기 ════ */
+  function openQrModal(sid) {
+    const s = getSenior(sid);
+    document.getElementById('qr-modal-name').textContent   = s.name;
+    document.getElementById('qr-modal-detail').textContent = `${calcAge(s.birth)} · ${s.phone || '-'}`;
+    document.getElementById('qr-modal-id').textContent     = `ID: ${s.id}`;
+    document.getElementById('qr-large-wrap').innerHTML     = '';
+    document.getElementById('modal-qr').classList.add('open');
+    setTimeout(() => makeQR('qr-large-wrap', qrData(s), 200), 50);
+  }
+  function closeQrModal() { document.getElementById('modal-qr').classList.remove('open'); }
+
+  /* ════ QR 매칭 (스캔) 모달 ════ */
+  let scanSelectedWatchId  = null;
+  let scanSelectedSeniorId = null;
+
+  function openScanModal() {
+    scanSelectedWatchId  = null;
+    scanSelectedSeniorId = null;
+    document.getElementById('scan-step2').style.display  = 'none';
+    document.getElementById('scan-preview').style.display = 'none';
+    const saveBtn = document.getElementById('scan-save-btn');
+    saveBtn.disabled = true; saveBtn.style.opacity = '0.5'; saveBtn.style.cursor = 'default';
+
+    const sel = document.getElementById('scan-watch');
+    sel.innerHTML = '<option value="">-- 매칭할 와치 기기를 선택하세요 --</option>';
+    freeWatches().forEach(w => {
+      const opt = document.createElement('option');
+      opt.value = w.id;
+      opt.textContent = `${w.model} (${w.serial})`;
+      sel.appendChild(opt);
+    });
+    document.getElementById('modal-scan').classList.add('open');
+  }
+  function closeScanModal() { document.getElementById('modal-scan').classList.remove('open'); }
+
+  function onWatchSelect() {
+    const wId = document.getElementById('scan-watch').value;
+    scanSelectedWatchId  = wId || null;
+    scanSelectedSeniorId = null;
+    document.getElementById('scan-preview').style.display = 'none';
+    const saveBtn = document.getElementById('scan-save-btn');
+    saveBtn.disabled = true; saveBtn.style.opacity = '0.5'; saveBtn.style.cursor = 'default';
+
+    const step2 = document.getElementById('scan-step2');
+    if (!wId) { step2.style.display = 'none'; return; }
+
+    const grid = document.getElementById('scan-qr-grid');
+    grid.innerHTML = '';
+    const available = freeSeniors();
+    if (!available.length) {
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:24px;color:#90A4AE;">매칭 가능한 시니어가 없습니다.</div>';
+    } else {
+      available.forEach(s => {
+        const item = document.createElement('div');
+        item.className = 'scan-qr-item';
+        item.dataset.sid = s.id;
+        const qId = 'scan-qr-' + s.id;
+        item.innerHTML = `<div class="sq-qr" id="${qId}"></div>
+          <div class="sq-name">${s.name}</div>
+          <div class="sq-age">${calcAge(s.birth)}</div>`;
+        item.onclick = () => selectScanSenior(s.id);
+        grid.appendChild(item);
+        setTimeout(() => makeQR(qId, qrData(s), 70), 0);
+      });
+    }
+    step2.style.display = 'block';
+  }
+
+  function selectScanSenior(sid) {
+    document.querySelectorAll('.scan-qr-item').forEach(el => el.classList.remove('selected'));
+    document.querySelector(`.scan-qr-item[data-sid="${sid}"]`).classList.add('selected');
+    scanSelectedSeniorId = sid;
+
+    const w = getWatch(scanSelectedWatchId);
+    const s = getSenior(sid);
+    document.getElementById('prev-w-model').textContent  = w.model;
+    document.getElementById('prev-w-serial').textContent = w.serial;
+    document.getElementById('prev-s-name').textContent   = s.name;
+    document.getElementById('prev-s-age').textContent    = calcAge(s.birth);
+    document.getElementById('scan-preview').style.display = 'block';
+
+    const saveBtn = document.getElementById('scan-save-btn');
+    saveBtn.disabled = false; saveBtn.style.opacity = '1'; saveBtn.style.cursor = 'pointer';
+  }
+
+  function saveScanMatch() {
+    if (!scanSelectedWatchId || !scanSelectedSeniorId) return;
+    const s = getSenior(scanSelectedSeniorId);
+    const w = getWatch(scanSelectedWatchId);
+    matches.unshift({ id: nextMatchId++, watchId: scanSelectedWatchId, seniorId: scanSelectedSeniorId, startDate: new Date().toISOString().slice(0,10), status: 'active' });
+    closeScanModal();
+    renderMatches(); renderSeniors();
+    showToast(`✅ ${s.name}님 ↔ ${w.model} 매칭이 완료됐습니다!`);
+  }
+
+  /* ════ 공통 ════ */
+  function highlight(id) {
+    const el = document.getElementById(id);
+    el.style.borderColor = '#E53935'; el.focus();
+    setTimeout(() => el.style.borderColor = '', 1500);
+  }
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.style.opacity = '1'; t.style.pointerEvents = 'auto';
+    setTimeout(() => { t.style.opacity = '0'; t.style.pointerEvents = 'none'; }, 3000);
+  }
+
+  /* 모달 외부 클릭 닫기 */
+  ['modal-reg','modal-qr','modal-scan','modal-confirm'].forEach(id => {
+    document.getElementById(id).addEventListener('click', e => {
+      if (e.target.id === id) {
+        if (id === 'modal-reg')     closeRegModal();
+        if (id === 'modal-qr')      closeQrModal();
+        if (id === 'modal-scan')    closeScanModal();
+        if (id === 'modal-confirm') closeConfirm();
+      }
+    });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeRegModal(); closeQrModal(); closeScanModal(); closeConfirm();
+      closeModal('modal-md-reg'); closeModal('modal-md-assign');
+    }
+  });
+
+  /* ════ 의료진 배정 탭 ════ */
+  function renderMedical() {
+    const q = document.getElementById('md-search').value.trim().toLowerCase();
+    const filtered = medicals.filter(m => !q || m.name.toLowerCase().includes(q));
+    document.getElementById('md-count').textContent = filtered.length + '명';
+
+    const tbody = document.getElementById('medical-tbody');
+    tbody.innerHTML = '';
+    filtered.forEach(m => {
+      const assignedSeniors = m.seniorIds.map(sid => getSenior(sid)).filter(Boolean);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:36px;height:36px;border-radius:50%;background:#E6F9F5;color:#1E9C80;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;">${m.name[0]}</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;">${m.name}</div>
+              <div style="font-size:11px;color:#90A4AE;font-family:monospace;">${m.id}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div style="font-size:13px;">${m.specialty}</div>
+          <div style="font-size:11px;color:#546E7A;">${m.dept || ''}</div>
+        </td>
+        <td>
+          ${assignedSeniors.length === 0
+            ? '<span style="color:#90A4AE;font-size:12px;">배정된 시니어 없음</span>'
+            : assignedSeniors.map(s =>
+                `<span style="display:inline-flex;align-items:center;gap:4px;background:#E8F5E9;color:#2E7D32;font-size:11px;font-weight:600;padding:3px 8px;border-radius:10px;margin:2px 3px 2px 0;">${s.name}</span>`
+              ).join('')}
+        </td>
+        <td>
+          <span style="font-size:13px;font-weight:700;">${assignedSeniors.length}</span>
+          <span style="font-size:11px;color:#546E7A;">명</span>
+        </td>
+        <td>
+          <div style="display:flex;gap:6px;">
+            <button class="btn-action" onclick="openAssignModal('${m.id}')">배정 변경</button>
+            <button class="btn-action danger" onclick="removeMedical('${m.id}')">삭제</button>
+          </div>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+
+    /* 통계 */
+    document.getElementById('md-total').textContent    = medicals.length;
+    document.getElementById('md-assigned').textContent = medicals.filter(m => m.seniorIds.length > 0).length;
+    document.getElementById('md-seniors').textContent  = medicals.reduce((sum, m) => sum + m.seniorIds.length, 0);
+  }
+
+  /* 의료진 등록 */
+  function openMdRegModal() {
+    ['md-reg-name','md-reg-dept','md-reg-phone'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('md-reg-specialty').value = '';
+    openModal('modal-md-reg');
+  }
+
+  function saveMedical() {
+    const name      = document.getElementById('md-reg-name').value.trim();
+    const specialty = document.getElementById('md-reg-specialty').value;
+    if (!name || !specialty) { alert('이름과 직종은 필수입니다.'); return; }
+    const dept  = document.getElementById('md-reg-dept').value.trim();
+    const phone = document.getElementById('md-reg-phone').value.trim();
+    const newId = 'M' + String(nextMedicalNum++).padStart(3, '0');
+    medicals.push({ id:newId, name, specialty, dept, phone, seniorIds:[] });
+    closeModal('modal-md-reg');
+    renderMedical();
+    showToast('✅ 의료진이 등록되었습니다');
+  }
+
+  /* 배정 모달 */
+  function openAssignModal(mdId) {
+    assignTargetId = mdId;
+    const md = medicals.find(m => m.id === mdId);
+    document.getElementById('assign-md-name').textContent = `${md.name} (${md.specialty})`;
+
+    const list = document.getElementById('assign-senior-list');
+    list.innerHTML = '';
+    seniors.forEach(s => {
+      const checked = md.seniorIds.includes(s.id);
+      const age = calcAge(s.birth);
+      const el = document.createElement('label');
+      el.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 14px;border:2px solid ' + (checked ? '#34C4A0' : '#D1D9E6') + ';border-radius:10px;cursor:pointer;transition:all 0.15s;';
+      el.innerHTML = `
+        <input type="checkbox" data-sid="${s.id}" ${checked ? 'checked' : ''} style="width:16px;height:16px;accent-color:#34C4A0;">
+        <div>
+          <div style="font-size:13px;font-weight:700;">${s.name}</div>
+          <div style="font-size:11px;color:#546E7A;">${age} · ${s.id}</div>
+        </div>`;
+      el.querySelector('input').addEventListener('change', e => {
+        el.style.borderColor = e.target.checked ? '#34C4A0' : '#D1D9E6';
+      });
+      list.appendChild(el);
+    });
+    openModal('modal-md-assign');
+  }
+
+  function saveAssignment() {
+    const md = medicals.find(m => m.id === assignTargetId);
+    if (!md) return;
+    md.seniorIds = [...document.querySelectorAll('#assign-senior-list input[type=checkbox]:checked')]
+                    .map(cb => cb.dataset.sid);
+    closeModal('modal-md-assign');
+    renderMedical();
+    showToast('✅ 배정이 저장되었습니다');
+  }
+
+  function removeMedical(mdId) {
+    const md = medicals.find(m => m.id === mdId);
+    if (!confirm(`${md.name} 의료진을 삭제하시겠습니까?`)) return;
+    medicals = medicals.filter(m => m.id !== mdId);
+    renderMedical();
+    showToast('의료진이 삭제되었습니다');
+  }
+
+  function openModal(id)  { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  /* ════ 초기화 ════ */
+  renderSeniors();
+  renderMatches();
+  renderMedical();
+</script>
+</body>
+</html>

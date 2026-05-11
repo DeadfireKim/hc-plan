@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>케어링크 — 로그인</title>
+
+  <!-- Google Fonts: Noto Sans KR (디자인 시스템 요구사항) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── 디자인 시스템 토큰 ─────────────────────────────── */
+    :root {
+      --color-primary:       #2B7FE0;
+      --color-primary-dark:  #1A5FB4;
+      --color-secondary:     #34C4A0;
+      --color-danger:        #E53935;
+      --color-warning:       #F5A623;
+      --color-bg:            #F4F6F9;
+      --color-surface:       #FFFFFF;
+      --color-border:        #D1D9E6;
+      --color-text-primary:  #1A2332;
+      --color-text-secondary:#546E7A;
+      --color-text-disabled: #B0BEC5;
+
+      --radius-button: 12px;
+      --radius-card:   16px;
+      --radius-input:  10px;
+
+      --height-button: 56px;
+      --height-input:  52px;
+
+      --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    /* ── 리셋 & 기본 ────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: var(--color-bg);
+      min-height: 100dvh;
+      /* 모바일 중심: 화면 전체를 세로 flex로 채워 세로 중앙 정렬 */
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0)
+               env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+    }
+
+    /* ── 모바일 컨테이너 (max-width 390px) ─────────────── */
+    /* 기획 의도: 앱 기준 해상도(iPhone 14 Pro 기준) 안에서
+       모든 요소가 좌우 여백 없이 꽉 차 보이도록 구성           */
+    .screen {
+      width: 100%;
+      max-width: 390px;
+      min-height: 100dvh;
+      background-color: var(--color-surface);
+      display: flex;
+      flex-direction: column;
+      padding: 0 24px;
+      overflow: hidden;
+    }
+
+    /* ── 상단 여백 / 로고 영역 ──────────────────────────── */
+    /* 기획 의도: 로그인 화면에서 브랜드 인지도를 높이기 위해
+       상단 1/3 지점에 로고와 서비스명을 배치                    */
+    .logo-section {
+      padding-top: 72px;
+      padding-bottom: 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* 로고 아이콘: SVG 인라인으로 외부 의존성 없이 렌더링 */
+    .logo-icon {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, var(--color-primary) 0%, #4FA3F7 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(43, 127, 224, 0.30);
+    }
+
+    .logo-icon svg {
+      width: 40px;
+      height: 40px;
+      fill: none;
+      stroke: #fff;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .service-name {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      letter-spacing: -0.5px;
+    }
+
+    .service-tagline {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--color-text-secondary);
+      margin-top: -4px;
+    }
+
+    /* ── 폼 영역 ────────────────────────────────────────── */
+    .form-section {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      flex: 1;
+    }
+
+    /* 입력 필드 그룹 */
+    /* 기획 의도: 레이블을 필드 위에 배치해 접근성과 가독성 확보 */
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.2px;
+    }
+
+    /* 입력 래퍼: 아이콘과 input을 가로로 배치 */
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      width: 20px;
+      height: 20px;
+      color: var(--color-text-disabled);
+      pointer-events: none;
+      flex-shrink: 0;
+    }
+
+    /* 비밀번호 토글 버튼 (눈 아이콘) */
+    .input-toggle {
+      position: absolute;
+      right: 14px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--color-text-disabled);
+      padding: 4px;
+      display: flex;
+      align-items: center;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      height: var(--height-input);   /* 52px */
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-input); /* 10px */
+      background: var(--color-bg);
+      font-family: inherit;
+      font-size: 15px;
+      color: var(--color-text-primary);
+      padding: 0 44px 0 44px;
+      outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(43, 127, 224, 0.12);
+      background: var(--color-surface);
+    }
+
+    input::placeholder { color: var(--color-text-disabled); }
+
+    /* ── 비밀번호 찾기 링크 ─────────────────────────────── */
+    /* 기획 의도: 로그인 실패 시 이탈 방지를 위해 입력 필드 바로 아래에 배치 */
+    .forgot-link {
+      text-align: right;
+      margin-top: -6px;
+    }
+
+    .forgot-link a {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    .forgot-link a:active { opacity: 0.7; }
+
+    /* ── 버튼 공통 스타일 ───────────────────────────────── */
+    .btn {
+      width: 100%;
+      height: var(--height-button);  /* 56px */
+      border: none;
+      border-radius: var(--radius-button); /* 12px */
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity 0.15s ease, transform 0.12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn:active { opacity: 0.88; transform: scale(0.985); }
+
+    /* Primary 로그인 버튼 */
+    /* 기획 의도: CTA를 Primary 컬러로 명확히 구분하여 즉각적인 행동 유도 */
+    .btn-primary {
+      background: var(--color-primary);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(43, 127, 224, 0.35);
+    }
+
+    .btn-primary:hover { background: var(--color-primary-dark); }
+
+    /* ── 생체인증 버튼 ──────────────────────────────────── */
+    /* 기획 의도: 시니어 사용자를 주 대상으로 하는 헬스케어 앱 특성상
+       비밀번호 입력 없이 빠르게 접근 가능한 생체인증을 전면에 배치  */
+    .btn-biometric {
+      background: var(--color-surface);
+      color: var(--color-secondary);
+      border: 1.5px solid var(--color-secondary);
+    }
+
+    .btn-biometric:hover { background: rgba(52, 196, 160, 0.06); }
+
+    /* ── 구분선 ─────────────────────────────────────────── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--color-text-disabled);
+      font-size: 12px;
+      font-weight: 500;
+      margin: 4px 0;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--color-border);
+    }
+
+    /* ── 버튼 그룹 (로그인 + 생체인증) ─────────────────── */
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    /* ── 회원가입 안내 ──────────────────────────────────── */
+    /* 기획 의도: 신규 사용자 유입을 유지하되 주요 CTA와 시각적 위계 분리 */
+    .signup-prompt {
+      text-align: center;
+      padding: 32px 0 40px;
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      margin-top: auto;
+    }
+
+    .signup-prompt a {
+      color: var(--color-primary);
+      font-weight: 600;
+      text-decoration: none;
+      margin-left: 4px;
+    }
+
+    .signup-prompt a:active { opacity: 0.7; }
+
+    /* ── 에러 메시지 (기획용 비활성) ───────────────────── */
+    /* 기획 의도: 잘못된 입력 시 인라인 에러로 즉각 피드백
+       실제 연동 시 JS로 .error 클래스 토글              */
+    .field-error {
+      font-size: 12px;
+      color: var(--color-danger);
+      display: none;
+      padding-left: 2px;
+    }
+
+    .field-group.error input { border-color: var(--color-danger); }
+    .field-group.error .field-error { display: block; }
+
+    /* ── 접근성: 포커스 표시 ────────────────────────────── */
+    .btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ──────────────────────────────────────────────────────
+     C-01 로그인 화면
+     기획 의도: 헬스케어 앱의 첫 진입점. 신뢰감을 주는 브랜드
+     아이디엔티티와 함께 이메일/비밀번호 방식과 생체인증 두 가지
+     로그인 경로를 제공하여 시니어·보호자·의료진 모두 쉽게 접근
+────────────────────────────────────────────────────────── -->
+<div class="screen" role="main">
+
+  <!-- 1) 로고 + 서비스명 영역 -->
+  <!-- 기획 의도: 앱 진입 시 서비스 브랜드를 즉각 인지시켜 신뢰도 형성 -->
+  <header class="logo-section">
+    <div class="logo-icon" aria-hidden="true">
+      <!-- 하트 + 십자 조합 SVG 아이콘: 헬스케어 서비스 상징 -->
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 21C12 21 3 14.5 3 8.5C3 5.46 5.46 3 8.5 3C10.24 3 11.81 3.89 12 5C12.19 3.89 13.76 3 15.5 3C18.54 3 21 5.46 21 8.5C21 14.5 12 21 12 21Z"/>
+        <line x1="12" y1="8" x2="12" y2="14"/>
+        <line x1="9" y1="11" x2="15" y2="11"/>
+      </svg>
+    </div>
+    <h1 class="service-name">케어링크</h1>
+    <p class="service-tagline">가족 건강을 하나로 연결하는 스마트 케어</p>
+  </header>
+
+  <!-- 2) 로그인 폼 -->
+  <!-- 기획 의도: 최소한의 입력 요소로 빠른 로그인 완료 유도 -->
+  <form class="form-section" novalidate aria-label="로그인 폼">
+
+    <!-- 이메일 입력 필드 -->
+    <!-- 기획 의도: type=email로 모바일 키보드를 이메일 전용으로 자동 전환 -->
+    <div class="field-group" id="email-group">
+      <label class="field-label" for="email">이메일</label>
+      <div class="input-wrapper">
+        <!-- 이메일 아이콘 -->
+        <svg class="input-icon" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true">
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+          <path d="M2 7l10 7 10-7"/>
+        </svg>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="example@email.com"
+          autocomplete="email"
+          inputmode="email"
+          value="kim.sunhee@example.com"
+          aria-describedby="email-error"
+        />
+      </div>
+      <span class="field-error" id="email-error" role="alert">올바른 이메일 형식을 입력해 주세요.</span>
+    </div>
+
+    <!-- 비밀번호 입력 필드 -->
+    <!-- 기획 의도: 눈 모양 토글로 입력 내용 확인 가능 — 고령 사용자 타이핑 오류 방지 -->
+    <div class="field-group" id="pw-group">
+      <label class="field-label" for="password">비밀번호</label>
+      <div class="input-wrapper">
+        <!-- 자물쇠 아이콘 -->
+        <svg class="input-icon" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="비밀번호를 입력하세요"
+          autocomplete="current-password"
+          value="••••••••"
+          aria-describedby="pw-error"
+        />
+        <!-- 비밀번호 표시/숨김 토글 -->
+        <button type="button" class="input-toggle" aria-label="비밀번호 표시 전환"
+                onclick="togglePassword(this)">
+          <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+               aria-hidden="true">
+            <path d="M1 12S5 4 12 4s11 8 11 8-4 8-11 8S1 12 1 12Z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+      <span class="field-error" id="pw-error" role="alert">이메일 또는 비밀번호가 올바르지 않습니다.</span>
+    </div>
+
+    <!-- 비밀번호 찾기 링크 -->
+    <!-- 기획 의도: 로그인 실패 시 이탈 없이 계정 복구 경로 즉시 제공 -->
+    <div class="forgot-link">
+      <a href="#" aria-label="비밀번호를 잊으셨나요? 비밀번호 찾기">비밀번호를 잊으셨나요?</a>
+    </div>
+
+    <!-- 버튼 그룹 -->
+    <div class="button-group">
+
+      <!-- 1차 CTA: 이메일/비밀번호 로그인 -->
+      <!-- 기획 의도: Primary 컬러로 가장 먼저 눈에 들어오는 행동 유도 -->
+      <button type="submit" class="btn btn-primary" aria-label="로그인">
+        로그인
+      </button>
+
+      <!-- 구분선 -->
+      <div class="divider" role="separator" aria-hidden="true">또는</div>
+
+      <!-- 2차 CTA: 생체인증 로그인 -->
+      <!-- 기획 의도: 시니어/반복 사용자를 위한 빠른 대안 진입로.
+           Face ID / 지문인식 네이티브 API와 연동 예정              -->
+      <button type="button" class="btn btn-biometric" aria-label="생체인증으로 로그인 (지문 또는 얼굴 인식)">
+        <!-- 지문 아이콘 SVG -->
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true">
+          <path d="M12 2C8.5 2 5.5 3.8 4 6.5"/>
+          <path d="M2.9 8.9C2.3 9.9 2 11 2 12c0 1.3.4 2.6 1 3.6"/>
+          <path d="M5 19c1.6 1.9 3.9 3 6.5 3 1.1 0 2.2-.2 3.2-.6"/>
+          <path d="M19.5 16.5C20.4 15.1 21 13.6 21 12c0-1.5-.5-3-1.4-4.2"/>
+          <path d="M9 12a3 3 0 0 1 6 0c0 2.2-.5 4.2-1.5 6"/>
+          <path d="M12 9v.5"/>
+          <path d="M12 15.5c-.3.8-.7 1.5-1.2 2.1"/>
+          <path d="M7 12a5 5 0 0 1 10 0c0 3-.7 5.7-2 8"/>
+        </svg>
+        생체인증으로 로그인
+      </button>
+    </div>
+
+  </form>
+
+  <!-- 3) 회원가입 안내 -->
+  <!-- 기획 의도: 신규 사용자가 로그인 화면에서 막히지 않도록
+       하단 고정 영역에 회원가입 진입 링크 상시 노출              -->
+  <footer class="signup-prompt">
+    아직 계정이 없으신가요?
+    <a href="signup.html" aria-label="회원가입 페이지로 이동">회원가입</a>
+  </footer>
+
+</div><!-- /screen -->
+
+<script>
+  // 비밀번호 표시/숨김 토글
+  // 기획 의도: 시니어 사용자가 입력 오류를 확인할 수 있도록 토글 제공
+  function togglePassword(btn) {
+    const input = document.getElementById('password');
+    const icon  = document.getElementById('eye-icon');
+    const isHidden = input.type === 'password';
+
+    input.type = isHidden ? 'text' : 'password';
+    btn.setAttribute('aria-label', isHidden ? '비밀번호 숨기기' : '비밀번호 표시 전환');
+
+    // 눈 아이콘: open ↔ closed
+    icon.innerHTML = isHidden
+      ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+         <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+         <line x1="1" y1="1" x2="23" y2="23"/>`
+      : `<path d="M1 12S5 4 12 4s11 8 11 8-4 8-11 8S1 12 1 12Z"/>
+         <circle cx="12" cy="12" r="3"/>`;
+  }
+
+  // 폼 제출 인터랙션 (기획용 더미)
+  // 실제 서비스 연동 시 API 호출로 교체
+  document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = this.querySelector('.btn-primary');
+    btn.textContent = '로그인 중...';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.textContent = '로그인';
+      btn.disabled = false;
+    }, 1500);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M-12 설정 | 헬스케어 앱</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary:        #2B7FE0;
+      --primary-dark:   #1A5FB4;
+      --secondary:      #34C4A0;
+      --danger:         #E53935;
+      --warning:        #F5A623;
+      --bg:             #F4F6F9;
+      --surface:        #FFFFFF;
+      --border:         #D1D9E6;
+      --text-primary:   #1A2332;
+      --text-secondary: #546E7A;
+      --text-disabled:  #B0BEC5;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: #C8D0DC; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 16px;
+      color: var(--text-primary);
+      background: var(--bg);
+      max-width: 390px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding-bottom: 80px;
+    }
+
+    /* ── 헤더 ── */
+    .app-header {
+      background: var(--surface);
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-title {
+      font-size: 20px; font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    /* ── 프로필 카드 ── */
+    .profile-card {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      margin: 16px;
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: #fff;
+    }
+    .profile-avatar {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .profile-name { font-size: 20px; font-weight: 700; }
+    .profile-role {
+      font-size: 13px; opacity: 0.85; margin-top: 3px;
+    }
+    .profile-edit {
+      margin-left: auto;
+      background: rgba(255,255,255,0.2);
+      border: none; border-radius: 8px;
+      color: #fff; font-size: 13px; font-weight: 600;
+      padding: 7px 14px; cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* ── 섹션 그룹 ── */
+    .section-group {
+      margin: 0 16px 8px;
+    }
+    .section-label {
+      font-size: 12px; font-weight: 700;
+      color: var(--text-secondary);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      padding: 16px 4px 8px;
+    }
+    .section-card {
+      background: var(--surface);
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    /* ── 설정 행 ── */
+    .setting-row {
+      display: flex;
+      align-items: center;
+      padding: 16px 18px;
+      gap: 14px;
+      border-bottom: 1px solid var(--bg);
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-row:active { background: var(--bg); }
+    .setting-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 19px; flex-shrink: 0;
+    }
+    .icon-blue   { background: #EBF3FF; }
+    .icon-green  { background: #E8FAF5; }
+    .icon-orange { background: #FFF5E6; }
+    .icon-red    { background: #FFEBEE; }
+    .icon-purple { background: #F3E5F5; }
+    .icon-gray   { background: var(--bg); }
+
+    .setting-body { flex: 1; }
+    .setting-title {
+      font-size: 16px; font-weight: 600;
+      color: var(--text-primary);
+    }
+    .setting-desc {
+      font-size: 13px; color: var(--text-secondary); margin-top: 2px;
+    }
+    .setting-right {
+      display: flex; align-items: center; gap: 8px;
+      flex-shrink: 0;
+    }
+    .setting-value {
+      font-size: 14px; color: var(--text-secondary); font-weight: 500;
+    }
+    .chevron {
+      color: var(--text-disabled); font-size: 18px; line-height: 1;
+    }
+
+    /* ── 토글 스위치 ── */
+    .toggle {
+      position: relative; width: 50px; height: 28px;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0;
+      background: var(--border); border-radius: 14px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 22px; height: 22px;
+      left: 3px; top: 3px;
+      background: #fff; border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .toggle input:checked + .toggle-slider { background: var(--primary); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(22px); }
+
+    /* ── 보기 모드 선택 ── */
+    .mode-selector {
+      display: flex;
+      gap: 10px;
+      padding: 14px 18px 18px;
+    }
+    .mode-btn {
+      flex: 1; padding: 14px 10px;
+      border-radius: 12px; border: 2px solid var(--border);
+      background: var(--bg); cursor: pointer;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 6px;
+      font-family: inherit; transition: all 0.2s;
+    }
+    .mode-btn.active {
+      border-color: var(--primary);
+      background: #EBF3FF;
+    }
+    .mode-btn-icon { font-size: 24px; }
+    .mode-btn-label {
+      font-size: 14px; font-weight: 700;
+      color: var(--text-primary);
+    }
+    .mode-btn-desc {
+      font-size: 11px; color: var(--text-secondary); text-align: center;
+    }
+    .mode-btn.active .mode-btn-label { color: var(--primary); }
+    .mode-check {
+      font-size: 16px; color: var(--primary);
+      display: none;
+    }
+    .mode-btn.active .mode-check { display: block; }
+
+    /* ── 글자 크기 선택 ── */
+    .font-selector {
+      display: flex;
+      gap: 8px;
+      padding: 14px 18px 18px;
+    }
+    .font-btn {
+      flex: 1; padding: 10px 6px;
+      border-radius: 10px; border: 2px solid var(--border);
+      background: var(--bg); cursor: pointer;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 4px;
+      font-family: inherit; transition: all 0.2s;
+    }
+    .font-btn.active {
+      border-color: var(--primary); background: #EBF3FF;
+    }
+    .font-btn-sample { font-weight: 700; color: var(--text-primary); line-height: 1; }
+    .font-btn-label { font-size: 11px; color: var(--text-secondary); }
+    .font-btn.active .font-btn-sample { color: var(--primary); }
+
+    /* ── 위험 섹션 ── */
+    .danger-row .setting-title { color: var(--danger); }
+
+    /* ── 앱 버전 ── */
+    .app-version {
+      text-align: center;
+      padding: 20px;
+      font-size: 13px;
+      color: var(--text-disabled);
+    }
+
+    /* ── 하단 탭바 ── */
+    .tab-bar {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 390px; height: 64px;
+      background: var(--surface); border-top: 1px solid var(--border);
+      display: flex; align-items: stretch; z-index: 300;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+    }
+    .tab-item {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 3px; cursor: pointer;
+      color: var(--text-disabled); text-decoration: none;
+    }
+    .tab-item.active { color: var(--primary); }
+    .tab-item svg { width: 24px; height: 24px; }
+    .tab-label { font-size: 11px; font-weight: 600; }
+
+    /* ── 토스트 ── */
+    .toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+      background: #1A2332; color: #fff;
+      padding: 12px 20px; border-radius: 24px;
+      font-size: 14px; font-weight: 500;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s; white-space: nowrap; z-index: 999;
+    }
+    .toast.show { opacity: 1; }
+
+    /* ── 목표 편집 모드 ── */
+    .goal-input {
+      text-align: right; border: none; background: transparent;
+      font-size: 16px; font-weight: 600; color: var(--text-primary);
+      font-family: inherit; outline: none; transition: all 0.18s;
+    }
+    .goal-card.editing .goal-input {
+      border: 1.5px solid var(--primary); background: #EBF3FF;
+      border-radius: 8px; padding: 3px 6px; color: var(--primary);
+    }
+    .goal-save-row {
+      display: none; padding: 10px 18px 14px; gap: 8px;
+      justify-content: flex-end; border-top: 1px solid var(--bg);
+    }
+    .goal-card.editing .goal-save-row { display: flex; }
+    .btn-goal-save {
+      padding: 9px 20px; border-radius: 10px; border: none;
+      background: var(--primary); color: #fff;
+      font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+    .btn-goal-cancel {
+      padding: 9px 16px; border-radius: 10px;
+      border: 1px solid var(--border); background: #fff;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      font-family: inherit; color: var(--text-secondary);
+    }
+
+    /* ── 알림 추가 하단 시트 ── */
+    .sheet-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 500;
+    }
+    .sheet-overlay.open { display: flex; align-items: flex-end; justify-content: center; }
+    .bottom-sheet {
+      background: #fff; border-radius: 20px 20px 0 0;
+      width: 100%; max-width: 390px; padding-bottom: 24px;
+      animation: slideUp 0.25s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .sheet-handle { width: 40px; height: 4px; background: #D1D9E6; border-radius: 2px; margin: 12px auto 4px; }
+    .sheet-header { display: flex; align-items: center; padding: 14px 20px 12px; border-bottom: 1px solid #F4F6F9; }
+    .sheet-title { font-size: 17px; font-weight: 700; flex: 1; }
+    .sheet-close { width: 30px; height: 30px; border-radius: 50%; border: none; background: #F4F6F9; font-size: 18px; cursor: pointer; color: #546E7A; display: flex; align-items: center; justify-content: center; font-family: inherit; }
+    .sheet-body { padding: 4px 20px 0; }
+    .sheet-row { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid #F4F6F9; cursor: pointer; }
+    .sheet-row:last-child { border-bottom: none; }
+    .sheet-row-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .sheet-row-body { flex: 1; }
+    .sheet-row-title { font-size: 15px; font-weight: 600; }
+    .sheet-row-desc { font-size: 12px; color: #546E7A; margin-top: 2px; }
+    .sheet-row-check { font-size: 22px; color: var(--primary); opacity: 0; width: 22px; text-align: center; }
+    .sheet-row.selected .sheet-row-check { opacity: 1; }
+    .sheet-time-group { padding: 14px 20px 10px; border-top: 1px solid #F4F6F9; }
+    .sheet-time-label { font-size: 13px; font-weight: 700; color: #546E7A; margin-bottom: 8px; }
+    .sheet-time-input { width: 100%; border: 1.5px solid #D1D9E6; border-radius: 12px; padding: 12px 16px; font-size: 16px; font-family: inherit; color: #1A2332; outline: none; background: #F4F6F9; }
+    .sheet-time-input:focus { border-color: var(--primary); background: #EBF3FF; }
+    .sheet-footer { padding: 12px 20px 0; display: flex; gap: 8px; }
+    .btn-sheet-add { flex: 1; padding: 14px; border-radius: 12px; border: none; background: var(--primary); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn-sheet-cancel { padding: 14px 18px; border-radius: 12px; border: 1px solid #D1D9E6; background: #fff; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; color: #546E7A; }
+
+    @media (max-width: 375px) {
+      .tab-bar { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="header-row">
+      <h1 class="header-title">설정</h1>
+    </div>
+  </header>
+
+  <!-- 프로필 카드 -->
+  <div class="profile-card">
+    <div class="profile-avatar">김</div>
+    <div>
+      <div class="profile-name">김순자</div>
+      <div class="profile-role">시니어 · 만 75세</div>
+    </div>
+    <button class="profile-edit" onclick="location.href='profile-edit.html'">프로필 수정</button>
+  </div>
+
+  <!-- 0. 신체 정보 -->
+  <div class="section-group">
+    <div class="section-label">신체 정보</div>
+    <div class="section-card">
+
+      <div class="setting-row" style="cursor:default;">
+        <div class="setting-icon icon-blue">📏</div>
+        <div class="setting-body">
+          <div class="setting-title">키</div>
+        </div>
+        <div class="setting-right">
+          <input type="number" id="val-height" value="162" min="100" max="250"
+            style="width:64px;text-align:right;border:none;background:transparent;font-size:16px;font-weight:600;color:var(--text-primary);font-family:inherit;outline:none;"
+            onchange="showToast('키가 저장되었습니다')">
+          <span style="font-size:14px;color:var(--text-secondary);font-weight:500;">cm</span>
+        </div>
+      </div>
+
+      <div class="setting-row" style="cursor:default;">
+        <div class="setting-icon icon-green">⚖️</div>
+        <div class="setting-body">
+          <div class="setting-title">몸무게</div>
+        </div>
+        <div class="setting-right">
+          <input type="number" id="val-weight" value="58" min="20" max="200"
+            style="width:64px;text-align:right;border:none;background:transparent;font-size:16px;font-weight:600;color:var(--text-primary);font-family:inherit;outline:none;"
+            onchange="showToast('몸무게가 저장되었습니다')">
+          <span style="font-size:14px;color:var(--text-secondary);font-weight:500;">kg</span>
+        </div>
+      </div>
+
+      <div class="setting-row" style="cursor:default;">
+        <div class="setting-icon icon-orange">🎂</div>
+        <div class="setting-body">
+          <div class="setting-title">출생년도</div>
+        </div>
+        <div class="setting-right">
+          <input type="number" id="val-birthyear" value="1948" min="1900" max="2020"
+            style="width:72px;text-align:right;border:none;background:transparent;font-size:16px;font-weight:600;color:var(--text-primary);font-family:inherit;outline:none;"
+            onchange="showToast('출생년도가 저장되었습니다')">
+          <span style="font-size:14px;color:var(--text-secondary);font-weight:500;">년</span>
+        </div>
+      </div>
+
+      <div class="setting-row" onclick="location.href='profile-edit.html'" style="cursor:pointer;">
+        <div class="setting-icon icon-purple">🧑</div>
+        <div class="setting-body">
+          <div class="setting-title">성별</div>
+          <div class="setting-desc" style="font-size:11px;color:#90A4AE;margin-top:2px;">프로필 수정에서 변경</div>
+        </div>
+        <div class="setting-right">
+          <span style="font-size:15px;font-weight:500;color:#1A2332;">여성</span>
+          <span style="color:#B0BEC5;font-size:18px;">›</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 목표 설정 -->
+  <div class="section-group">
+    <div class="section-label">목표 설정</div>
+    <div class="section-card">
+      <div class="setting-row" onclick="location.href='profile-edit.html'">
+        <div class="setting-icon icon-green">🎯</div>
+        <div class="setting-body">
+          <div class="setting-title">목표 설정</div>
+          <div class="setting-desc">걸음 수 · 수면 · 심박수 · 체중 목표</div>
+        </div>
+        <div class="setting-right">
+          <span class="setting-value">5,000보 · 7시간</span>
+          <span class="chevron">›</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. 보기 모드 -->
+  <div class="section-group">
+    <div class="section-label">보기 모드</div>
+    <div class="section-card">
+      <div class="mode-selector">
+        <!-- 간단보기 -->
+        <button class="mode-btn active" id="mode-simple" onclick="setMode('simple')">
+          <span class="mode-btn-icon">🔠</span>
+          <span class="mode-btn-label">간단보기</span>
+          <span class="mode-btn-desc">핵심 정보만<br>큰 글자·버튼</span>
+          <span class="mode-check">✓ 현재</span>
+        </button>
+        <!-- 자세히 보기 -->
+        <button class="mode-btn" id="mode-detail" onclick="setMode('detail')">
+          <span class="mode-btn-icon">📊</span>
+          <span class="mode-btn-label">자세히 보기</span>
+          <span class="mode-btn-desc">전체 정보·그래프<br>또래 비교</span>
+          <span class="mode-check">✓ 현재</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 화면 설정 -->
+  <div class="section-group">
+    <div class="section-label">화면 설정</div>
+    <div class="section-card">
+
+      <!-- 글자 크기 -->
+      <div class="setting-row" style="flex-direction:column; align-items:stretch; gap:0; cursor:default;">
+        <div style="display:flex; align-items:center; gap:14px; padding-bottom:12px;">
+          <div class="setting-icon icon-blue">🔤</div>
+          <div class="setting-body">
+            <div class="setting-title">글자 크기</div>
+            <div class="setting-desc">화면 전체 글자 크기를 조절합니다</div>
+          </div>
+        </div>
+        <div class="font-selector">
+          <button class="font-btn" onclick="setFont('small')">
+            <span class="font-btn-sample" style="font-size:14px;">가</span>
+            <span class="font-btn-label">소</span>
+          </button>
+          <button class="font-btn" onclick="setFont('medium')">
+            <span class="font-btn-sample" style="font-size:18px;">가</span>
+            <span class="font-btn-label">중</span>
+          </button>
+          <button class="font-btn active" onclick="setFont('large')">
+            <span class="font-btn-sample" style="font-size:22px;">가</span>
+            <span class="font-btn-label">대</span>
+          </button>
+          <button class="font-btn" onclick="setFont('xlarge')">
+            <span class="font-btn-sample" style="font-size:28px;">가</span>
+            <span class="font-btn-label">특대</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 고대비 모드 -->
+      <div class="setting-row">
+        <div class="setting-icon icon-gray">🌓</div>
+        <div class="setting-body">
+          <div class="setting-title">고대비 모드</div>
+          <div class="setting-desc">흰 배경 + 굵은 검정 글씨로 표시</div>
+        </div>
+        <div class="setting-right">
+          <label class="toggle">
+            <input type="checkbox" onchange="showToast('고대비 모드 ' + (this.checked ? '켜짐' : '꺼짐'))">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 3. 알림 설정 -->
+  <div class="section-group">
+    <div class="section-label">알림 설정</div>
+    <div class="section-card" id="alarm-card">
+
+      <div class="setting-row">
+        <div class="setting-icon icon-orange">💊</div>
+        <div class="setting-body">
+          <div class="setting-title">복약 알림</div>
+          <div class="setting-desc">복용 시간 30분 전 알림</div>
+        </div>
+        <div class="setting-right">
+          <label class="toggle">
+            <input type="checkbox" checked onchange="showToast('복약 알림 ' + (this.checked ? '켜짐' : '꺼짐'))">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-icon icon-blue">🏥</div>
+        <div class="setting-body">
+          <div class="setting-title">병원 예약 알림</div>
+          <div class="setting-desc">예약일 D-3, D-1, 당일 오전</div>
+        </div>
+        <div class="setting-right">
+          <label class="toggle">
+            <input type="checkbox" checked onchange="showToast('병원 알림 ' + (this.checked ? '켜짐' : '꺼짐'))">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-icon icon-green">🩺</div>
+        <div class="setting-body">
+          <div class="setting-title">건강 검진 주기 알림</div>
+          <div class="setting-desc">마지막 검진 기준 권장 주기 알림</div>
+        </div>
+        <div class="setting-right">
+          <label class="toggle">
+            <input type="checkbox" checked onchange="showToast('검진 알림 ' + (this.checked ? '켜짐' : '꺼짐'))">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-icon icon-green">🚶</div>
+        <div class="setting-body">
+          <div class="setting-title">운동 독려 알림</div>
+          <div class="setting-desc">목표 걸음 수 미달 시 오후 알림</div>
+        </div>
+        <div class="setting-right">
+          <label class="toggle">
+            <input type="checkbox" onchange="showToast('운동 알림 ' + (this.checked ? '켜짐' : '꺼짐'))">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 알림을 자녀에게도 전송 -->
+      <div class="setting-row">
+        <div class="setting-icon icon-purple">👨‍👩‍👧</div>
+        <div class="setting-body">
+          <div class="setting-title">자녀에게 동시 알림</div>
+          <div class="setting-desc">모든 알림을 보호자에게도 함께 발송</div>
+        </div>
+        <div class="setting-right">
+          <label class="toggle">
+            <input type="checkbox" checked onchange="showToast('자녀 동시 알림 ' + (this.checked ? '켜짐' : '꺼짐'))">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 알림 추가 버튼 -->
+      <div class="setting-row add-alarm-row" onclick="openAlarmSheet()" style="cursor:pointer;">
+        <div class="setting-icon" style="background:var(--bg);border:2px dashed var(--border);">
+          <span style="font-size:20px;color:var(--text-disabled);">+</span>
+        </div>
+        <div class="setting-body">
+          <div class="setting-title" style="color:var(--primary);">알림 추가</div>
+          <div class="setting-desc">새로운 알림 항목 설정</div>
+        </div>
+        <span style="color:var(--text-disabled);font-size:18px;">›</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 4. 보안·인증 -->
+  <div class="section-group">
+    <div class="section-label">보안·인증</div>
+    <div class="section-card">
+
+      <div class="setting-row">
+        <div class="setting-icon icon-blue">👆</div>
+        <div class="setting-body">
+          <div class="setting-title">생체인증 로그인</div>
+          <div class="setting-desc">지문 또는 얼굴 인식으로 로그인</div>
+        </div>
+        <div class="setting-right">
+          <label class="toggle">
+            <input type="checkbox" checked onchange="showToast('생체인증 ' + (this.checked ? '켜짐' : '꺼짐'))">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-icon icon-orange">🔑</div>
+        <div class="setting-body">
+          <div class="setting-title">비밀번호 변경</div>
+          <div class="setting-desc">마지막 변경: 2025년 11월 3일</div>
+        </div>
+        <div class="setting-right">
+          <span class="chevron">›</span>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-icon icon-gray">💾</div>
+        <div class="setting-body">
+          <div class="setting-title">데이터 백업</div>
+          <div class="setting-desc">마지막 백업: 오늘 오전 3:00</div>
+        </div>
+        <div class="setting-right">
+          <span class="setting-value">주 1회 자동</span>
+          <span class="chevron">›</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 5. 개인정보·공유 범위 -->
+  <div class="section-group">
+    <div class="section-label">개인정보·공유 범위</div>
+    <div class="section-card">
+
+      <div class="setting-row">
+        <div class="setting-icon icon-purple">👨‍👩‍👧</div>
+        <div class="setting-body">
+          <div class="setting-title">자녀 공유 범위</div>
+          <div class="setting-desc">자녀에게 공개할 건강 데이터 항목 설정</div>
+        </div>
+        <div class="setting-right">
+          <span class="setting-value">전체 공개</span>
+          <span class="chevron">›</span>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-icon icon-orange">🩺</div>
+        <div class="setting-body">
+          <div class="setting-title">의료진 공개 범위</div>
+          <div class="setting-desc">담당 의사에게 공개할 항목·기간 설정</div>
+        </div>
+        <div class="setting-right">
+          <span class="setting-value">전체 공개</span>
+          <span class="chevron">›</span>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-icon icon-gray">📄</div>
+        <div class="setting-body">
+          <div class="setting-title">개인정보 동의 관리</div>
+          <div class="setting-desc">수집·활용 동의 항목 확인 및 철회</div>
+        </div>
+        <div class="setting-right">
+          <span class="chevron">›</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 6. 보호자 관리 -->
+  <div class="section-group">
+    <div class="section-label">보호자 관리</div>
+    <div class="section-card">
+
+      <!-- 등록된 보호자 목록 -->
+      <div class="setting-row">
+        <div class="setting-icon icon-purple">👩</div>
+        <div class="setting-body">
+          <div class="setting-title">김미영 (딸)</div>
+          <div class="setting-desc">010-1234-5678 · 전체 권한</div>
+        </div>
+        <div class="setting-right">
+          <span class="setting-value" style="color:var(--secondary); font-weight:600;">연결됨</span>
+          <span class="chevron">›</span>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-icon icon-blue">👦</div>
+        <div class="setting-body">
+          <div class="setting-title">김민준 (아들)</div>
+          <div class="setting-desc">010-9876-5432 · 조회만</div>
+        </div>
+        <div class="setting-right">
+          <span class="setting-value" style="color:var(--secondary); font-weight:600;">연결됨</span>
+          <span class="chevron">›</span>
+        </div>
+      </div>
+
+      <!-- 보호자 추가 버튼 -->
+      <div class="setting-row" onclick="showToast('보호자 추가 (최대 3명)')">
+        <div class="setting-icon" style="background:var(--bg); border:2px dashed var(--border);">
+          <span style="font-size:20px; color:var(--text-disabled);">+</span>
+        </div>
+        <div class="setting-body">
+          <div class="setting-title" style="color:var(--primary);">보호자 추가</div>
+          <div class="setting-desc">최대 3명까지 등록 가능</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 7. 앱 정보 -->
+  <div class="section-group">
+    <div class="section-label">앱 정보</div>
+    <div class="section-card">
+
+      <div class="setting-row">
+        <div class="setting-icon icon-gray">📱</div>
+        <div class="setting-body">
+          <div class="setting-title">앱 버전</div>
+        </div>
+        <div class="setting-right">
+          <span class="setting-value">v1.2.0</span>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-icon icon-gray">📋</div>
+        <div class="setting-body">
+          <div class="setting-title">이용약관</div>
+        </div>
+        <div class="setting-right">
+          <span class="chevron">›</span>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-icon icon-gray">🔒</div>
+        <div class="setting-body">
+          <div class="setting-title">개인정보처리방침</div>
+        </div>
+        <div class="setting-right">
+          <span class="chevron">›</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 8. 로그아웃 / 계정 탈퇴 -->
+  <div class="section-group">
+    <div class="section-card">
+      <div class="setting-row" onclick="if(confirm('로그아웃 하시겠습니까?')) window.location.href='login.html'">
+        <div class="setting-icon icon-gray">🚪</div>
+        <div class="setting-body">
+          <div class="setting-title">로그아웃</div>
+        </div>
+        <div class="setting-right">
+          <span class="chevron">›</span>
+        </div>
+      </div>
+      <div class="setting-row danger-row" onclick="if(confirm('정말 탈퇴하시겠습니까? 모든 건강 데이터가 삭제됩니다.')) showToast('탈퇴 처리되었습니다')">
+        <div class="setting-icon icon-red">⚠️</div>
+        <div class="setting-body">
+          <div class="setting-title">계정 탈퇴</div>
+          <div class="setting-desc">탈퇴 시 모든 데이터가 삭제됩니다</div>
+        </div>
+        <div class="setting-right">
+          <span class="chevron">›</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-version">HealthCare App v1.2.0 · © 2026</div>
+
+  <!-- 하단 탭바 -->
+  <nav class="tab-bar" aria-label="하단 메뉴">
+    <a href="home-simple.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+      <span class="tab-label">홈</span>
+    </a>
+    <a href="health-data.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+      <span class="tab-label">건강</span>
+    </a>
+    <a href="medication.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      <span class="tab-label">복약</span>
+    </a>
+    <a href="schedule.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <span class="tab-label">일정</span>
+    </a>
+    <a href="settings.html" class="tab-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+      </svg>
+      <span class="tab-label">설정</span>
+    </a>
+  </nav>
+
+  <!-- 알림 추가 하단 시트 -->
+  <div class="sheet-overlay" id="alarm-sheet" onclick="handleSheetOverlayClick(event)">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <span class="sheet-title">알림 추가</span>
+        <button class="sheet-close" onclick="closeAlarmSheet()">×</button>
+      </div>
+      <div class="sheet-body">
+        <div class="sheet-row" onclick="selectAlarmType(this)" data-type="혈압 측정 알림" data-icon="🩺" data-desc="측정 시 혈압 수치를 기록하도록 알림">
+          <div class="sheet-row-icon icon-red">🩺</div>
+          <div class="sheet-row-body">
+            <div class="sheet-row-title">혈압 측정 알림</div>
+            <div class="sheet-row-desc">설정 시각에 혈압 측정 알림</div>
+          </div>
+          <div class="sheet-row-check">✓</div>
+        </div>
+        <div class="sheet-row" onclick="selectAlarmType(this)" data-type="혈당 측정 알림" data-icon="💉" data-desc="식후 혈당 측정 시간 알림">
+          <div class="sheet-row-icon icon-orange">💉</div>
+          <div class="sheet-row-body">
+            <div class="sheet-row-title">혈당 측정 알림</div>
+            <div class="sheet-row-desc">식후 혈당 측정 시각 알림</div>
+          </div>
+          <div class="sheet-row-check">✓</div>
+        </div>
+        <div class="sheet-row" onclick="selectAlarmType(this)" data-type="수분 섭취 알림" data-icon="💧" data-desc="정기적으로 물 마시기 알림">
+          <div class="sheet-row-icon icon-blue">💧</div>
+          <div class="sheet-row-body">
+            <div class="sheet-row-title">수분 섭취 알림</div>
+            <div class="sheet-row-desc">정기적으로 물 마시기 알림</div>
+          </div>
+          <div class="sheet-row-check">✓</div>
+        </div>
+        <div class="sheet-row" onclick="selectAlarmType(this)" data-type="체중 측정 알림" data-icon="⚖️" data-desc="매일 아침 체중 측정 알림">
+          <div class="sheet-row-icon icon-green">⚖️</div>
+          <div class="sheet-row-body">
+            <div class="sheet-row-title">체중 측정 알림</div>
+            <div class="sheet-row-desc">매일 아침 체중 측정 알림</div>
+          </div>
+          <div class="sheet-row-check">✓</div>
+        </div>
+        <div class="sheet-row" onclick="selectAlarmType(this)" data-type="기타 알림" data-icon="🔔" data-desc="직접 내용을 입력하는 맞춤 알림">
+          <div class="sheet-row-icon icon-gray">🔔</div>
+          <div class="sheet-row-body">
+            <div class="sheet-row-title">기타 알림</div>
+            <div class="sheet-row-desc">직접 내용을 입력하는 맞춤 알림</div>
+          </div>
+          <div class="sheet-row-check">✓</div>
+        </div>
+      </div>
+      <div class="sheet-time-group">
+        <div class="sheet-time-label">알림 시간</div>
+        <input type="time" class="sheet-time-input" id="alarm-time" value="09:00">
+      </div>
+      <div class="sheet-footer">
+        <button class="btn-sheet-add" onclick="addAlarm()">추가</button>
+        <button class="btn-sheet-cancel" onclick="closeAlarmSheet()">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+  function setMode(mode) {
+    document.getElementById('mode-simple').classList.toggle('active', mode === 'simple');
+    document.getElementById('mode-detail').classList.toggle('active', mode === 'detail');
+    showToast(mode === 'simple' ? '간단보기로 변경되었습니다' : '자세히 보기로 변경되었습니다');
+  }
+
+  function setFont(size) {
+    document.querySelectorAll('.font-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    const labels = { small:'소', medium:'중', large:'대', xlarge:'특대' };
+    showToast('글자 크기: ' + labels[size]);
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  /* ── 목표 설정 편집 ── */
+  function toggleGoalEdit() {
+    const card = document.getElementById('goal-card');
+    const btn  = document.getElementById('goal-edit-btn');
+    if (card.classList.contains('editing')) {
+      saveGoals();
+    } else {
+      card.classList.add('editing');
+      btn.textContent = '완료';
+      btn.style.color = '#E53935';
+      card.querySelectorAll('.goal-input').forEach(inp => inp.removeAttribute('readonly'));
+      card.querySelector('.goal-input').focus();
+    }
+  }
+  function saveGoals() {
+    const card = document.getElementById('goal-card');
+    const btn  = document.getElementById('goal-edit-btn');
+    card.classList.remove('editing');
+    btn.textContent = '편집';
+    btn.style.color = '';
+    card.querySelectorAll('.goal-input').forEach(inp => inp.setAttribute('readonly', ''));
+    showToast('목표가 저장되었습니다 ✓');
+  }
+  function cancelGoalEdit() {
+    const card = document.getElementById('goal-card');
+    const btn  = document.getElementById('goal-edit-btn');
+    card.classList.remove('editing');
+    btn.textContent = '편집';
+    btn.style.color = '';
+    card.querySelectorAll('.goal-input').forEach(inp => inp.setAttribute('readonly', ''));
+  }
+
+  /* ── 알림 추가 시트 ── */
+  let selectedAlarmRow = null;
+  function openAlarmSheet() {
+    document.getElementById('alarm-sheet').classList.add('open');
+  }
+  function closeAlarmSheet() {
+    document.getElementById('alarm-sheet').classList.remove('open');
+    if (selectedAlarmRow) { selectedAlarmRow.classList.remove('selected'); selectedAlarmRow = null; }
+  }
+  function handleSheetOverlayClick(e) {
+    if (e.target === document.getElementById('alarm-sheet')) closeAlarmSheet();
+  }
+  function selectAlarmType(row) {
+    if (selectedAlarmRow) selectedAlarmRow.classList.remove('selected');
+    row.classList.add('selected');
+    selectedAlarmRow = row;
+  }
+  function addAlarm() {
+    if (!selectedAlarmRow) { showToast('알림 유형을 선택해 주세요'); return; }
+    const type = selectedAlarmRow.dataset.type;
+    const icon = selectedAlarmRow.dataset.icon;
+    const time = document.getElementById('alarm-time').value;
+    const [h, m] = time.split(':');
+    const timeLabel = `${h}:${m}`;
+
+    const card = document.getElementById('alarm-card');
+    const addBtn = card.querySelector('.add-alarm-row');
+    const newRow = document.createElement('div');
+    newRow.className = 'setting-row';
+    newRow.innerHTML = `
+      <div class="setting-icon icon-blue">${icon}</div>
+      <div class="setting-body">
+        <div class="setting-title">${type}</div>
+        <div class="setting-desc">매일 ${timeLabel} 알림</div>
+      </div>
+      <div class="setting-right">
+        <label class="toggle"><input type="checkbox" checked onchange="showToast('${type} ' + (this.checked ? '켜짐' : '꺼짐'))"><span class="toggle-slider"></span></label>
+      </div>`;
+    card.insertBefore(newRow, addBtn);
+
+    closeAlarmSheet();
+    showToast(`${type}이 추가되었습니다`);
+  }
+</script>
+</body>
+</html>

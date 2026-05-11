@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>관리자 포털 - 병원 정보 수정</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #F4F6F9;
+      color: #1A2332;
+      min-width: 1280px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── 헤더 ── */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 60px;
+      background: #FFFFFF;
+      border-bottom: 1px solid #D1D9E6;
+      display: flex; align-items: center;
+      padding: 0 24px;
+      gap: 12px;
+    }
+    .header-logo { display: flex; align-items: center; gap: 10px; width: 216px; }
+    .logo-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, #2B7FE0, #34C4A0);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 16px; font-weight: 700;
+    }
+    .logo-text { font-size: 15px; font-weight: 700; color: #1A2332; }
+    .logo-sub  { font-size: 11px; color: #546E7A; margin-top: 1px; }
+    .header-divider { width: 1px; height: 28px; background: #D1D9E6; margin: 0 8px; }
+    .header-title { font-size: 14px; font-weight: 600; color: #2B7FE0; flex: 1; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .header-notif {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #F4F6F9; border: 1px solid #D1D9E6;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative; font-size: 16px;
+    }
+    .notif-badge {
+      position: absolute; top: -3px; right: -3px;
+      background: #E53935; color: #fff;
+      font-size: 9px; font-weight: 700;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid #fff;
+    }
+    .header-user { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .user-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #2B7FE0, #1A5FB4);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 13px; font-weight: 600;
+    }
+    .user-name  { font-size: 13px; font-weight: 600; color: #1A2332; }
+    .user-role  { font-size: 11px; color: #546E7A; }
+
+    /* ── 레이아웃 ── */
+    .layout { display: flex; padding-top: 60px; height: 100vh; }
+
+    /* ── 사이드바 ── */
+    .sidebar {
+      width: 240px; min-width: 240px;
+      background: #FFFFFF;
+      border-right: 1px solid #D1D9E6;
+      display: flex; flex-direction: column;
+      padding: 20px 0;
+      overflow-y: auto;
+      position: fixed; top: 60px; bottom: 0; left: 0;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px 10px 10px; cursor: pointer;
+      font-size: 14px; color: #546E7A;
+      border-left: 3px solid transparent;
+      transition: all 0.15s; text-decoration: none;
+    }
+    .nav-item:hover { background: #F4F6F9; color: #1A2332; }
+    .nav-item.active {
+      background: #EBF3FF; color: #2B7FE0;
+      border-left-color: #2B7FE0; font-weight: 600;
+    }
+    .nav-icon { font-size: 17px; width: 20px; text-align: center; }
+    .nav-badge {
+      margin-left: auto; background: #E53935; color: #fff;
+      font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px;
+    }
+    .nav-badge.yellow { background: #F5A623; }
+    .sidebar-footer {
+      margin-top: auto; padding: 16px 20px;
+      border-top: 1px solid #D1D9E6;
+    }
+    .sidebar-footer-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; cursor: pointer;
+      font-size: 13px; color: #546E7A;
+    }
+    .sidebar-footer-item:hover { color: #1A2332; }
+
+    /* ── 메인 ── */
+    .main {
+      flex: 1; margin-left: 240px;
+      padding: 32px; overflow-y: auto;
+      height: calc(100vh - 60px);
+    }
+
+    /* ── 페이지 헤더 ── */
+    .page-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .breadcrumb {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; color: #90A4AE; margin-bottom: 6px;
+    }
+    .breadcrumb a { color: #90A4AE; text-decoration: none; }
+    .breadcrumb a:hover { color: #2B7FE0; }
+    .breadcrumb-sep { font-size: 12px; }
+    .breadcrumb-cur { color: #546E7A; font-weight: 600; }
+    .page-title { font-size: 22px; font-weight: 700; color: #1A2332; }
+    .page-subtitle { font-size: 13px; color: #546E7A; margin-top: 4px; }
+
+    /* ── 버튼 ── */
+    .btn {
+      height: 44px; padding: 0 20px; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      border: none; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary { background: #2B7FE0; color: #fff; }
+    .btn-primary:hover { background: #1A5FB4; }
+    .btn-outline { background: #fff; color: #546E7A; border: 1px solid #D1D9E6; }
+    .btn-outline:hover { background: #F4F6F9; }
+    .btn-sm { height: 36px; padding: 0 14px; font-size: 13px; }
+    .btn-danger { background: #FDECEA; color: #E53935; border: 1px solid #FFCDD2; }
+    .btn-danger:hover { background: #FFCDD2; }
+
+    /* ── 카드 ── */
+    .edit-card {
+      background: #FFFFFF; border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 20px; overflow: hidden;
+    }
+    .edit-card-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 18px 28px; border-bottom: 1px solid #F0F2F5;
+      background: #FAFBFC;
+    }
+    .edit-card-icon { font-size: 18px; }
+    .edit-card-title { font-size: 15px; font-weight: 700; color: #1A2332; }
+    .edit-card-body { padding: 24px 28px; }
+
+    /* ── 폼 ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-label { font-size: 13px; font-weight: 600; color: #1A2332; }
+    .form-label .required { color: #E53935; margin-left: 2px; }
+    .form-input {
+      height: 44px; border-radius: 8px;
+      border: 1px solid #D1D9E6; padding: 0 14px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; color: #1A2332; outline: none;
+      background: #fff;
+    }
+    .form-input:focus { border-color: #2B7FE0; box-shadow: 0 0 0 3px rgba(43,127,224,0.12); }
+    .form-input:disabled { background: #F4F6F9; color: #90A4AE; cursor: not-allowed; }
+    .form-hint { font-size: 11px; color: #90A4AE; }
+
+    /* ── 병원 헤더 프리뷰 ── */
+    .hosp-preview {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 20px; background: #F4F6F9; border-radius: 12px;
+      margin-bottom: 24px;
+    }
+    .hosp-avatar {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: linear-gradient(135deg, #2B7FE0, #34C4A0);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 18px; font-weight: 700; flex-shrink: 0;
+    }
+    .hosp-preview-name { font-size: 17px; font-weight: 700; color: #1A2332; }
+    .hosp-preview-code { font-size: 12px; color: #90A4AE; margin-top: 3px; }
+
+    /* ── 상태 선택 ── */
+    .status-options { display: flex; gap: 10px; }
+    .status-opt {
+      flex: 1; padding: 12px 16px; border-radius: 10px;
+      border: 2px solid #D1D9E6; cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 600; color: #546E7A;
+      transition: all 0.15s;
+    }
+    .status-opt input[type="radio"] { display: none; }
+    .status-opt.active   { border-color: #34C4A0; background: #E6F9F5; color: #1B8A6B; }
+    .status-opt.new      { border-color: #2B7FE0; background: #EBF3FF; color: #2B7FE0; }
+    .status-opt.inactive { border-color: #90A4AE; background: #F4F6F9; color: #546E7A; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+    /* ── 의료진 테이블 ── */
+    .staff-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .staff-table th {
+      padding: 10px 12px; text-align: left;
+      font-weight: 600; color: #546E7A;
+      background: #F4F6F9; border-bottom: 1px solid #D1D9E6;
+    }
+    .staff-table td { padding: 12px; border-bottom: 1px solid #F0F2F5; color: #1A2332; }
+    .staff-table tr:last-child td { border-bottom: none; }
+
+    /* ── 액션 바 (하단 고정) ── */
+    .action-bar {
+      position: sticky; bottom: 0;
+      background: #FFFFFF; border-top: 1px solid #D1D9E6;
+      padding: 16px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 0 -32px -32px; /* main padding 상쇄 */
+      z-index: 10;
+    }
+    .action-bar-left { display: flex; gap: 10px; }
+    .action-bar-right { display: flex; gap: 10px; }
+
+    /* ── 사이드바 토글 ── */
+    .sidebar-toggle-btn {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: transparent; border: none;
+      font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #546E7A; transition: background 0.15s; flex-shrink: 0;
+    }
+    .sidebar-toggle-btn:hover { background: #F4F6F9; color: #1A2332; }
+    .sidebar { transition: transform 0.25s ease; }
+    .main    { transition: margin-left 0.25s ease; }
+    body.sidebar-hidden .sidebar { transform: translateX(-240px); }
+    body.sidebar-hidden .main    { margin-left: 0; }
+
+    /* ── 스크롤바 ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #D1D9E6; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #B0BEC5; }
+  </style>
+</head>
+<body>
+
+<!-- ── 헤더 ── -->
+<header class="header">
+  <button class="sidebar-toggle-btn" onclick="document.body.classList.toggle('sidebar-hidden')" title="메뉴 접기/펼치기">☰</button>
+  <div class="header-logo">
+    <div class="logo-icon">HC</div>
+    <div>
+      <div class="logo-text">HealthCare Watch</div>
+      <div class="logo-sub">관리자 포털</div>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <span class="header-title">병원 정보 수정</span>
+  <div class="header-right">
+    <div class="header-notif">🔔<span class="notif-badge">3</span></div>
+    <div class="header-user">
+      <div class="user-avatar">관</div>
+      <div>
+        <div class="user-name">김관리자</div>
+        <div class="user-role">최고 관리자</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── 레이아웃 ── -->
+<div class="layout">
+
+  <!-- ── 사이드바 ── -->
+  <nav class="sidebar">
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">📊</span> 대시보드</a>
+    <a class="nav-item" href="notice.html"><span class="nav-icon">📢</span> 공지사항</a>
+    <a class="nav-item active" href="hospitals.html"><span class="nav-icon">🏥</span> 병원·기관 관리</a>
+    <a class="nav-item" href="operators.html"><span class="nav-icon">👨‍💼</span> 운영자 관리</a>
+    <a class="nav-item" href="accounts.html"><span class="nav-icon">👥</span> 계정 관리<span class="nav-badge yellow">5</span></a>
+    <a class="nav-item" href="permissions.html"><span class="nav-icon">🔐</span> 권한 관리</a>
+    <a class="nav-item" href="peer-averages.html"><span class="nav-icon">📈</span> 또래 평균 관리</a>
+    <a class="nav-item" href="settings.html"><span class="nav-icon">⚙️</span> 시스템 설정</a>
+    <div class="sidebar-footer">
+      <a href="profile.html" class="sidebar-footer-item"><span>👤</span> 내 계정</a>
+      <div class="sidebar-footer-item"><span>🚪</span> 로그아웃</div>
+    </div>
+  </nav>
+
+  <!-- ── 메인 ── -->
+  <main class="main">
+
+    <!-- 브레드크럼 + 페이지 헤더 -->
+    <div class="page-header">
+      <div>
+        <div class="breadcrumb">
+          <a href="hospitals.html">병원·기관 관리</a>
+          <span class="breadcrumb-sep">›</span>
+          <span class="breadcrumb-cur" id="bcHospName">병원 정보 수정</span>
+        </div>
+        <div class="page-title" id="pageTitle">병원 정보 수정</div>
+        <div class="page-subtitle" id="pageSubtitle">병원 기본 정보, 와치 관리자, 소속 의료진을 수정합니다.</div>
+      </div>
+    </div>
+
+    <!-- ① 병원 기본 정보 -->
+    <div class="edit-card">
+      <div class="edit-card-header">
+        <span class="edit-card-icon">🏥</span>
+        <span class="edit-card-title">① 병원 기본 정보</span>
+      </div>
+      <div class="edit-card-body">
+
+        <!-- 병원 프리뷰 -->
+        <div class="hosp-preview">
+          <div class="hosp-avatar" id="previewAvatar">한</div>
+          <div>
+            <div class="hosp-preview-name" id="previewName">병원명</div>
+            <div class="hosp-preview-code" id="previewCode">코드: —</div>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group full">
+            <label class="form-label">병원명 <span class="required">*</span></label>
+            <input class="form-input" id="fName" type="text" placeholder="병원명을 입력하세요" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">병원 유형 <span class="required">*</span></label>
+            <select class="form-input" id="fType">
+              <option>의원</option>
+              <option>병원</option>
+              <option>종합병원</option>
+              <option>요양원</option>
+              <option>복지관</option>
+              <option>기타</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">지역 <span class="required">*</span></label>
+            <select class="form-input" id="fRegion">
+              <option>서울</option>
+              <option>경기</option>
+              <option>인천</option>
+              <option>부산</option>
+              <option>대구</option>
+              <option>기타</option>
+            </select>
+          </div>
+
+          <div class="form-group full">
+            <label class="form-label">주소 <span class="required">*</span></label>
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <input class="form-input" id="fZipcode" type="text" placeholder="우편번호" readonly
+                style="width:130px;flex-shrink:0;background:#F4F6F9;cursor:default;" />
+              <button type="button" class="btn btn-outline btn-sm" style="white-space:nowrap;"
+                onclick="openPostcode()">🔍 우편번호 검색</button>
+            </div>
+            <input class="form-input" id="fAddr1" type="text" placeholder="도로명 주소" readonly
+              style="background:#F4F6F9;cursor:default;margin-bottom:8px;" />
+            <input class="form-input" id="fAddr2" type="text" placeholder="상세 주소 (동·호수 등)" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">대표 전화</label>
+            <input class="form-input" id="fPhone" type="text" placeholder="02-0000-0000" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">이메일</label>
+            <input class="form-input" id="fEmail" type="email" placeholder="hospital@example.com" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">병원 코드</label>
+            <input class="form-input" id="fCode" type="text" disabled />
+            <span class="form-hint">병원 코드는 자동 발급되며 변경할 수 없습니다.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">등록일</label>
+            <input class="form-input" id="fRegDate" type="text" disabled />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② 운영 상태 -->
+    <div class="edit-card">
+      <div class="edit-card-header">
+        <span class="edit-card-icon">🔄</span>
+        <span class="edit-card-title">② 운영 상태</span>
+      </div>
+      <div class="edit-card-body">
+        <div class="status-options" id="statusOptions">
+          <label class="status-opt active" id="optActive">
+            <input type="radio" name="status" value="active" checked />
+            <span class="status-dot"></span> 활성
+          </label>
+          <label class="status-opt new" id="optNew">
+            <input type="radio" name="status" value="new" />
+            <span class="status-dot"></span> 신규
+          </label>
+          <label class="status-opt inactive" id="optInactive">
+            <input type="radio" name="status" value="inactive" />
+            <span class="status-dot"></span> 비활성
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ 와치 관리자 -->
+    <div class="edit-card">
+      <div class="edit-card-header">
+        <span class="edit-card-icon">👤</span>
+        <span class="edit-card-title">③ 와치 관리자</span>
+      </div>
+      <div class="edit-card-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">성명</label>
+            <input class="form-input" id="fAdminName" type="text" placeholder="와치 관리자 성명" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">이메일 <span class="required">*</span></label>
+            <input class="form-input" id="fAdminEmail" type="email" placeholder="watch-admin@hospital.com" />
+            <span class="form-hint">변경 시 기존 관리자 권한이 해제되고 새 이메일로 초대가 발송됩니다.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ④ 소속 의료진 -->
+    <div class="edit-card">
+      <div class="edit-card-header">
+        <span class="edit-card-icon">👨‍⚕️</span>
+        <span class="edit-card-title">④ 소속 의료진</span>
+      </div>
+      <div class="edit-card-body" style="padding:0;">
+        <table class="staff-table">
+          <thead>
+            <tr>
+              <th>성명</th>
+              <th>직종</th>
+              <th>담당 시니어</th>
+              <th style="text-align:right;padding-right:20px;">관리</th>
+            </tr>
+          </thead>
+          <tbody id="editStaffTbody">
+            <tr>
+              <td colspan="4" style="padding:20px;text-align:center;color:#90A4AE;">데이터를 불러오는 중...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 하단 액션 바 -->
+    <div class="action-bar">
+      <div class="action-bar-left">
+        <button class="btn btn-danger" onclick="if(confirm('병원을 비활성화하시겠습니까?\n소속 시니어 데이터는 보존됩니다.'))alert('비활성화 처리됩니다.')">
+          비활성화
+        </button>
+      </div>
+      <div class="action-bar-right">
+        <button class="btn btn-outline" onclick="history.back()">취소</button>
+        <button class="btn btn-primary" onclick="saveHospital()">💾 저장</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const hospitalData = {
+    'HNI-2024-031': {
+      name: '한마음내과의원', initial: '한',
+      avatarBg: 'linear-gradient(135deg, #2B7FE0, #34C4A0)',
+      code: 'HNI-2024-031', region: '서울', address: '서울 노원구 동일로 1234',
+      phone: '02-933-0000', email: 'contact@hanmaeum.com',
+      type: '의원', regDate: '2024-03-15', status: 'active',
+      admin: { name: '김관민', email: 'kim.watch@hanmaeum.com' },
+      staff: [
+        { name: '최영진', role: '내과 전문의', seniors: 18 },
+        { name: '김성민', role: '가정의학과 전문의', seniors: 14 },
+        { name: '이수진', role: '전문 간호사', seniors: 10 }
+      ]
+    },
+    'SSC-2024-018': {
+      name: '서울시니어케어클리닉', initial: '서',
+      avatarBg: 'linear-gradient(135deg,#34C4A0,#1B8A6B)',
+      code: 'SSC-2024-018', region: '서울', address: '서울 강북구 솔매로 56',
+      phone: '02-910-0000', email: 'info@ssc-clinic.com',
+      type: '의원', regDate: '2024-01-20', status: 'active',
+      admin: { name: '박수현', email: 'park.w@ssc-clinic.com' },
+      staff: [
+        { name: '홍준표', role: '노인병 전문의', seniors: 22 },
+        { name: '신유진', role: '가정의학과 전문의', seniors: 20 },
+        { name: '오민서', role: '전문 간호사', seniors: 15 }
+      ]
+    },
+    'GMC-2024-052': {
+      name: '경기노인의료센터', initial: '경',
+      avatarBg: 'linear-gradient(135deg,#5C6BC0,#3949AB)',
+      code: 'GMC-2024-052', region: '경기', address: '경기 수원시 매산로 100',
+      phone: '031-210-0000', email: 'info@gmc.com',
+      type: '병원', regDate: '2024-05-08', status: 'active',
+      admin: { name: '이정민', email: 'lee.gmc@gyeonggi.com' },
+      staff: [
+        { name: '장현우', role: '내과 전문의', seniors: 16 },
+        { name: '황지영', role: '재활의학과 전문의', seniors: 10 },
+        { name: '서은미', role: '전문 간호사', seniors: 5 }
+      ]
+    },
+    'GNS-2026-001': {
+      name: '강남실버건강의원', initial: '강',
+      avatarBg: 'linear-gradient(135deg,#F5A623,#E65100)',
+      code: 'GNS-2026-001', region: '서울', address: '서울 강남구 테헤란로 77',
+      phone: '02-555-0000', email: 'info@gns.com',
+      type: '의원', regDate: '2026-04-10', status: 'new',
+      admin: { name: '최은지', email: 'choi.gns@gangnam.com' },
+      staff: [
+        { name: '임도현', role: '내과 전문의', seniors: 4 },
+        { name: '배수아', role: '전문 간호사', seniors: 3 }
+      ]
+    },
+    'BHN-2026-002': {
+      name: '부산항노인전문의원', initial: '부',
+      avatarBg: 'linear-gradient(135deg,#E53935,#C62828)',
+      code: 'BHN-2026-002', region: '부산', address: '부산 남구 용호로 200',
+      phone: '051-620-0000', email: 'watch-admin@bhn.com',
+      type: '의원', regDate: '2026-04-22', status: 'new',
+      admin: { name: '', email: 'watch-admin@bhn.com' },
+      staff: []
+    },
+    'GSC-2023-007': {
+      name: '구로실버케어의원', initial: '구',
+      avatarBg: '#90A4AE',
+      code: 'GSC-2023-007', region: '서울', address: '서울 구로구 디지털로 100',
+      phone: '02-850-0000', email: '',
+      type: '의원', regDate: '2023-09-01', status: 'inactive',
+      admin: { name: '', email: '' },
+      staff: []
+    }
+  };
+
+  function getParam(key) {
+    return new URLSearchParams(window.location.search).get(key);
+  }
+
+  function populateForm(h) {
+    document.title = h.name + ' 수정 - 관리자 포털';
+    document.getElementById('bcHospName').textContent = h.name + ' 수정';
+    document.getElementById('pageTitle').textContent = h.name + ' 수정';
+
+    const avatar = document.getElementById('previewAvatar');
+    avatar.textContent = h.initial;
+    avatar.style.background = h.avatarBg;
+    document.getElementById('previewName').textContent = h.name;
+    document.getElementById('previewCode').textContent = '코드: ' + h.code;
+
+    document.getElementById('fName').value  = h.name;
+    document.getElementById('fZipcode').value = '';
+    document.getElementById('fAddr1').value   = h.address;
+    document.getElementById('fAddr2').value   = '';
+    document.getElementById('fPhone').value   = h.phone;
+    document.getElementById('fEmail').value   = h.email;
+    document.getElementById('fCode').value    = h.code;
+    document.getElementById('fRegDate').value = h.regDate;
+
+    const typeOpt = document.getElementById('fType');
+    for (let i = 0; i < typeOpt.options.length; i++) {
+      if (typeOpt.options[i].text === h.type) { typeOpt.selectedIndex = i; break; }
+    }
+    const regionOpt = document.getElementById('fRegion');
+    for (let i = 0; i < regionOpt.options.length; i++) {
+      if (regionOpt.options[i].text === h.region) { regionOpt.selectedIndex = i; break; }
+    }
+
+    document.getElementById('fAdminName').value  = h.admin.name;
+    document.getElementById('fAdminEmail').value = h.admin.email;
+
+    document.querySelectorAll('input[name="status"]').forEach(r => {
+      r.checked = (r.value === h.status);
+    });
+    highlightStatus(h.status);
+
+    const tbody = document.getElementById('editStaffTbody');
+    if (h.staff.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;text-align:center;color:#90A4AE;">등록된 의료진이 없습니다.</td></tr>';
+    } else {
+      tbody.innerHTML = h.staff.map(s =>
+        '<tr>' +
+        '<td style="padding:12px;font-weight:600;">' + s.name + '</td>' +
+        '<td style="padding:12px;color:#546E7A;">' + s.role + '</td>' +
+        '<td style="padding:12px;color:#2B7FE0;font-weight:600;">' + s.seniors + '명</td>' +
+        '<td style="padding:12px;text-align:right;">' +
+          '<button style="height:28px;padding:0 10px;border-radius:6px;border:1px solid #FFCDD2;background:#fff;color:#E53935;font-size:12px;font-weight:600;cursor:pointer;" onclick="alert(\'의료진 삭제는 별도 확인이 필요합니다.\')">삭제</button>' +
+        '</td>' +
+        '</tr>'
+      ).join('');
+    }
+  }
+
+  function highlightStatus(val) {
+    document.getElementById('optActive').classList.toggle('active',   val === 'active');
+    document.getElementById('optNew').classList.toggle('new',         val === 'new');
+    document.getElementById('optInactive').classList.toggle('inactive', val === 'inactive');
+  }
+
+  document.querySelectorAll('input[name="status"]').forEach(r => {
+    r.addEventListener('change', () => highlightStatus(r.value));
+  });
+
+  function openPostcode() {
+    new daum.Postcode({
+      oncomplete: function(data) {
+        var addr = data.roadAddress || data.autoRoadAddress || data.jibunAddress;
+        document.getElementById('fZipcode').value = data.zonecode;
+        document.getElementById('fAddr1').value   = addr;
+        document.getElementById('fAddr2').value   = '';
+        document.getElementById('fAddr2').focus();
+      }
+    }).open();
+  }
+
+  function saveHospital() {
+    const name  = document.getElementById('fName').value.trim();
+    const addr1 = document.getElementById('fAddr1').value.trim();
+    if (!name)  { alert('병원명을 입력해 주세요.'); return; }
+    if (!addr1) { alert('주소를 검색해 주세요.'); return; }
+    alert('저장되었습니다.\n병원 목록으로 이동합니다.');
+    window.location.href = 'hospitals.html';
+  }
+
+  /* 페이지 초기화 */
+  const code = getParam('code');
+  const h = code ? hospitalData[code] : null;
+  if (h) {
+    populateForm(h);
+  } else {
+    document.getElementById('pageTitle').textContent = '병원을 찾을 수 없습니다.';
+    document.getElementById('pageSubtitle').textContent = '올바른 경로로 접근해 주세요.';
+  }
+</script>
+
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+</body>
+</html>

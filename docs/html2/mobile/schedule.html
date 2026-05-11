@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M-06 일정 관리</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { background: #C8D0DC; }
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #F4F6F9;
+      min-height: 100vh;
+      max-width: 390px;
+      margin: 0 auto;
+    }
+
+    .phone-shell {
+      width: 100%;
+      min-height: 100vh;
+      background: #F4F6F9;
+      position: relative;
+    }
+
+    /* Header */
+    .header {
+      background: #FFFFFF;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid #D1D9E6;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1A2332;
+    }
+    .header-today-btn {
+      height: 32px;
+      padding: 0 14px;
+      border-radius: 8px;
+      border: 1.5px solid #2B7FE0;
+      background: #fff;
+      color: #2B7FE0;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: 'Noto Sans KR', sans-serif;
+      cursor: pointer;
+    }
+
+    /* Content */
+    .content {
+      padding: 16px 16px 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Calendar Card */
+    .calendar-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 18px 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .cal-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .cal-month {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1A2332;
+    }
+    .cal-nav-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: #F4F6F9;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .cal-wd {
+      font-size: 11px;
+      font-weight: 600;
+      color: #90A4AE;
+      padding: 4px 0;
+    }
+    .cal-wd:first-child { color: #E53935; }
+    .cal-wd:last-child { color: #2B7FE0; }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+    }
+    .cal-day {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 2px 4px;
+      border-radius: 10px;
+      cursor: pointer;
+      position: relative;
+      gap: 3px;
+    }
+    .cal-day:hover { background: #F4F6F9; }
+    .cal-day.other-month .cal-num { color: #D1D9E6; }
+    .cal-day.today .cal-num {
+      background: #2B7FE0;
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .cal-day.selected:not(.today) {
+      background: #EBF3FD;
+    }
+    .cal-day.selected:not(.today) .cal-num {
+      color: #2B7FE0;
+      font-weight: 700;
+    }
+    .cal-num {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1A2332;
+      min-width: 28px;
+      min-height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cal-day.sun .cal-num { color: #E53935; }
+    .cal-day.today.sun .cal-num { color: #fff; }
+    .cal-day.sat .cal-num { color: #2B7FE0; }
+    .cal-day.today.sat .cal-num { color: #fff; }
+
+    .cal-dots {
+      display: flex;
+      gap: 2px;
+      align-items: center;
+      height: 6px;
+    }
+    .cal-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+    }
+    .cal-dot-med { background: #2B7FE0; }
+    .cal-dot-health { background: #34C4A0; }
+    .cal-dot-appt { background: #F5A623; }
+
+    /* Today Schedule */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .section-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1A2332;
+    }
+    .section-date {
+      font-size: 12px;
+      color: #546E7A;
+    }
+
+    .schedule-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 4px 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .schedule-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 0;
+    }
+    .schedule-item + .schedule-item {
+      border-top: 1px solid #F4F6F9;
+    }
+    .schedule-time-col {
+      width: 52px;
+      flex-shrink: 0;
+      text-align: right;
+    }
+    .schedule-time-main {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1A2332;
+    }
+    .schedule-time-ampm {
+      font-size: 10px;
+      color: #90A4AE;
+    }
+    .schedule-divider {
+      width: 2px;
+      height: 36px;
+      border-radius: 1px;
+      flex-shrink: 0;
+    }
+    .divider-appt { background: #F5A623; }
+    .divider-health { background: #34C4A0; }
+    .divider-med { background: #2B7FE0; }
+
+    .schedule-icon-wrap {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .icon-bg-appt { background: rgba(245,166,35,0.12); }
+    .icon-bg-health { background: rgba(52,196,160,0.12); }
+    .icon-bg-med { background: rgba(43,127,224,0.1); }
+
+    .schedule-detail { flex: 1; min-width: 0; }
+    .schedule-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1A2332;
+      margin-bottom: 2px;
+    }
+    .schedule-sub {
+      font-size: 11px;
+      color: #546E7A;
+    }
+
+    /* Week Schedule */
+    .week-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .week-day-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .week-day-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #546E7A;
+      padding: 4px 2px 6px;
+    }
+    .week-day-label.today-label { color: #2B7FE0; }
+    .week-card {
+      background: #FFFFFF;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+    .week-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+    }
+    .week-item + .week-item {
+      border-top: 1px solid #F4F6F9;
+    }
+    .week-time {
+      font-size: 12px;
+      font-weight: 600;
+      color: #546E7A;
+      width: 44px;
+      flex-shrink: 0;
+    }
+    .week-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .week-name {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 500;
+      color: #1A2332;
+    }
+
+    /* FAB */
+    .fab {
+      position: fixed;
+      bottom: 80px;
+      right: calc(50% - 195px + 16px);
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: #2B7FE0;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(43,127,224,0.4);
+      z-index: 150;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .fab:hover { background: #1A5FB4; }
+    .fab:active { transform: scale(0.95); }
+
+    /* Tab Bar */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 390px;
+      height: 64px;
+      background: #FFFFFF;
+      border-top: 1px solid #D1D9E6;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      z-index: 200;
+    }
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      flex: 1;
+      padding: 8px 0;
+      text-decoration: none;
+      color: #546E7A;
+    }
+    .tab-item svg { width: 24px; height: 24px; }
+    .tab-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #546E7A;
+    }
+    .tab-item.active { color: #2B7FE0; }
+    .tab-item.active .tab-label { color: #2B7FE0; font-weight: 700; }
+
+    /* ===== 일정 추가 바텀시트 ===== */
+    .add-sheet { position: fixed; inset: 0; z-index: 300; display: none; }
+    .add-sheet.open { display: block; }
+    .add-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.45); }
+    .add-panel {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      width: 100%; max-width: 390px; margin: 0 auto;
+      background: #fff; border-radius: 24px 24px 0 0;
+      padding: 12px 20px 40px; box-sizing: border-box;
+    }
+    .add-handle { width: 40px; height: 4px; background: #D1D9E6; border-radius: 2px; margin: 0 auto 20px; }
+    .add-title { font-size: 18px; font-weight: 700; color: #1A2332; margin-bottom: 20px; }
+
+    .add-field { margin-bottom: 16px; }
+    .add-label { font-size: 12px; font-weight: 700; color: #546E7A; margin-bottom: 6px; }
+    .add-input {
+      width: 100%; height: 48px; border: 1.5px solid #D1D9E6; border-radius: 12px;
+      font-size: 15px; font-family: 'Noto Sans KR', sans-serif;
+      color: #1A2332; padding: 0 14px; outline: none; box-sizing: border-box;
+    }
+    .add-input:focus { border-color: #2B7FE0; }
+
+    .add-row { display: flex; gap: 10px; margin-bottom: 16px; }
+    .add-row .add-field { flex: 1; margin-bottom: 0; }
+
+    .cat-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .cat-btn {
+      flex: 1; min-width: 64px; padding: 10px 4px 8px;
+      background: #F4F6F9; border: 2px solid transparent;
+      border-radius: 12px; text-align: center; cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+    .cat-btn .cat-icon { font-size: 20px; display: block; }
+    .cat-btn .cat-label { font-size: 10px; color: #546E7A; margin-top: 3px; display: block; }
+    .cat-btn.sel { border-color: #2B7FE0; background: #EBF3FD; }
+    .cat-btn.sel .cat-label { color: #2B7FE0; font-weight: 700; }
+
+    .add-save {
+      width: 100%; height: 52px; background: #2B7FE0; color: #fff;
+      border: none; border-radius: 14px; font-size: 16px; font-weight: 700;
+      cursor: pointer; font-family: 'Noto Sans KR', sans-serif; margin-bottom: 8px;
+    }
+    .add-cancel {
+      width: 100%; height: 44px; background: transparent; color: #546E7A;
+      border: none; font-size: 14px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .add-toast {
+      position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%);
+      background: #1A2332EE; color: #fff; padding: 12px 22px;
+      border-radius: 24px; font-size: 14px; font-weight: 600; z-index: 400;
+      opacity: 0; transition: opacity 0.25s; white-space: nowrap; pointer-events: none;
+    }
+    .add-toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+<div class="phone-shell">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-row">
+      <h1 class="header-title">일정 관리</h1>
+      <button class="header-today-btn">오늘</button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Calendar -->
+    <div class="calendar-card">
+      <div class="cal-nav">
+        <button class="cal-nav-btn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 12L6 8L10 4" stroke="#546E7A" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <span class="cal-month">2026년 4월</span>
+        <button class="cal-nav-btn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 4L10 8L6 12" stroke="#546E7A" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="cal-weekdays">
+        <div class="cal-wd">일</div>
+        <div class="cal-wd">월</div>
+        <div class="cal-wd">화</div>
+        <div class="cal-wd">수</div>
+        <div class="cal-wd">목</div>
+        <div class="cal-wd">금</div>
+        <div class="cal-wd">토</div>
+      </div>
+
+      <div class="cal-grid">
+        <!-- Week 1 (빈칸 + 1~5) -->
+        <div class="cal-day other-month"><div class="cal-num"></div></div>
+        <div class="cal-day other-month"><div class="cal-num"></div></div>
+        <div class="cal-day"><div class="cal-num">1</div><div class="cal-dots"><div class="cal-dot cal-dot-med"></div></div></div>
+        <div class="cal-day"><div class="cal-num">2</div></div>
+        <div class="cal-day"><div class="cal-num">3</div></div>
+        <div class="cal-day"><div class="cal-num">4</div></div>
+        <div class="cal-day sat"><div class="cal-num">5</div></div>
+        <!-- Week 2 -->
+        <div class="cal-day sun"><div class="cal-num">6</div></div>
+        <div class="cal-day"><div class="cal-num">7</div><div class="cal-dots"><div class="cal-dot cal-dot-health"></div></div></div>
+        <div class="cal-day"><div class="cal-num">8</div></div>
+        <div class="cal-day"><div class="cal-num">9</div></div>
+        <div class="cal-day"><div class="cal-num">10</div><div class="cal-dots"><div class="cal-dot cal-dot-appt"></div></div></div>
+        <div class="cal-day"><div class="cal-num">11</div></div>
+        <div class="cal-day sat"><div class="cal-num">12</div></div>
+        <!-- Week 3 -->
+        <div class="cal-day sun"><div class="cal-num">13</div></div>
+        <div class="cal-day"><div class="cal-num">14</div></div>
+        <div class="cal-day"><div class="cal-num">15</div><div class="cal-dots"><div class="cal-dot cal-dot-med"></div><div class="cal-dot cal-dot-health"></div></div></div>
+        <div class="cal-day"><div class="cal-num">16</div></div>
+        <div class="cal-day"><div class="cal-num">17</div></div>
+        <div class="cal-day"><div class="cal-num">18</div></div>
+        <div class="cal-day sat"><div class="cal-num">19</div></div>
+        <!-- Week 4 -->
+        <div class="cal-day sun"><div class="cal-num">20</div></div>
+        <div class="cal-day"><div class="cal-num">21</div><div class="cal-dots"><div class="cal-dot cal-dot-appt"></div></div></div>
+        <div class="cal-day"><div class="cal-num">22</div></div>
+        <div class="cal-day"><div class="cal-num">23</div></div>
+        <div class="cal-day"><div class="cal-num">24</div></div>
+        <!-- TODAY = 25 -->
+        <div class="cal-day today selected">
+          <div class="cal-num">25</div>
+          <div class="cal-dots"><div class="cal-dot" style="background:#fff;opacity:0.7;"></div><div class="cal-dot" style="background:#fff;opacity:0.7;"></div></div>
+        </div>
+        <div class="cal-day sat"><div class="cal-num">26</div><div class="cal-dots"><div class="cal-dot cal-dot-appt"></div></div></div>
+        <!-- Week 5 -->
+        <div class="cal-day sun"><div class="cal-num">27</div></div>
+        <div class="cal-day"><div class="cal-num">28</div><div class="cal-dots"><div class="cal-dot cal-dot-med"></div></div></div>
+        <div class="cal-day"><div class="cal-num">29</div></div>
+        <div class="cal-day"><div class="cal-num">30</div></div>
+        <div class="cal-day other-month"><div class="cal-num"></div></div>
+        <div class="cal-day other-month"><div class="cal-num"></div></div>
+        <div class="cal-day other-month"><div class="cal-num"></div></div>
+      </div>
+
+      <!-- Legend -->
+      <div style="display:flex;gap:12px;margin-top:12px;padding-top:10px;border-top:1px solid #F4F6F9;">
+        <div style="display:flex;align-items:center;gap:4px;">
+          <div class="cal-dot cal-dot-appt"></div>
+          <span style="font-size:10px;color:#546E7A;">진료</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <div class="cal-dot cal-dot-health"></div>
+          <span style="font-size:10px;color:#546E7A;">건강측정</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <div class="cal-dot cal-dot-med"></div>
+          <span style="font-size:10px;color:#546E7A;">복약</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Today's Schedule -->
+    <div class="section-header">
+      <span class="section-label">오늘 일정</span>
+      <span class="section-date">4월 25일 토요일</span>
+    </div>
+    <div class="schedule-card">
+      <div class="schedule-item">
+        <div class="schedule-time-col">
+          <div class="schedule-time-ampm">오전</div>
+          <div class="schedule-time-main">10:00</div>
+        </div>
+        <div class="schedule-divider divider-appt"></div>
+        <div class="schedule-icon-wrap icon-bg-appt">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M19 3H18V1H16V3H8V1H6V3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17Z" fill="#F5A623"/>
+            <path d="M12.5 9H11V13L14.75 15.15L15.5 13.92L12.5 12.25V9Z" fill="#F5A623"/>
+          </svg>
+        </div>
+        <div class="schedule-detail">
+          <div class="schedule-name">내과 진료</div>
+          <div class="schedule-sub">한마음내과 · 박원장</div>
+        </div>
+      </div>
+      <div class="schedule-item">
+        <div class="schedule-time-col">
+          <div class="schedule-time-ampm">오후</div>
+          <div class="schedule-time-main">3:00</div>
+        </div>
+        <div class="schedule-divider divider-health"></div>
+        <div class="schedule-icon-wrap icon-bg-health">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" fill="#34C4A0"/>
+          </svg>
+        </div>
+        <div class="schedule-detail">
+          <div class="schedule-name">혈압 측정</div>
+          <div class="schedule-sub">자가 측정 · 기록 필요</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- This Week -->
+    <div class="section-header">
+      <span class="section-label">이번 주 일정</span>
+    </div>
+    <div class="week-section">
+
+      <div class="week-day-group">
+        <div class="week-day-label today-label">오늘 · 4/25 (토)</div>
+        <div class="week-card">
+          <div class="week-item">
+            <span class="week-time">10:00</span>
+            <div class="week-dot" style="background:#F5A623;"></div>
+            <span class="week-name">내과 진료 (박원장)</span>
+          </div>
+          <div class="week-item">
+            <span class="week-time">15:00</span>
+            <div class="week-dot" style="background:#34C4A0;"></div>
+            <span class="week-name">혈압 측정</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="week-day-group">
+        <div class="week-day-label">4/26 (일)</div>
+        <div class="week-card">
+          <div class="week-item">
+            <span class="week-time">09:00</span>
+            <div class="week-dot" style="background:#2B7FE0;"></div>
+            <span class="week-name">약 복용 (혈압약 · 비타민)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="week-day-group">
+        <div class="week-day-label">4/28 (화)</div>
+        <div class="week-card">
+          <div class="week-item">
+            <span class="week-time">14:00</span>
+            <div class="week-dot" style="background:#F5A623;"></div>
+            <span class="week-name">건강검진 (경기도의료원)</span>
+          </div>
+          <div class="week-item">
+            <span class="week-time">16:00</span>
+            <div class="week-dot" style="background:#34C4A0;"></div>
+            <span class="week-name">혈당 측정</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="week-day-group">
+        <div class="week-day-label">4/30 (목)</div>
+        <div class="week-card">
+          <div class="week-item">
+            <span class="week-time">11:00</span>
+            <div class="week-dot" style="background:#9C27B0;"></div>
+            <span class="week-name">물리치료 (재활의학과)</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" aria-label="일정 추가" onclick="openAddSheet()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M12 5V19M5 12H19" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+  </button>
+
+  <!-- 일정 추가 바텀시트 -->
+  <div class="add-sheet" id="add-sheet">
+    <div class="add-backdrop" onclick="closeAddSheet()"></div>
+    <div class="add-panel">
+      <div class="add-handle"></div>
+      <div class="add-title">일정 추가</div>
+
+      <div class="add-field">
+        <div class="add-label">일정 이름</div>
+        <input type="text" id="add-name" class="add-input" placeholder="예) 내과 진료, 혈압 측정">
+      </div>
+
+      <div class="add-field">
+        <div class="add-label">종류</div>
+        <div class="cat-row">
+          <button class="cat-btn sel" onclick="selCat(this)"><span class="cat-icon">🏥</span><span class="cat-label">진료</span></button>
+          <button class="cat-btn" onclick="selCat(this)"><span class="cat-icon">❤️</span><span class="cat-label">건강측정</span></button>
+          <button class="cat-btn" onclick="selCat(this)"><span class="cat-icon">📝</span><span class="cat-label">기타</span></button>
+        </div>
+      </div>
+
+      <div class="add-row">
+        <div class="add-field">
+          <div class="add-label">날짜</div>
+          <input type="date" id="add-date" class="add-input">
+        </div>
+        <div class="add-field">
+          <div class="add-label">시간</div>
+          <input type="time" id="add-time" class="add-input">
+        </div>
+      </div>
+
+      <button class="add-save" onclick="saveSchedule()">저장하기</button>
+      <button class="add-cancel" onclick="closeAddSheet()">취소</button>
+    </div>
+  </div>
+  <div class="add-toast" id="add-toast">✅ 일정이 추가됐어요</div>
+
+  <!-- Tab Bar -->
+  <nav class="tab-bar" aria-label="하단 메뉴">
+    <a href="home-simple.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+      <span class="tab-label">홈</span>
+    </a>
+    <a href="health-data.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+      <span class="tab-label">건강</span>
+    </a>
+    <a href="medication.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      <span class="tab-label">복약</span>
+    </a>
+    <a href="schedule.html" class="tab-item active" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <span class="tab-label">일정</span>
+    </a>
+    <a href="settings.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+      </svg>
+      <span class="tab-label">설정</span>
+    </a>
+  </nav>
+
+</div>
+
+  <script>
+    function openAddSheet() {
+      const today = new Date().toISOString().slice(0, 10);
+      document.getElementById('add-date').value = today;
+      document.getElementById('add-time').value = '';
+      document.getElementById('add-name').value = '';
+      document.getElementById('add-sheet').classList.add('open');
+      setTimeout(() => document.getElementById('add-name').focus(), 100);
+    }
+
+    function closeAddSheet() {
+      document.getElementById('add-sheet').classList.remove('open');
+    }
+
+    function selCat(btn) {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('sel'));
+      btn.classList.add('sel');
+    }
+
+    function saveSchedule() {
+      const name = document.getElementById('add-name').value.trim();
+      if (!name) {
+        document.getElementById('add-name').focus();
+        document.getElementById('add-name').style.borderColor = '#E53935';
+        setTimeout(() => document.getElementById('add-name').style.borderColor = '', 1500);
+        return;
+      }
+      closeAddSheet();
+      const t = document.getElementById('add-toast');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+  </script>
+</body>
+</html>

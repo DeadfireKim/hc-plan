@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>계정 연동 - HealthCare</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #F4F6F9;
+      color: #1A2332;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .phone-frame {
+      width: 390px;
+      min-height: 844px;
+      background: #fff;
+      border-radius: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      overflow: hidden;
+      position: relative;
+      display: flex; flex-direction: column;
+    }
+
+    /* ── 화면들 ── */
+    .screen { display: none; flex-direction: column; flex: 1; }
+    .screen.active { display: flex; }
+
+    /* ── 시작 화면 ── */
+    .splash {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 32px;
+      background: linear-gradient(160deg, #2B7FE0 0%, #1A5FB4 50%, #34C4A0 100%);
+    }
+    .splash-logo {
+      width: 80px; height: 80px; border-radius: 24px;
+      background: rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px; font-weight: 700; color: #fff;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .splash-title { font-size: 26px; font-weight: 700; color: #fff; text-align: center; }
+    .splash-sub { font-size: 14px; color: rgba(255,255,255,0.8); margin-top: 8px; text-align: center; line-height: 1.5; }
+    .splash-divider { width: 40px; height: 2px; background: rgba(255,255,255,0.4); margin: 32px auto; }
+    .splash-desc {
+      font-size: 13px; color: rgba(255,255,255,0.85);
+      text-align: center; line-height: 1.8; margin-bottom: 40px;
+    }
+    .btn-start {
+      width: 100%; height: 54px; border-radius: 16px;
+      background: #fff; color: #2B7FE0;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 16px; font-weight: 700; border: none; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      margin-bottom: 12px;
+    }
+    .btn-start:active { opacity: 0.9; }
+    .btn-manual {
+      width: 100%; height: 48px; border-radius: 16px;
+      background: rgba(255,255,255,0.15); color: #fff;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; font-weight: 500; border: 1px solid rgba(255,255,255,0.4); cursor: pointer;
+    }
+
+    /* ── QR 스캔 화면 ── */
+    .scan-screen {
+      flex: 1; background: #000;
+      display: flex; flex-direction: column;
+    }
+    .scan-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 56px 20px 16px;
+    }
+    .scan-back {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 18px; color: #fff; border: none;
+    }
+    .scan-title { font-size: 16px; font-weight: 600; color: #fff; }
+    .scan-viewfinder {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      position: relative;
+      background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 30%,
+                                         rgba(0,0,0,0) 70%, rgba(0,0,0,0.3) 100%);
+    }
+    .scan-frame {
+      width: 240px; height: 240px; position: relative;
+    }
+    .scan-corner {
+      position: absolute; width: 24px; height: 24px;
+      border-color: #2B7FE0; border-style: solid; border-width: 0;
+    }
+    .scan-corner.tl { top:0; left:0;  border-top-width:3px;  border-left-width:3px;  border-top-left-radius:4px; }
+    .scan-corner.tr { top:0; right:0; border-top-width:3px;  border-right-width:3px; border-top-right-radius:4px; }
+    .scan-corner.bl { bottom:0; left:0;  border-bottom-width:3px; border-left-width:3px;  border-bottom-left-radius:4px; }
+    .scan-corner.br { bottom:0; right:0; border-bottom-width:3px; border-right-width:3px; border-bottom-right-radius:4px; }
+    .scan-line {
+      position: absolute; left: 4px; right: 4px; height: 2px;
+      background: linear-gradient(90deg, transparent, #2B7FE0, transparent);
+      animation: scanAnim 2s linear infinite;
+      top: 0;
+    }
+    @keyframes scanAnim {
+      0%   { top: 4px; opacity: 1; }
+      90%  { top: calc(100% - 6px); opacity: 1; }
+      100% { top: 4px; opacity: 0; }
+    }
+    .scan-inner-bg {
+      position: absolute; inset: 3px;
+      background: rgba(255,255,255,0.03);
+    }
+    .scan-hint {
+      text-align: center; color: rgba(255,255,255,0.75);
+      font-size: 13px; padding: 20px;
+      line-height: 1.7;
+    }
+    .scan-manual-code {
+      padding: 16px 20px 40px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .scan-input-label { font-size: 12px; color: rgba(255,255,255,0.6); }
+    .scan-code-row { display: flex; gap: 10px; }
+    .scan-code-input {
+      flex: 1; height: 48px; border-radius: 12px;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      color: #fff; font-family: 'Noto Sans KR', sans-serif;
+      font-size: 16px; font-weight: 600; letter-spacing: 3px;
+      padding: 0 16px; outline: none; text-transform: uppercase;
+      text-align: center;
+    }
+    .scan-code-input::placeholder { color: rgba(255,255,255,0.3); letter-spacing: 2px; font-size: 13px; }
+    .scan-code-input:focus { border-color: #2B7FE0; }
+    .btn-connect {
+      height: 52px; border-radius: 14px;
+      background: #2B7FE0; color: #fff;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 15px; font-weight: 700; border: none; cursor: pointer;
+    }
+    .btn-connect:active { background: #1A5FB4; }
+
+    /* ── 연결 중 화면 ── */
+    .connecting-screen {
+      flex: 1; background: #fff;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 32px;
+    }
+    .connecting-anim {
+      width: 100px; height: 100px; border-radius: 50%;
+      background: linear-gradient(135deg, #2B7FE0, #34C4A0);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px; margin-bottom: 28px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(43,127,224,0.3); }
+      50% { transform: scale(1.06); box-shadow: 0 0 0 16px rgba(43,127,224,0); }
+    }
+    .connecting-title { font-size: 20px; font-weight: 700; color: #1A2332; margin-bottom: 8px; }
+    .connecting-sub { font-size: 13px; color: #546E7A; line-height: 1.6; text-align: center; }
+    .connecting-dots { display: flex; gap: 6px; margin-top: 20px; }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #2B7FE0;
+      animation: dotAnim 1.2s ease-in-out infinite;
+    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dotAnim {
+      0%, 80%, 100% { transform: scale(1); opacity: 0.4; }
+      40% { transform: scale(1.4); opacity: 1; }
+    }
+
+    /* ── 연결 완료 화면 ── */
+    .success-screen {
+      flex: 1; background: #fff;
+      display: flex; flex-direction: column;
+      align-items: center; padding: 60px 32px 40px;
+    }
+    .success-icon {
+      width: 90px; height: 90px; border-radius: 50%;
+      background: linear-gradient(135deg, #34C4A0, #1E9C80);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 42px; margin-bottom: 24px;
+      box-shadow: 0 8px 24px rgba(52,196,160,0.35);
+    }
+    .success-title { font-size: 22px; font-weight: 700; color: #1A2332; margin-bottom: 8px; }
+    .success-sub { font-size: 14px; color: #546E7A; text-align: center; line-height: 1.7; margin-bottom: 32px; }
+    .account-card {
+      width: 100%; background: linear-gradient(135deg, #2B7FE0, #34C4A0);
+      border-radius: 20px; padding: 20px 24px;
+      color: #fff; margin-bottom: 32px;
+      box-shadow: 0 8px 24px rgba(43,127,224,0.3);
+    }
+    .account-card-label { font-size: 11px; opacity: 0.8; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .account-card-name { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+    .account-card-meta { font-size: 13px; opacity: 0.85; }
+    .account-card-code {
+      font-size: 11px; opacity: 0.7; margin-top: 12px;
+      font-family: monospace; letter-spacing: 1px;
+    }
+    .watch-status {
+      width: 100%; background: #F4F6F9; border-radius: 16px;
+      padding: 16px 20px; display: flex; align-items: center; gap: 14px;
+      margin-bottom: 16px;
+    }
+    .watch-icon { font-size: 28px; }
+    .watch-info-name { font-size: 14px; font-weight: 600; color: #1A2332; }
+    .watch-info-sub { font-size: 12px; color: #546E7A; margin-top: 2px; }
+    .watch-linked {
+      margin-left: auto; font-size: 11px; font-weight: 700;
+      color: #1B7A5E; background: #E6F9F5;
+      padding: 4px 10px; border-radius: 10px;
+    }
+    .btn-go-home {
+      width: 100%; height: 54px; border-radius: 16px;
+      background: #2B7FE0; color: #fff;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 16px; font-weight: 700; border: none; cursor: pointer;
+      margin-top: auto;
+      box-shadow: 0 4px 16px rgba(43,127,224,0.3);
+    }
+    .btn-go-home:active { background: #1A5FB4; }
+  </style>
+</head>
+<body>
+<div class="phone-frame">
+
+  <!-- ── 화면 1: 시작 ── -->
+  <div class="screen active" id="screen-start">
+    <div class="splash">
+      <div class="splash-logo">H</div>
+      <div class="splash-title">HealthCare</div>
+      <div class="splash-sub">건강 모니터링 플랫폼</div>
+      <div class="splash-divider"></div>
+      <div class="splash-desc">
+        처음 사용하시나요?<br>
+        관리자가 발급한 <strong style="color:#fff;">QR 코드</strong>를 스캔하면<br>
+        워치와 계정이 자동으로 연결됩니다.
+      </div>
+      <button class="btn-start" onclick="showScan()">📷 QR로 계정 연결</button>
+      <button class="btn-manual" onclick="alert('로그인 화면으로 이동')">이미 계정이 있어요</button>
+    </div>
+  </div>
+
+  <!-- ── 화면 2: QR 스캔 ── -->
+  <div class="screen" id="screen-scan">
+    <div class="scan-screen">
+      <div class="scan-header">
+        <button class="scan-back" onclick="showStart()">←</button>
+        <span class="scan-title">QR 코드 스캔</span>
+        <div style="width:36px;"></div>
+      </div>
+      <div class="scan-viewfinder">
+        <div class="scan-frame">
+          <div class="scan-inner-bg"></div>
+          <div class="scan-corner tl"></div>
+          <div class="scan-corner tr"></div>
+          <div class="scan-corner bl"></div>
+          <div class="scan-corner br"></div>
+          <div class="scan-line"></div>
+        </div>
+      </div>
+      <div class="scan-hint">
+        관리자 화면에 표시된 QR 코드를<br>사각형 안에 맞춰 비춰주세요.
+      </div>
+      <div class="scan-manual-code">
+        <div class="scan-input-label">QR을 스캔할 수 없다면 코드를 직접 입력하세요</div>
+        <div class="scan-code-row">
+          <input class="scan-code-input" placeholder="예: A7F3-K9M2" maxlength="9" id="manual-code" />
+        </div>
+        <button class="btn-connect" onclick="startConnect()">연결하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 화면 3: 연결 중 ── -->
+  <div class="screen" id="screen-connecting">
+    <div class="connecting-screen">
+      <div class="connecting-anim">🔗</div>
+      <div class="connecting-title">계정 연결 중</div>
+      <div class="connecting-sub">워치와 계정 정보를 확인하고 있습니다.<br>잠시만 기다려 주세요.</div>
+      <div class="connecting-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 화면 4: 연결 완료 ── -->
+  <div class="screen" id="screen-success">
+    <div class="success-screen">
+      <div class="success-icon">✓</div>
+      <div class="success-title">연결 완료!</div>
+      <div class="success-sub">계정과 워치가 성공적으로 연결되었습니다.<br>건강 모니터링을 시작하세요.</div>
+      <div class="account-card">
+        <div class="account-card-label">CONNECTED ACCOUNT</div>
+        <div class="account-card-name">김순자</div>
+        <div class="account-card-meta">서울중앙병원 · 시니어</div>
+        <div class="account-card-code">HC-2025-0012</div>
+      </div>
+      <div class="watch-status">
+        <div class="watch-icon">⌚</div>
+        <div>
+          <div class="watch-info-name">Galaxy Watch 6</div>
+          <div class="watch-info-sub">페어링 완료 · 심박수 모니터링 활성</div>
+        </div>
+        <div class="watch-linked">연결됨</div>
+      </div>
+      <button class="btn-go-home" onclick="location.href='home-simple.html'">홈 화면으로 →</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function showStart()      { switchScreen('screen-start'); }
+  function showScan()       { switchScreen('screen-scan'); }
+  function showConnecting() { switchScreen('screen-connecting'); }
+  function showSuccess()    { switchScreen('screen-success'); }
+
+  function switchScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function startConnect() {
+    showConnecting();
+    setTimeout(showSuccess, 2200);
+  }
+
+  /* QR 프레임 클릭 시 스캔 성공 시뮬레이션 */
+  document.querySelector('.scan-viewfinder').addEventListener('click', function() {
+    startConnect();
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,877 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>관리자 포털 - 시스템 설정</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #F4F6F9;
+      color: #1A2332;
+      min-width: 1280px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── 헤더 ── */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 60px;
+      background: #FFFFFF;
+      border-bottom: 1px solid #D1D9E6;
+      display: flex; align-items: center;
+      padding: 0 24px;
+      gap: 12px;
+    }
+    .header-logo {
+      display: flex; align-items: center; gap: 10px;
+      width: 216px;
+    }
+    .logo-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, #2B7FE0, #34C4A0);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 16px; font-weight: 700;
+    }
+    .logo-text { font-size: 15px; font-weight: 700; color: #1A2332; }
+    .logo-sub  { font-size: 11px; color: #546E7A; margin-top: 1px; }
+    .header-divider { width: 1px; height: 28px; background: #D1D9E6; margin: 0 8px; }
+    .header-title { font-size: 14px; font-weight: 600; color: #2B7FE0; flex: 1; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .header-notif {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #F4F6F9; border: 1px solid #D1D9E6;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative; font-size: 16px;
+    }
+    .notif-badge {
+      position: absolute; top: -3px; right: -3px;
+      background: #E53935; color: #fff;
+      font-size: 9px; font-weight: 700;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid #fff;
+    }
+    .header-user {
+      display: flex; align-items: center; gap: 8px; cursor: pointer;
+    }
+    .user-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #2B7FE0, #1A5FB4);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 13px; font-weight: 600;
+    }
+    .user-info { display: flex; flex-direction: column; }
+    .user-name  { font-size: 13px; font-weight: 600; color: #1A2332; }
+    .user-role  { font-size: 11px; color: #546E7A; }
+
+    /* ── 레이아웃 ── */
+    .layout {
+      display: flex;
+      padding-top: 60px;
+      height: 100vh;
+    }
+
+    /* ── 사이드바 ── */
+    .sidebar {
+      width: 240px; min-width: 240px;
+      background: #FFFFFF;
+      border-right: 1px solid #D1D9E6;
+      display: flex; flex-direction: column;
+      padding: 20px 0;
+      overflow-y: auto;
+      position: fixed; top: 60px; bottom: 0; left: 0;
+    }
+    .nav-section-label {
+      font-size: 10px; font-weight: 600; color: #546E7A;
+      letter-spacing: 0.8px; text-transform: uppercase;
+      padding: 0 20px 8px;
+      margin-top: 8px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px 10px 10px;
+      cursor: pointer;
+      font-size: 14px; color: #546E7A;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    .nav-item:hover { background: #F4F6F9; color: #1A2332; }
+    .nav-item.active {
+      background: #EBF3FF; color: #2B7FE0;
+      border-left-color: #2B7FE0; font-weight: 600;
+    }
+    .nav-badge {
+      margin-left: auto; background: #E53935; color: #fff;
+      font-size: 10px; font-weight: 700;
+      padding: 1px 6px; border-radius: 10px;
+    }
+    .nav-badge.yellow { background: #F5A623; }
+    .nav-icon { font-size: 17px; width: 20px; text-align: center; }
+    .sidebar-footer {
+      margin-top: auto; padding: 16px 20px;
+      border-top: 1px solid #D1D9E6;
+    }
+    .sidebar-footer-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; cursor: pointer;
+      font-size: 13px; color: #546E7A;
+    }
+    .sidebar-footer-item:hover { color: #1A2332; }
+
+    /* ── 메인 콘텐츠 ── */
+    .main {
+      flex: 1;
+      margin-left: 240px;
+      padding: 32px;
+      overflow-y: auto;
+      height: calc(100vh - 60px);
+    }
+
+    /* ── 페이지 헤더 ── */
+    .page-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .page-title { font-size: 22px; font-weight: 700; color: #1A2332; }
+    .page-subtitle { font-size: 13px; color: #546E7A; margin-top: 4px; }
+    .page-actions { display: flex; gap: 10px; align-items: center; }
+
+    /* ── 버튼 ── */
+    .btn {
+      height: 44px; padding: 0 20px; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      border: none; display: inline-flex; align-items: center; gap: 6px;
+      text-decoration: none; transition: background 0.15s;
+    }
+    .btn-primary { background: #2B7FE0; color: #fff; }
+    .btn-primary:hover { background: #1A5FB4; }
+    .btn-outline {
+      background: #fff; color: #546E7A;
+      border: 1px solid #D1D9E6;
+    }
+    .btn-outline:hover { background: #F4F6F9; }
+
+    /* ── 섹션 카드 ── */
+    .section-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .section-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid #F0F2F5;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .section-icon.blue  { background: #EBF3FF; }
+    .section-icon.green { background: #E8F5E9; }
+    .section-icon.purple { background: #F3E5F5; }
+    .section-title {
+      font-size: 15px; font-weight: 700; color: #1A2332;
+    }
+    .section-desc {
+      font-size: 12px; color: #546E7A; margin-top: 2px;
+    }
+    .section-body { padding: 0; }
+
+    /* ── 설정 행 ── */
+    .setting-row {
+      display: flex; align-items: center;
+      padding: 18px 24px;
+      border-bottom: 1px solid #F0F2F5;
+      gap: 16px;
+    }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-info { flex: 1; }
+    .setting-label {
+      font-size: 14px; font-weight: 500; color: #1A2332;
+    }
+    .setting-help {
+      font-size: 12px; color: #546E7A; margin-top: 3px;
+      line-height: 1.5;
+    }
+    .setting-control { flex-shrink: 0; }
+
+    /* ── 토글 스위치 ── */
+    .toggle {
+      position: relative;
+      width: 48px; height: 26px;
+      display: inline-block;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0;
+      background: #D1D9E6;
+      border-radius: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 20px; height: 20px;
+      left: 3px; top: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .toggle input:checked + .toggle-slider { background: #2B7FE0; }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(22px); }
+
+    /* ── 드롭다운 ── */
+    .form-select {
+      height: 40px; padding: 0 36px 0 12px;
+      border: 1px solid #D1D9E6; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; color: #1A2332;
+      background: #FAFBFD url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23546E7A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center;
+      -webkit-appearance: none;
+      appearance: none;
+      outline: none;
+      cursor: pointer;
+      min-width: 160px;
+    }
+    .form-select:focus { border-color: #2B7FE0; background-color: #fff; }
+
+    /* ── 숫자 입력 ── */
+    .number-input-group {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .form-number {
+      width: 90px; height: 40px;
+      padding: 0 12px;
+      border: 1px solid #D1D9E6; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; color: #1A2332;
+      text-align: center; outline: none;
+      background: #FAFBFD;
+    }
+    .form-number:focus { border-color: #2B7FE0; background: #fff; }
+    .number-unit {
+      font-size: 13px; color: #546E7A;
+    }
+    .number-sep {
+      font-size: 13px; color: #D1D9E6;
+    }
+
+    /* ── 체크박스 그룹 ── */
+    .checkbox-group {
+      display: flex; gap: 10px; flex-wrap: wrap;
+    }
+    .check-chip {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: 8px;
+      border: 1px solid #D1D9E6; background: #FAFBFD;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .check-chip input { display: none; }
+    .check-chip:has(input:checked) {
+      border-color: #2B7FE0; background: #EBF3FF;
+    }
+    .check-chip-label {
+      font-size: 13px; font-weight: 500; color: #546E7A; cursor: pointer;
+    }
+    .check-chip:has(input:checked) .check-chip-label { color: #2B7FE0; }
+
+    /* ── 라디오 그룹 ── */
+    .radio-group {
+      display: flex; gap: 10px; flex-wrap: wrap;
+    }
+    .radio-chip {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 8px;
+      border: 1px solid #D1D9E6; background: #FAFBFD;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .radio-chip input { display: none; }
+    .radio-chip:has(input:checked) {
+      border-color: #2B7FE0; background: #EBF3FF;
+    }
+    .radio-chip-label {
+      font-size: 13px; font-weight: 500; color: #546E7A; cursor: pointer;
+    }
+    .radio-chip:has(input:checked) .radio-chip-label { color: #2B7FE0; font-weight: 600; }
+
+    /* ── 범위 입력 (슬라이더) ── */
+    .range-input-row {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .range-label-sm { font-size: 12px; color: #546E7A; min-width: 30px; }
+
+    /* ── 경보 기준 수치 표시 ── */
+    .threshold-display {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #FFF3E0; border: 1px solid #FFB74D;
+      border-radius: 8px; padding: 6px 12px;
+      font-size: 13px; font-weight: 600; color: #E65100;
+    }
+
+    /* 설정 그룹 내 서브 타이틀 */
+    .sub-title {
+      font-size: 11px; font-weight: 700; color: #2B7FE0;
+      letter-spacing: 0.5px; text-transform: uppercase;
+      padding: 12px 24px 0;
+    }
+
+    /* ── 하단 저장 바 ── */
+    .bottom-save-bar {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 18px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 32px;
+    }
+    .save-info { display: flex; align-items: center; gap: 10px; }
+    .save-info-icon { font-size: 18px; }
+    .save-info-text { font-size: 13px; color: #546E7A; }
+    .save-info-text strong { color: #1A2332; }
+    .save-btns { display: flex; gap: 10px; }
+
+    /* 토스트 */
+    .toast {
+      position: fixed; bottom: 32px; right: 32px; z-index: 9999;
+      background: #1A2332; color: #fff;
+      padding: 14px 22px; border-radius: 10px;
+      font-size: 14px; font-weight: 500;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      display: flex; align-items: center; gap: 8px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .toast.show { opacity: 1; pointer-events: auto; }
+
+    /* 경고 인라인 */
+    .inline-warn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #FFF8E1; border: 1px solid #FFE082;
+      border-radius: 8px; padding: 6px 12px;
+      font-size: 12px; color: #F57F17;
+      margin-top: 8px;
+    }
+
+    /* ── 사이드바 토글 ── */
+    .sidebar-toggle-btn {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: transparent; border: none;
+      font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #546E7A; transition: background 0.15s; flex-shrink: 0;
+    }
+    .sidebar-toggle-btn:hover { background: #F4F6F9; color: #1A2332; }
+    .sidebar { transition: transform 0.25s ease; }
+    .main    { transition: margin-left 0.25s ease; }
+    body.sidebar-hidden .sidebar { transform: translateX(-240px); }
+    body.sidebar-hidden .main    { margin-left: 0; }
+    /* ── 시스템 설정 탭 ── */
+    .settings-tab-container {
+      background: #fff; border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 20px; overflow: hidden;
+    }
+    .settings-tab-nav-bar {
+      padding: 0 24px; border-bottom: 1px solid #D1D9E6;
+    }
+    .stab-nav { display: flex; }
+    .stab-btn {
+      padding: 13px 20px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; font-weight: 600; color: #78909C;
+      background: transparent; border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer; transition: all 0.15s; margin-bottom: -1px;
+    }
+    .stab-btn:hover { color: #2B7FE0; background: #F8FAFD; }
+    .stab-btn.active { color: #2B7FE0; border-bottom-color: #2B7FE0; }
+    .stab-panel { display: none; }
+    .stab-panel.active { display: block; }
+    /* 탭 안의 section-card는 그림자/radius 제거 */
+    .stab-panel .section-card {
+      box-shadow: none; border-radius: 0; margin-bottom: 0;
+    }
+    .stab-panel .section-card:not(:last-child) {
+      border-bottom: 1px solid #F0F2F5;
+    }  </style>
+</head>
+<body>
+
+<!-- ── 헤더 ── -->
+<header class="header">
+  <button class="sidebar-toggle-btn" onclick="document.body.classList.toggle('sidebar-hidden')" title="메뉴 접기/펼치기">☰</button>
+
+  <div class="header-logo">
+    <div class="logo-icon">H</div>
+    <div>
+      <div class="logo-text">HealthCare Portal</div>
+      <div class="logo-sub">관리자 포털</div>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <div class="header-title">시스템 설정</div>
+  <div class="header-right">
+    <div class="header-notif">
+      🔔
+      <div class="notif-badge">3</div>
+    </div>
+    <div class="header-user">
+      <div class="user-avatar">관</div>
+      <div class="user-info">
+        <div class="user-name">김선숙</div>
+        <div class="user-role">시스템 운영자</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── 레이아웃 ── -->
+<div class="layout">
+
+  <!-- ── 사이드바 ── -->
+  <nav class="sidebar">
+    <a class="nav-item"  href="dashboard.html"><span class="nav-icon">📊</span> 대시보드</a>
+    <a class="nav-item"  href="notice.html"><span class="nav-icon">📢</span> 공지사항</a>
+    <a class="nav-item"  href="hospitals.html"><span class="nav-icon">🏥</span> 병원·기관 관리</a>
+    <a class="nav-item"  href="operators.html"><span class="nav-icon">👨‍💼</span> 운영자 관리</a>
+    <a class="nav-item"  href="accounts.html"><span class="nav-icon">👥</span> 계정 관리<span class="nav-badge yellow">5</span></a>
+    <a class="nav-item"  href="permissions.html"><span class="nav-icon">🔐</span> 권한 관리</a>
+    <a class="nav-item" href="peer-averages.html"><span class="nav-icon">📈</span> 또래 평균 관리</a>
+    <a class="nav-item active"  href="settings.html"><span class="nav-icon">⚙️</span> 시스템 설정</a>
+
+  <div class="sidebar-footer">
+      <a href="profile.html" class="sidebar-footer-item"><span>👤</span> 내 계정</a>
+      <div class="sidebar-footer-item"><span>🚪</span> 로그아웃</div>
+    </div>
+  </nav>
+
+  <!-- ── 메인 ── -->
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title">시스템 설정</div>
+        <div class="page-subtitle">서비스 알림, 건강 경보 기준, 통계 산출 방식을 설정합니다.</div>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-outline" onclick="resetSettings()">초기화</button>
+        <button class="btn btn-primary" onclick="saveSettings()">💾 설정 저장</button>
+      </div>
+    </div>
+
+    <div class="settings-tab-container">
+      <div class="settings-tab-nav-bar">
+        <div class="stab-nav">
+          <button class="stab-btn active" onclick="switchSettingsTab('notify',this)">🔔 알림 설정</button>
+          <button class="stab-btn" onclick="switchSettingsTab('alert',this)">🚨 건강 경보 기준</button>
+          <button class="stab-btn" onclick="switchSettingsTab('peer',this)">📊 또래 평균 기준</button>
+          <button class="stab-btn" onclick="switchSettingsTab('data',this)">🗃️ 데이터 보관</button>
+        </div>
+      </div>
+      <div id="settings-panel-notify" class="stab-panel active">
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon blue">🔔</div>
+        <div>
+          <div class="section-title">알림 설정</div>
+          <div class="section-desc">SOS 발송 대상, 2차 알림 지연, 경보 발송 여부를 설정합니다.</div>
+        </div>
+      </div>
+      <div class="section-body">
+
+        <!-- SOS 수신 대상 -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">SOS 수신 대상</div>
+            <div class="setting-help">낙상 감지 또는 수동 SOS 발생 시 알림을 받을 대상을 선택합니다.<br>최소 1개 이상 선택해야 합니다.</div>
+          </div>
+          <div class="setting-control">
+            <div class="checkbox-group">
+              <label class="check-chip">
+                <input type="checkbox" checked />
+                <span class="check-chip-label">👨‍👩‍👧 자녀</span>
+              </label>
+              <label class="check-chip">
+                <input type="checkbox" checked />
+                <span class="check-chip-label">🛡️ 운영자</span>
+              </label>
+              <label class="check-chip">
+                <input type="checkbox" checked />
+                <span class="check-chip-label">🩺 의료진</span>
+              </label>
+              <label class="check-chip">
+                <input type="checkbox" />
+                <span class="check-chip-label">⌚ 와치관리자</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 복약 미완료 2차 알림 지연 -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">복약 미완료 2차 알림 지연</div>
+            <div class="setting-help">복약 시간 이후 미완료 상태일 경우 재알림을 보내기까지의 대기 시간입니다.</div>
+          </div>
+          <div class="setting-control">
+            <select class="form-select" id="medReminderDelay">
+              <option value="15">15분 후</option>
+              <option value="30" selected>30분 후</option>
+              <option value="45">45분 후</option>
+              <option value="60">1시간 후</option>
+              <option value="120">2시간 후</option>
+              <option value="0">2차 알림 비활성</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 비정상 수치 경보 발송 -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">비정상 수치 경보 발송</div>
+            <div class="setting-help">건강 수치가 설정된 임계값을 벗어날 경우 즉시 알림을 발송합니다.<br>비활성화 시 아래 경보 기준 설정이 적용되지 않습니다.</div>
+          </div>
+          <div class="setting-control">
+            <label class="toggle">
+              <input type="checkbox" id="alertToggle" checked onchange="toggleAlertSection(this)" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+      </div><!-- /settings-panel-notify -->
+      <div id="settings-panel-alert" class="stab-panel">
+    <div class="section-card" id="alertSection">
+      <div class="section-header">
+        <div class="section-icon" style="background:#FFEBEE;">❤️</div>
+        <div>
+          <div class="section-title">건강 수치 경보 기준</div>
+          <div class="section-desc">각 수치별 정상 범위 이탈 기준을 설정합니다. 기준 초과 시 즉시 경보가 발송됩니다.</div>
+        </div>
+      </div>
+      <div class="section-body">
+
+        <!-- 심박수 -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">심박수 이상 범위</div>
+            <div class="setting-help">설정 범위 미만 또는 초과 시 경보를 발송합니다. 권장 범위: 40 ~ 120 bpm</div>
+          </div>
+          <div class="setting-control">
+            <div class="number-input-group">
+              <span class="number-unit" style="color:#546E7A; font-size:12px;">최소</span>
+              <input type="number" class="form-number" id="hrMin" value="40" min="30" max="60" />
+              <span class="number-unit">bpm</span>
+              <span class="number-sep">—</span>
+              <span class="number-unit" style="color:#546E7A; font-size:12px;">최대</span>
+              <input type="number" class="form-number" id="hrMax" value="120" min="100" max="200" />
+              <span class="number-unit">bpm</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 혈압 수축기 -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">혈압 수축기 이상 기준</div>
+            <div class="setting-help">수축기 혈압이 이 값 이상일 경우 고혈압 경보를 발송합니다. 권장: 140 mmHg</div>
+          </div>
+          <div class="setting-control">
+            <div class="number-input-group">
+              <input type="number" class="form-number" id="bpSys" value="140" min="120" max="180" />
+              <span class="number-unit">mmHg 이상</span>
+              <span class="threshold-display">🔴 고혈압 경보</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 혈중 산소 -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">혈중 산소포화도 이상 기준</div>
+            <div class="setting-help">산소포화도(SpO₂)가 이 값 미만일 경우 저산소 경보를 발송합니다. 권장: 90%</div>
+          </div>
+          <div class="setting-control">
+            <div class="number-input-group">
+              <input type="number" class="form-number" id="spo2" value="90" min="80" max="95" />
+              <span class="number-unit">% 미만</span>
+              <span class="threshold-display">🟠 저산소 경보</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 낙상 감지 민감도 -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">낙상 감지 민감도</div>
+            <div class="setting-help">
+              높을수록 작은 충격도 낙상으로 인식합니다. 오경보가 잦으면 '낮음'으로 조정하세요.<br>
+              <span class="inline-warn">⚠️ '높음' 설정 시 오경보 발생 빈도가 증가할 수 있습니다.</span>
+            </div>
+          </div>
+          <div class="setting-control">
+            <select class="form-select" id="fallSensitivity">
+              <option value="low">낮음 — 강한 충격만 감지</option>
+              <option value="medium" selected>보통 — 권장 설정</option>
+              <option value="high">높음 — 민감하게 감지</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+    </div>
+      </div><!-- /settings-panel-alert -->
+      <div id="settings-panel-peer" class="stab-panel">
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon green">📊</div>
+        <div>
+          <div class="section-title">또래 평균 기준</div>
+          <div class="section-desc">건강 지표를 또래 데이터와 비교할 때 사용할 집계 방식을 설정합니다.</div>
+        </div>
+      </div>
+      <div class="section-body">
+
+        <!-- 연령 단위 -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">연령 단위</div>
+            <div class="setting-help">또래 그룹을 나눌 연령 구간 단위입니다. 단위가 작을수록 정밀하지만 데이터 수가 줄어듭니다.</div>
+          </div>
+          <div class="setting-control">
+            <div class="radio-group">
+              <label class="radio-chip">
+                <input type="radio" name="ageUnit" value="1" />
+                <span class="radio-chip-label">1세 단위</span>
+              </label>
+              <label class="radio-chip">
+                <input type="radio" name="ageUnit" value="5" checked />
+                <span class="radio-chip-label">5세 단위</span>
+              </label>
+              <label class="radio-chip">
+                <input type="radio" name="ageUnit" value="10" />
+                <span class="radio-chip-label">10세 단위</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 성별 구분 -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">성별 구분</div>
+            <div class="setting-help">또래 비교 시 성별을 구분하여 집계합니다. 구분하지 않으면 전체 평균을 사용합니다.</div>
+          </div>
+          <div class="setting-control">
+            <div class="radio-group">
+              <label class="radio-chip">
+                <input type="radio" name="genderSplit" value="yes" checked />
+                <span class="radio-chip-label">구분함</span>
+              </label>
+              <label class="radio-chip">
+                <input type="radio" name="genderSplit" value="no" />
+                <span class="radio-chip-label">구분 안 함</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 만성질환 구분 -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">만성질환 구분</div>
+            <div class="setting-help">당뇨·고혈압 등 만성질환 보유 여부를 구분하여 또래 평균을 산출합니다.<br>구분 시 더 정확한 비교가 가능합니다.</div>
+          </div>
+          <div class="setting-control">
+            <div class="radio-group">
+              <label class="radio-chip">
+                <input type="radio" name="chronicSplit" value="yes" checked />
+                <span class="radio-chip-label">구분함</span>
+              </label>
+              <label class="radio-chip">
+                <input type="radio" name="chronicSplit" value="no" />
+                <span class="radio-chip-label">구분 안 함</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+      </div><!-- /settings-panel-peer -->
+      <div id="settings-panel-data" class="stab-panel">
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon purple">🗃️</div>
+        <div>
+          <div class="section-title">데이터 보관 정책</div>
+          <div class="section-desc">건강 로그 및 알림 이력 보관 기간을 설정합니다.</div>
+        </div>
+      </div>
+      <div class="section-body">
+
+        <!-- 건강 로그 보관 기간 -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">건강 로그 보관 기간</div>
+            <div class="setting-help">설정 기간 이후 원시 로그 데이터는 자동 삭제됩니다. 월간 요약 데이터는 영구 보관됩니다.</div>
+          </div>
+          <div class="setting-control">
+            <select class="form-select">
+              <option value="6">6개월</option>
+              <option value="12" selected>12개월</option>
+              <option value="24">24개월</option>
+              <option value="36">36개월 (최장)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 알림 이력 보관 기간 -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">알림 이력 보관 기간</div>
+            <div class="setting-help">SOS, 경보, 복약 알림 발송 이력의 보관 기간입니다.</div>
+          </div>
+          <div class="setting-control">
+            <select class="form-select">
+              <option value="3">3개월</option>
+              <option value="6" selected>6개월</option>
+              <option value="12">12개월</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 자동 백업 -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">자동 백업</div>
+            <div class="setting-help">매일 새벽 3시 데이터베이스 전체 백업을 수행합니다.</div>
+          </div>
+          <div class="setting-control">
+            <label class="toggle">
+              <input type="checkbox" checked />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+      </div><!-- /settings-panel-data -->
+    </div><!-- /settings-tab-container -->
+
+    <!-- ── 하단 저장 바 ── -->
+    <div class="bottom-save-bar">
+      <div class="save-info">
+        <span class="save-info-icon">🕐</span>
+        <div class="save-info-text">
+          마지막 저장: <strong>2026-04-24 오후 3:42</strong> &nbsp;|&nbsp; 저장자: 김선숙 (운영자)
+        </div>
+      </div>
+      <div class="save-btns">
+        <button class="btn btn-outline" onclick="resetSettings()">초기화</button>
+        <button class="btn btn-primary" onclick="saveSettings()">💾 설정 저장</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- 토스트 -->
+<div class="toast" id="toast"></div>
+
+<script>
+  function switchSettingsTab(id, btn) {
+    document.querySelectorAll('.stab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.stab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('settings-panel-' + id).classList.add('active');
+  }
+
+  // 경보 발송 토글에 따라 섹션 비활성화
+  function toggleAlertSection(chk) {
+    const section = document.getElementById('alertSection');
+    if (chk.checked) {
+      section.style.opacity = '1';
+      section.style.pointerEvents = 'auto';
+    } else {
+      section.style.opacity = '0.45';
+      section.style.pointerEvents = 'none';
+    }
+  }
+
+  // 저장
+  function saveSettings() {
+    // 간단 유효성 검사
+    const hrMin = parseInt(document.getElementById('hrMin').value);
+    const hrMax = parseInt(document.getElementById('hrMax').value);
+    if (hrMin >= hrMax) {
+      alert('심박수 최솟값은 최댓값보다 작아야 합니다.');
+      return;
+    }
+    const bpSys = parseInt(document.getElementById('bpSys').value);
+    if (bpSys < 120 || bpSys > 180) {
+      alert('혈압 수축기 기준은 120 ~ 180 mmHg 범위 내로 입력해주세요.');
+      return;
+    }
+    const spo2 = parseInt(document.getElementById('spo2').value);
+    if (spo2 < 80 || spo2 > 95) {
+      alert('산소포화도 기준은 80 ~ 95% 범위 내로 입력해주세요.');
+      return;
+    }
+    showToast('✅ 시스템 설정이 저장되었습니다.');
+
+    // 저장 시각 업데이트
+    const now = new Date();
+    const pad = n => String(n).padStart(2,'0');
+    const timeStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} 오후 ${pad(now.getHours() > 12 ? now.getHours()-12 : now.getHours())}:${pad(now.getMinutes())}`;
+    document.querySelector('.save-info .save-info-text').innerHTML =
+      `마지막 저장: <strong>${timeStr}</strong> &nbsp;|&nbsp; 저장자: 김선숙 (운영자)`;
+  }
+
+  // 초기화
+  function resetSettings() {
+    if (!confirm('모든 설정을 초기값으로 되돌리시겠습니까?')) return;
+    document.getElementById('medReminderDelay').value = '30';
+    document.getElementById('alertToggle').checked = true;
+    toggleAlertSection(document.getElementById('alertToggle'));
+    document.getElementById('hrMin').value = '40';
+    document.getElementById('hrMax').value = '120';
+    document.getElementById('bpSys').value = '140';
+    document.getElementById('spo2').value = '90';
+    document.getElementById('fallSensitivity').value = 'medium';
+    document.querySelector('[name="ageUnit"][value="5"]').checked = true;
+    document.querySelector('[name="genderSplit"][value="yes"]').checked = true;
+    document.querySelector('[name="chronicSplit"][value="yes"]').checked = true;
+    showToast('🔄 설정이 초기화되었습니다.');
+  }
+
+  // 토스트
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>

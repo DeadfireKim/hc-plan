@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M-15 자녀 뷰 — 부모 건강 요약</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #F4F6F9;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .phone-shell {
+      width: 390px;
+      min-height: 100vh;
+      background: #F4F6F9;
+      position: relative;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #2B7FE0 0%, #1A5FB4 100%);
+      padding: 52px 20px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .header-name {
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .header-sub {
+      font-size: 12px;
+      color: rgba(255,255,255,0.75);
+      margin-top: 1px;
+    }
+    .switch-btn-sm {
+      height: 32px;
+      padding: 0 14px;
+      border-radius: 8px;
+      border: 1.5px solid rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'Noto Sans KR', sans-serif;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* Content */
+    .content {
+      padding: 16px 16px 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Today Status Card */
+    .status-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 18px 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .status-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .status-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1A2332;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .badge-ok { background: rgba(52,196,160,0.12); color: #27A07F; }
+    .badge-warn { background: rgba(245,166,35,0.12); color: #C67C00; }
+    .badge-danger { background: rgba(229,57,53,0.12); color: #C62828; }
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    .badge-ok .badge-dot { background: #34C4A0; }
+    .badge-warn .badge-dot { background: #F5A623; }
+    .badge-danger .badge-dot { background: #E53935; }
+
+    .status-summary {
+      font-size: 13px;
+      color: #546E7A;
+      line-height: 1.6;
+    }
+    .status-summary strong { color: #1A2332; }
+    .status-time {
+      font-size: 11px;
+      color: #90A4AE;
+      margin-top: 6px;
+    }
+
+    /* Section label */
+    .section-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #546E7A;
+      padding: 0 2px;
+    }
+
+    /* Metric Cards Row */
+    .metrics-row {
+      display: flex;
+      gap: 10px;
+    }
+    .metric-card {
+      flex: 1;
+      background: #FFFFFF;
+      border-radius: 14px;
+      padding: 14px 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+    .metric-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .metric-icon-heart { background: rgba(229,57,53,0.1); }
+    .metric-icon-blood { background: rgba(43,127,224,0.1); }
+    .metric-icon-steps { background: rgba(52,196,160,0.1); }
+
+    .metric-label {
+      font-size: 11px;
+      color: #546E7A;
+      font-weight: 500;
+    }
+    .metric-value {
+      font-size: 18px;
+      font-weight: 900;
+      color: #1A2332;
+      line-height: 1;
+    }
+    .metric-unit {
+      font-size: 10px;
+      font-weight: 500;
+      color: #90A4AE;
+      margin-left: 2px;
+    }
+    .metric-comparison {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-top: 2px;
+    }
+    .comp-ok { background: rgba(52,196,160,0.12); color: #27A07F; }
+    .comp-warn { background: rgba(245,166,35,0.12); color: #C67C00; }
+    .comp-normal { background: rgba(144,164,174,0.15); color: #546E7A; }
+    .comp-up   { background: #FFEBEE; color: #E53935; font-weight: 700; }
+    .comp-down { background: #E3F2FD; color: #2B7FE0; font-weight: 700; }
+    .comp-same { background: #F5F5F5; color: #546E7A; font-weight: 700; }
+    .goal-ok   { background: #E8F5E9; color: #2E7D32; font-weight: 700; }
+    .goal-miss { background: #FFF3E0; color: #E65100; font-weight: 700; }
+
+    /* 비교 토글 바 */
+    .compare-toggle-bar {
+      display: flex;
+      background: #EFF2F7;
+      border-radius: 10px;
+      padding: 3px;
+      gap: 3px;
+      margin-bottom: 10px;
+    }
+    .compare-toggle-bar button {
+      flex: 1;
+      height: 32px;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif;
+      background: transparent;
+      color: #546E7A;
+      transition: all 0.15s;
+    }
+    .compare-toggle-bar button.active {
+      background: #FFFFFF;
+      color: #2B7FE0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+    }
+
+    /* Medication Card */
+    .med-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 18px 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .med-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .med-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1A2332;
+    }
+    .med-progress-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: #2B7FE0;
+    }
+    .med-progress-bar {
+      height: 6px;
+      background: #EBF3FD;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+    .med-progress-fill {
+      height: 100%;
+      background: #2B7FE0;
+      border-radius: 3px;
+      width: 66.6%;
+    }
+    .med-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .med-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: #F4F6F9;
+    }
+    .med-item.missed {
+      background: rgba(229,57,53,0.06);
+      border: 1px solid rgba(229,57,53,0.2);
+    }
+    .med-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .med-check.done { background: #2B7FE0; }
+    .med-check.pending { background: #fff; border: 2px solid #E53935; }
+    .med-name {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 500;
+      color: #1A2332;
+    }
+    .med-item.missed .med-name { color: #E53935; font-weight: 600; }
+    .med-time {
+      font-size: 11px;
+      color: #90A4AE;
+    }
+    .med-item.missed .med-time { color: #E53935; }
+
+    /* Alert Button */
+    .alert-btn {
+      height: 48px;
+      width: 100%;
+      border-radius: 12px;
+      border: none;
+      background: #E53935;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: 'Noto Sans KR', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s;
+    }
+    .alert-btn:hover { background: #c62828; }
+
+    /* Schedule Card */
+    .schedule-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 18px 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .schedule-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1A2332;
+      margin-bottom: 12px;
+    }
+    .schedule-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+    }
+    .schedule-item + .schedule-item {
+      border-top: 1px solid #F4F6F9;
+    }
+    .schedule-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: #EBF3FD;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .schedule-info { flex: 1; }
+    .schedule-time {
+      font-size: 12px;
+      color: #546E7A;
+      margin-bottom: 2px;
+    }
+    .schedule-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1A2332;
+    }
+
+    /* Tab Bar */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      width: 390px;
+      height: 64px;
+      background: #FFFFFF;
+      border-top: 1px solid #D1D9E6;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      z-index: 200;
+    }
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      flex: 1;
+      padding: 8px 0;
+      text-decoration: none;
+      color: #546E7A;
+    }
+    .tab-item svg { width: 24px; height: 24px; }
+    .tab-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #546E7A;
+    }
+    .tab-item.active { color: #2B7FE0; }
+    .tab-item.active .tab-label { color: #2B7FE0; font-weight: 700; }
+  </style>
+</head>
+<body>
+<div class="phone-shell">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-row">
+      <div class="header-left">
+        <div class="header-avatar">모</div>
+        <div>
+          <div class="header-name">어머니 김순자 (75세)</div>
+          <div class="header-sub">자녀 모드로 보는 중</div>
+        </div>
+      </div>
+      <button class="switch-btn-sm">계정 전환</button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Today Status -->
+    <div class="status-card">
+      <div class="status-card-header">
+        <span class="status-card-title">오늘의 건강 상태</span>
+        <span class="badge badge-ok">
+          <span class="badge-dot"></span>정상
+        </span>
+      </div>
+      <div class="status-summary">
+        전반적으로 <strong>양호</strong>합니다. 혈압이 어제보다 약간 높지만 정상 범위 내에 있으며, 걸음 수가 목표의 64%에 달했습니다.
+      </div>
+      <div class="status-time">2026.04.25 오후 3:00 기준</div>
+    </div>
+
+    <!-- Health Metrics -->
+    <div class="section-label">건강 지표</div>
+    <div class="compare-toggle-bar">
+      <button id="btn-peer" class="active" onclick="setCompare('peer')">또래 평균 비교</button>
+      <button id="btn-yest" onclick="setCompare('yest')">어제와 비교</button>
+      <button id="btn-goal" onclick="setCompare('goal')">목표 비교</button>
+    </div>
+    <div class="metrics-row">
+      <!-- Heart Rate -->
+      <div class="metric-card">
+        <div class="metric-icon metric-icon-heart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" fill="#E53935"/>
+          </svg>
+        </div>
+        <div class="metric-label">심박수</div>
+        <div class="metric-value">72<span class="metric-unit">bpm</span></div>
+        <span class="metric-comparison comp-up" id="mc-heart">또래보다 높음 ↑</span>
+      </div>
+      <!-- Blood Pressure -->
+      <div class="metric-card">
+        <div class="metric-icon metric-icon-blood">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C12 2 5 9 5 14C5 17.866 8.134 21 12 21C15.866 21 19 17.866 19 14C19 9 12 2 12 2Z" fill="#2B7FE0"/>
+          </svg>
+        </div>
+        <div class="metric-label">혈압</div>
+        <div class="metric-value">128<span class="metric-unit">/82</span></div>
+        <span class="metric-comparison comp-up" id="mc-bp">또래보다 높음 ↑</span>
+      </div>
+      <!-- Steps -->
+      <div class="metric-card">
+        <div class="metric-icon metric-icon-steps">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M13 3.5C13 4.33 12.33 5 11.5 5C10.67 5 10 4.33 10 3.5C10 2.67 10.67 2 11.5 2C12.33 2 13 2.67 13 3.5ZM8.1 20.5L9.5 14L12 16V21H14V14.5L11.5 12.5L12 9.5C13.17 10.9 14.8 11.9 16.6 12.2V10.2C15.2 9.9 14 9.1 13.2 8L12 6.3C11.7 5.9 11.2 5.6 10.6 5.6C10.4 5.6 10.2 5.65 10 5.7L6 7.2V11H8V8.4L9.6 7.8L8 15.5L4.7 14.4L4.1 16.3L8.1 20.5Z" fill="#34C4A0"/>
+          </svg>
+        </div>
+        <div class="metric-label">걸음수</div>
+        <div class="metric-value">3,200<span class="metric-unit">보</span></div>
+        <span class="metric-comparison comp-down" id="mc-steps">또래보다 낮음 ↓</span>
+      </div>
+    </div>
+
+    <!-- Medication -->
+    <div class="med-card">
+      <div class="med-header">
+        <span class="med-title">복약 현황</span>
+        <span class="med-progress-text">2 / 3 완료</span>
+      </div>
+      <div class="med-progress-bar">
+        <div class="med-progress-fill"></div>
+      </div>
+      <div class="med-list">
+        <div class="med-item">
+          <div class="med-check done">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6L5 9L10 3" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="med-name">혈압약 (노바스크 5mg)</span>
+          <span class="med-time">오전 8:00</span>
+        </div>
+        <div class="med-item">
+          <div class="med-check done">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6L5 9L10 3" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="med-name">비타민 D (1,000IU)</span>
+          <span class="med-time">오전 8:00</span>
+        </div>
+        <div class="med-item missed">
+          <div class="med-check pending"></div>
+          <span class="med-name">혈당 조절제 (메트포민)</span>
+          <span class="med-time">오후 1:00 미복약</span>
+        </div>
+      </div>
+      <button class="alert-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="#fff" stroke-width="1.8" fill="none"/>
+          <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        복약 알림 보내기
+      </button>
+    </div>
+
+    <!-- Schedule -->
+    <div class="schedule-card">
+      <div class="schedule-title">오늘 · 내일 일정</div>
+      <div class="schedule-item">
+        <div class="schedule-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="4" width="18" height="17" rx="3" fill="#EBF3FD" stroke="#2B7FE0" stroke-width="1.5"/>
+            <path d="M8 2V6M16 2V6M3 9H21" stroke="#2B7FE0" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="schedule-info">
+          <div class="schedule-time">내일 (4월 26일) 오전 10:00</div>
+          <div class="schedule-name">한마음내과 진료 (박원장)</div>
+        </div>
+        <span class="badge badge-warn"><span class="badge-dot"></span>내일</span>
+      </div>
+      <div class="schedule-item">
+        <div class="schedule-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" fill="#EBF3FD" stroke="#2B7FE0" stroke-width="1.5"/>
+            <path d="M12 7V12L15 14" stroke="#2B7FE0" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="schedule-info">
+          <div class="schedule-time">4월 28일 오후 2:00</div>
+          <div class="schedule-name">건강검진 (경기도의료원)</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tab Bar -->
+  <nav class="tab-bar" aria-label="하단 메뉴">
+    <a href="home-simple.html" class="tab-item active" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+      <span class="tab-label">홈</span>
+    </a>
+    <a href="health-data.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+      <span class="tab-label">건강</span>
+    </a>
+    <a href="medication.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      <span class="tab-label">복약</span>
+    </a>
+    <a href="schedule.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <span class="tab-label">일정</span>
+    </a>
+    <a href="settings.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+      </svg>
+      <span class="tab-label">설정</span>
+    </a>
+  </nav>
+
+</div>
+
+  <script>
+    var COMPARE_DATA = {
+      heart: { peer:{cls:'comp-up',   label:'또래보다 높음 ↑'}, yest:{cls:'comp-down', label:'어제보다 낮음 ↓'}, goal:{cls:'goal-ok',   label:'목표 달성 ✓'} },
+      bp:    { peer:{cls:'comp-up',   label:'또래보다 높음 ↑'}, yest:{cls:'comp-up',   label:'어제보다 높음 ↑'}, goal:{cls:'goal-miss', label:'목표 주의 ↑'} },
+      steps: { peer:{cls:'comp-down', label:'또래보다 낮음 ↓'}, yest:{cls:'comp-down', label:'어제보다 낮음 ↓'}, goal:{cls:'goal-miss', label:'목표 미달 ↓'} },
+    };
+
+    function setCompare(mode) {
+      document.getElementById('btn-peer').classList.toggle('active', mode === 'peer');
+      document.getElementById('btn-yest').classList.toggle('active', mode === 'yest');
+      document.getElementById('btn-goal').classList.toggle('active', mode === 'goal');
+      Object.keys(COMPARE_DATA).forEach(function(key) {
+        var d = COMPARE_DATA[key][mode];
+        var el = document.getElementById('mc-' + key);
+        if (!el) return;
+        el.className = 'metric-comparison ' + d.cls;
+        el.textContent = d.label;
+      });
+    }
+  </script>
+</body>
+</html>

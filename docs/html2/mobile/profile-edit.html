@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>프로필 수정 | 헬스케어 앱</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary:        #2B7FE0;
+      --primary-dark:   #1A5FB4;
+      --secondary:      #34C4A0;
+      --bg:             #F4F6F9;
+      --surface:        #FFFFFF;
+      --border:         #D1D9E6;
+      --text-primary:   #1A2332;
+      --text-secondary: #546E7A;
+      --text-disabled:  #B0BEC5;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: #C8D0DC; }
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      max-width: 390px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding-bottom: 100px;
+    }
+
+    /* ── 헤더 ── */
+    .app-header {
+      background: var(--surface);
+      padding: 16px;
+      display: flex; align-items: center; gap: 12px;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .btn-back {
+      width: 36px; height: 36px; border-radius: 50%; border: none;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .header-title { font-size: 18px; font-weight: 700; flex: 1; }
+    .btn-header-save {
+      background: var(--primary); color: #fff;
+      border: none; border-radius: 10px;
+      padding: 8px 18px; font-size: 14px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+    }
+    .btn-header-save:active { background: var(--primary-dark); }
+
+    /* ── 아바타 섹션 ── */
+    .avatar-section {
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      padding: 24px 16px 20px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    }
+    .avatar-wrap { position: relative; cursor: pointer; }
+    .avatar {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      border: 3px solid rgba(255,255,255,0.5);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 34px; font-weight: 700; color: #fff;
+    }
+    .avatar-camera {
+      position: absolute; bottom: 0; right: 0;
+      width: 26px; height: 26px; background: #fff; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    .avatar-hint { font-size: 12px; color: rgba(255,255,255,0.8); }
+
+    /* ── 섹션 ── */
+    .form-section { margin: 0 16px 8px; }
+    .section-label {
+      font-size: 12px; font-weight: 700; color: var(--text-secondary);
+      letter-spacing: 0.6px; text-transform: uppercase;
+      padding: 16px 4px 8px;
+    }
+    .form-card {
+      background: var(--surface); border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden;
+    }
+
+    /* ── 텍스트 입력 행 ── */
+    .input-row {
+      display: flex; align-items: center;
+      padding: 0 18px;
+      gap: 12px;
+      border-bottom: 1px solid var(--bg);
+      min-height: 64px;
+    }
+    .input-row:last-child { border-bottom: none; }
+    .row-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 19px; flex-shrink: 0;
+    }
+    .icon-blue   { background: #EBF3FF; }
+    .icon-green  { background: #E8FAF5; }
+    .icon-orange { background: #FFF5E6; }
+    .icon-purple { background: #F3E5F5; }
+    .icon-gray   { background: var(--bg); }
+
+    .row-body { flex: 1; display: flex; flex-direction: column; gap: 3px; padding: 14px 0; }
+    .row-label { font-size: 11px; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.4px; }
+    .row-input {
+      border: none; background: transparent;
+      font-size: 16px; font-weight: 500; color: var(--text-primary);
+      font-family: inherit; outline: none; width: 100%;
+      padding: 0;
+    }
+    .row-input::placeholder { color: var(--text-disabled); }
+    .row-input:focus { color: var(--primary); }
+
+    /* ── 스테퍼 행 (키·몸무게·출생년도) ── */
+    .stepper-row {
+      display: flex; align-items: center;
+      padding: 14px 18px; gap: 12px;
+      border-bottom: 1px solid var(--bg);
+    }
+    .stepper-row:last-child { border-bottom: none; }
+    .stepper-label-block { flex: 1; }
+    .stepper-title { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+    .stepper-unit  { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+    .stepper {
+      display: flex; align-items: center; gap: 4px;
+    }
+    .stepper-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 2px solid var(--border); background: var(--bg);
+      font-size: 20px; font-weight: 400; color: var(--text-primary);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; line-height: 1; flex-shrink: 0;
+      transition: all 0.12s;
+      font-family: inherit;
+    }
+    .stepper-btn:active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .stepper-val {
+      width: 64px; text-align: center;
+      font-size: 20px; font-weight: 700; color: var(--text-primary);
+    }
+
+    /* ── 성별 칩 ── */
+    .gender-row {
+      display: flex; align-items: center;
+      padding: 14px 18px; gap: 12px;
+      border-bottom: 1px solid var(--bg);
+    }
+    .gender-row:last-child { border-bottom: none; }
+    .gender-row-label { flex: 1; font-size: 16px; font-weight: 600; }
+    .gender-chips { display: flex; gap: 8px; }
+    .gender-chip {
+      padding: 8px 20px; border-radius: 20px;
+      border: 2px solid var(--border); background: var(--bg);
+      font-size: 15px; font-weight: 600; color: var(--text-secondary);
+      cursor: pointer; transition: all 0.15s;
+      font-family: inherit;
+    }
+    .gender-chip.active {
+      border-color: var(--primary); background: #EBF3FF; color: var(--primary);
+    }
+
+    /* ── 저장 버튼 ── */
+    .save-area { padding: 24px 16px 12px; }
+    .btn-save {
+      width: 100%; padding: 17px;
+      background: var(--primary); color: #fff;
+      border: none; border-radius: 14px;
+      font-size: 16px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+    }
+    .btn-save:active { background: var(--primary-dark); }
+
+    /* ── 탭바 ── */
+    .tab-bar {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 390px; height: 64px;
+      background: var(--surface); border-top: 1px solid var(--border);
+      display: flex; align-items: stretch; z-index: 300;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+    }
+    .tab-item {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 3px; cursor: pointer;
+      color: var(--text-disabled); text-decoration: none;
+    }
+    .tab-item.active { color: var(--primary); }
+    .tab-item svg { width: 24px; height: 24px; }
+    .tab-label { font-size: 11px; font-weight: 600; }
+
+    /* ── 토스트 ── */
+    .toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+      background: #1A2332; color: #fff;
+      padding: 12px 22px; border-radius: 24px;
+      font-size: 14px; font-weight: 500;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s; white-space: nowrap; z-index: 999;
+    }
+    .toast.show { opacity: 1; }
+
+    @media (max-width: 375px) { .tab-bar { width: 100%; } }
+  </style>
+</head>
+<body>
+
+  <header class="app-header">
+    <button class="btn-back" onclick="history.back()">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M12.5 15L7.5 10L12.5 5" stroke="#1A2332" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <span class="header-title">프로필 수정</span>
+    <button class="btn-header-save" onclick="saveProfile()">저장</button>
+  </header>
+
+  <!-- 아바타 -->
+  <div class="avatar-section">
+    <div class="avatar-wrap" onclick="showToast('사진 변경 기능은 준비 중입니다')">
+      <div class="avatar">김</div>
+      <div class="avatar-camera">📷</div>
+    </div>
+    <span class="avatar-hint">탭하여 사진 변경</span>
+  </div>
+
+  <!-- 기본 정보 -->
+  <div class="form-section">
+    <div class="section-label">기본 정보</div>
+    <div class="form-card">
+
+      <div class="input-row" style="background:#FAFBFC;">
+        <div class="row-icon icon-blue">👤</div>
+        <div class="row-body">
+          <div class="row-label" style="display:flex;align-items:center;gap:4px;">
+            이름
+            <span style="font-size:10px;font-weight:600;color:#90A4AE;background:#EEF0F2;border-radius:4px;padding:1px 5px;letter-spacing:0;">수정 불가</span>
+          </div>
+          <input type="text" class="row-input" value="김순자" readonly
+            style="color:var(--text-secondary);cursor:default;">
+        </div>
+        <span style="font-size:16px;">🔒</span>
+      </div>
+
+      <div class="input-row" style="background:#FAFBFC;">
+        <div class="row-icon icon-gray">✉️</div>
+        <div class="row-body">
+          <div class="row-label" style="display:flex;align-items:center;gap:4px;">
+            이메일
+            <span style="font-size:10px;font-weight:600;color:#90A4AE;background:#EEF0F2;border-radius:4px;padding:1px 5px;letter-spacing:0;">수정 불가</span>
+          </div>
+          <input type="email" class="row-input" value="kim.sonja@gmail.com" readonly
+            style="color:var(--text-secondary);cursor:default;">
+        </div>
+        <span style="font-size:16px;">🔒</span>
+      </div>
+
+      <div class="input-row">
+        <div class="row-icon icon-green">📞</div>
+        <div class="row-body">
+          <div class="row-label">연락처</div>
+          <input type="tel" class="row-input" value="010-2345-6789" placeholder="연락처 입력">
+        </div>
+      </div>
+
+      <div class="input-row">
+        <div class="row-icon icon-orange">🏠</div>
+        <div class="row-body">
+          <div class="row-label">주소</div>
+          <input type="text" class="row-input" value="서울 강남구 역삼로 211" placeholder="주소 입력">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 신체 정보 -->
+  <div class="form-section">
+    <div class="section-label">신체 정보</div>
+    <div class="form-card">
+
+      <!-- 성별 -->
+      <div class="gender-row">
+        <div class="row-icon icon-purple">🧑</div>
+        <span class="gender-row-label">성별</span>
+        <div class="gender-chips">
+          <button class="gender-chip active" id="chip-female" onclick="selectGender('female')">여성</button>
+          <button class="gender-chip"        id="chip-male"   onclick="selectGender('male')">남성</button>
+        </div>
+      </div>
+
+      <!-- 출생년도 -->
+      <div class="stepper-row">
+        <div class="row-icon icon-orange">🎂</div>
+        <div class="stepper-label-block">
+          <div class="stepper-title">출생년도</div>
+          <div class="stepper-unit">년</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="step('birthyear', -1)">−</button>
+          <div class="stepper-val" id="val-birthyear">1948</div>
+          <button class="stepper-btn" onclick="step('birthyear', +1)">+</button>
+        </div>
+      </div>
+
+      <!-- 키 -->
+      <div class="stepper-row">
+        <div class="row-icon icon-blue">📏</div>
+        <div class="stepper-label-block">
+          <div class="stepper-title">키</div>
+          <div class="stepper-unit">cm</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="step('height', -1)">−</button>
+          <div class="stepper-val" id="val-height">162</div>
+          <button class="stepper-btn" onclick="step('height', +1)">+</button>
+        </div>
+      </div>
+
+      <!-- 몸무게 -->
+      <div class="stepper-row">
+        <div class="row-icon icon-green">⚖️</div>
+        <div class="stepper-label-block">
+          <div class="stepper-title">몸무게</div>
+          <div class="stepper-unit">kg</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="step('weight', -1)">−</button>
+          <div class="stepper-val" id="val-weight">58</div>
+          <button class="stepper-btn" onclick="step('weight', +1)">+</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 목표 설정 -->
+  <div class="form-section">
+    <div class="section-label">목표 설정</div>
+    <div class="form-card">
+
+      <!-- 일일 걸음 수 -->
+      <div class="stepper-row">
+        <div class="row-icon icon-green">🚶</div>
+        <div class="stepper-label-block">
+          <div class="stepper-title">일일 걸음 수</div>
+          <div class="stepper-unit">보</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="step('steps', -500)">−</button>
+          <div class="stepper-val" id="val-steps" style="width:80px;font-size:18px;">5,000</div>
+          <button class="stepper-btn" onclick="step('steps', +500)">+</button>
+        </div>
+      </div>
+
+      <!-- 수면 시간 -->
+      <div class="stepper-row">
+        <div class="row-icon icon-purple">🌙</div>
+        <div class="stepper-label-block">
+          <div class="stepper-title">수면 목표</div>
+          <div class="stepper-unit">시간</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="step('sleep', -1)">−</button>
+          <div class="stepper-val" id="val-sleep">7</div>
+          <button class="stepper-btn" onclick="step('sleep', +1)">+</button>
+        </div>
+      </div>
+
+      <!-- 심박수 범위 -->
+      <div class="stepper-row" style="flex-wrap:wrap;gap:8px;">
+        <div class="row-icon" style="background:#FFEAEA;">❤️</div>
+        <div class="stepper-label-block">
+          <div class="stepper-title">심박수 범위</div>
+          <div class="stepper-unit">bpm</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button class="stepper-btn" onclick="step('hrMin', -1)">−</button>
+          <div class="stepper-val" id="val-hrMin" style="width:52px;font-size:18px;">70</div>
+          <button class="stepper-btn" onclick="step('hrMin', +1)">+</button>
+          <span style="font-size:14px;color:#546E7A;">–</span>
+          <button class="stepper-btn" onclick="step('hrMax', -1)">−</button>
+          <div class="stepper-val" id="val-hrMax" style="width:52px;font-size:18px;">80</div>
+          <button class="stepper-btn" onclick="step('hrMax', +1)">+</button>
+        </div>
+      </div>
+
+      <!-- 목표 체중 -->
+      <div class="stepper-row">
+        <div class="row-icon icon-green">⚖️</div>
+        <div class="stepper-label-block">
+          <div class="stepper-title">목표 체중</div>
+          <div class="stepper-unit">kg</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="step('goalWeight', -1)">−</button>
+          <div class="stepper-val" id="val-goalWeight">60</div>
+          <button class="stepper-btn" onclick="step('goalWeight', +1)">+</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 저장 버튼 -->
+  <div class="save-area">
+    <button class="btn-save" onclick="saveProfile()">💾 변경사항 저장</button>
+  </div>
+
+  <!-- 탭바 -->
+  <nav class="tab-bar" aria-label="하단 메뉴">
+    <a href="home-simple.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+      <span class="tab-label">홈</span>
+    </a>
+    <a href="health-data.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+      <span class="tab-label">건강</span>
+    </a>
+    <a href="medication.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      <span class="tab-label">복약</span>
+    </a>
+    <a href="schedule.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <span class="tab-label">일정</span>
+    </a>
+    <a href="settings.html" class="tab-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+      </svg>
+      <span class="tab-label">설정</span>
+    </a>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+  const limits = {
+    height:     { min: 100,  max: 250,   step: 1 },
+    weight:     { min: 20,   max: 200,   step: 1 },
+    birthyear:  { min: 1920, max: 2010,  step: 1 },
+    steps:      { min: 1000, max: 20000, step: 500 },
+    sleep:      { min: 4,    max: 12,    step: 1 },
+    hrMin:      { min: 40,   max: 120,   step: 1 },
+    hrMax:      { min: 40,   max: 120,   step: 1 },
+    goalWeight: { min: 30,   max: 150,   step: 1 }
+  };
+
+  function step(field, delta) {
+    const el = document.getElementById('val-' + field);
+    const lim = limits[field];
+    const raw = el.textContent.replace(/,/g, '');
+    let v = parseInt(raw) + delta * (lim.step || 1);
+    if (v < lim.min) v = lim.min;
+    if (v > lim.max) v = lim.max;
+    el.textContent = field === 'steps' ? v.toLocaleString('ko-KR') : v;
+    el.style.color = 'var(--primary)';
+    setTimeout(() => el.style.color = '', 600);
+  }
+
+  function selectGender(g) {
+    document.getElementById('chip-female').classList.toggle('active', g === 'female');
+    document.getElementById('chip-male').classList.toggle('active', g === 'male');
+  }
+
+  function saveProfile() {
+    showToast('프로필이 저장되었습니다');
+    setTimeout(() => history.back(), 1600);
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+</script>
+</body>
+</html>

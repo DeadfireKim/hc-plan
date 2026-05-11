@@ -1,0 +1,1444 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>관리자 포털 - 계정 관리</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #F4F6F9;
+      color: #1A2332;
+      min-width: 1280px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── 헤더 ── */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 60px;
+      background: #FFFFFF;
+      border-bottom: 1px solid #D1D9E6;
+      display: flex; align-items: center;
+      padding: 0 24px;
+      gap: 12px;
+    }
+    .header-logo {
+      display: flex; align-items: center; gap: 10px;
+      width: 216px;
+    }
+    .logo-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, #2B7FE0, #34C4A0);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 16px; font-weight: 700;
+    }
+    .logo-text { font-size: 15px; font-weight: 700; color: #1A2332; }
+    .logo-sub  { font-size: 11px; color: #546E7A; margin-top: 1px; }
+    .header-divider { width: 1px; height: 28px; background: #D1D9E6; margin: 0 8px; }
+    .header-title { font-size: 14px; font-weight: 600; color: #2B7FE0; flex: 1; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .header-notif {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #F4F6F9; border: 1px solid #D1D9E6;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative; font-size: 16px;
+    }
+    .notif-badge {
+      position: absolute; top: -3px; right: -3px;
+      background: #E53935; color: #fff;
+      font-size: 9px; font-weight: 700;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid #fff;
+    }
+    .header-user {
+      display: flex; align-items: center; gap: 8px; cursor: pointer;
+    }
+    .user-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #2B7FE0, #1A5FB4);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 13px; font-weight: 600;
+    }
+    .user-info { display: flex; flex-direction: column; }
+    .user-name  { font-size: 13px; font-weight: 600; color: #1A2332; }
+    .user-role  { font-size: 11px; color: #546E7A; }
+
+    /* ── 레이아웃 ── */
+    .layout {
+      display: flex;
+      padding-top: 60px;
+      height: 100vh;
+    }
+
+    /* ── 사이드바 ── */
+    .sidebar {
+      width: 240px; min-width: 240px;
+      background: #FFFFFF;
+      border-right: 1px solid #D1D9E6;
+      display: flex; flex-direction: column;
+      padding: 20px 0;
+      overflow-y: auto;
+      position: fixed; top: 60px; bottom: 0; left: 0;
+    }
+    .nav-section-label {
+      font-size: 10px; font-weight: 600; color: #546E7A;
+      letter-spacing: 0.8px; text-transform: uppercase;
+      padding: 0 20px 8px;
+      margin-top: 8px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px 10px 10px;
+      cursor: pointer;
+      font-size: 14px; color: #546E7A;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    .nav-item:hover { background: #F4F6F9; color: #1A2332; }
+    .nav-item.active {
+      background: #EBF3FF; color: #2B7FE0;
+      border-left-color: #2B7FE0; font-weight: 600;
+    }
+    .nav-icon { font-size: 17px; width: 20px; text-align: center; }
+    .nav-badge {
+      margin-left: auto;
+      background: #E53935; color: #fff;
+      font-size: 10px; font-weight: 700;
+      padding: 1px 6px; border-radius: 10px;
+    }
+    .nav-badge.yellow { background: #F5A623; }
+    .sidebar-footer {
+      margin-top: auto; padding: 16px 20px;
+      border-top: 1px solid #D1D9E6;
+    }
+    .sidebar-footer-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; cursor: pointer;
+      font-size: 13px; color: #546E7A;
+    }
+    .sidebar-footer-item:hover { color: #1A2332; }
+
+    /* ── 메인 콘텐츠 ── */
+    .main {
+      flex: 1;
+      margin-left: 240px;
+      padding: 32px;
+      overflow-y: auto;
+      height: calc(100vh - 60px);
+    }
+
+    /* ── 버튼 ── */
+    .btn {
+      height: 44px; padding: 0 20px; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      border: none; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary { background: #2B7FE0; color: #fff; }
+    .btn-primary:hover { background: #1A5FB4; }
+    .btn-outline {
+      background: #fff; color: #2B7FE0;
+      border: 1px solid #2B7FE0;
+    }
+    .btn-outline:hover { background: #EBF3FF; }
+    .btn-sm { height: 36px; padding: 0 14px; font-size: 13px; border-radius: 6px; }
+    .btn-xs { height: 28px; padding: 0 10px; font-size: 12px; border-radius: 5px; }
+
+    /* ── 페이지 헤더 ── */
+    .page-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .page-title { font-size: 22px; font-weight: 700; color: #1A2332; }
+    .page-subtitle { font-size: 13px; color: #546E7A; margin-top: 4px; }
+
+    /* ── 필터 바 ── */
+    .filter-bar {
+      background: #FFFFFF;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .filter-row {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .filter-label {
+      font-size: 12px; font-weight: 600; color: #546E7A;
+      width: 56px; flex-shrink: 0;
+    }
+    .tab-group { display: flex; gap: 0; border: 1px solid #D1D9E6; border-radius: 8px; overflow: hidden; }
+    .tab-item {
+      padding: 7px 16px; font-size: 13px; font-weight: 500;
+      color: #546E7A; cursor: pointer; background: #fff;
+      border-right: 1px solid #D1D9E6;
+      transition: all 0.15s;
+    }
+    .tab-item:last-child { border-right: none; }
+    .tab-item:hover { background: #F4F6F9; color: #1A2332; }
+    .tab-item.active { background: #2B7FE0; color: #fff; font-weight: 600; }
+    .tab-item .tab-count {
+      display: inline-block; margin-left: 4px;
+      background: rgba(255,255,255,0.25); color: inherit;
+      font-size: 11px; padding: 0 5px; border-radius: 8px;
+    }
+    .tab-item:not(.active) .tab-count {
+      background: #F0F2F5; color: #90A4AE;
+    }
+    .search-box {
+      display: flex; align-items: center; gap: 8px;
+      border: 1px solid #D1D9E6; border-radius: 8px;
+      padding: 0 14px; height: 36px;
+      background: #F4F6F9; margin-left: auto;
+      min-width: 260px;
+    }
+    .search-box input {
+      border: none; background: transparent; outline: none;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 13px; color: #1A2332; flex: 1;
+    }
+    .search-box input::placeholder { color: #90A4AE; }
+
+    /* ── 테이블 카드 ── */
+    .table-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .table-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 24px;
+      border-bottom: 1px solid #F0F2F5;
+    }
+    .table-info { font-size: 13px; color: #546E7A; }
+    .table-info strong { color: #1A2332; font-weight: 700; }
+    table {
+      width: 100%; border-collapse: collapse;
+    }
+    thead tr {
+      background: #FAFBFC; border-bottom: 1px solid #F0F2F5;
+    }
+    th {
+      padding: 12px 16px; text-align: left;
+      font-size: 12px; font-weight: 600; color: #546E7A;
+      white-space: nowrap;
+    }
+    th.sortable { cursor: pointer; user-select: none; }
+    th.sortable:hover { color: #2B7FE0; }
+    .sort-icon { margin-left: 4px; font-size: 10px; }
+    tbody tr {
+      border-bottom: 1px solid #F0F2F5;
+      transition: background 0.12s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #F8FAFF; }
+    td {
+      padding: 14px 16px; font-size: 13px; color: #1A2332;
+      vertical-align: middle;
+    }
+
+    /* ── 셀 스타일 ── */
+    .td-user { display: flex; align-items: center; gap: 10px; }
+    .td-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; color: #fff; flex-shrink: 0;
+    }
+    .td-name  { font-weight: 600; color: #1A2332; font-size: 14px; }
+    .td-email { font-size: 12px; color: #546E7A; margin-top: 1px; }
+
+    .role-badge {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      padding: 3px 9px; border-radius: 12px;
+    }
+    .role-senior  { background: #EBF3FF; color: #2B7FE0; }
+    .role-child   { background: #E6F9F5; color: #34C4A0; }
+    .role-doctor  { background: #F0F0FF; color: #5C6BC0; }
+    .role-watch   { background: #FEF6E9; color: #F5A623; }
+    .role-admin   { background: #FDECEA; color: #E53935; }
+
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px;
+    }
+    .status-active   { background: #E6F9F5; color: #34C4A0; }
+    .status-pending  { background: #FEF6E9; color: #F5A623; }
+    .status-inactive { background: #F4F6F9; color: #90A4AE; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .action-buttons { display: flex; gap: 6px; flex-wrap: nowrap; }
+    .action-btn {
+      height: 28px; padding: 0 10px; border-radius: 5px;
+      font-size: 11px; font-weight: 600; cursor: pointer;
+      border: none; font-family: 'Noto Sans KR', sans-serif;
+      white-space: nowrap;
+    }
+    .action-detail   { background: #EBF3FF; color: #2B7FE0; }
+    .action-detail:hover { background: #2B7FE0; color: #fff; }
+    .action-deact    { background: #F4F6F9; color: #546E7A; border: 1px solid #D1D9E6; }
+    .action-deact:hover { background: #FDECEA; color: #E53935; border-color: #E53935; }
+    .action-approve  { background: #2B7FE0; color: #fff; }
+    .action-approve:hover { background: #1A5FB4; }
+    .action-reject   { background: #F4F6F9; color: #546E7A; border: 1px solid #D1D9E6; }
+    .action-reject:hover  { background: #FDECEA; color: #E53935; border-color: #E53935; }
+    .action-act      { background: #E6F9F5; color: #34C4A0; }
+    .action-act:hover { background: #34C4A0; color: #fff; }
+
+    /* ── 페이지네이션 ── */
+    .pagination {
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; padding: 16px;
+      border-top: 1px solid #F0F2F5;
+    }
+    .page-btn {
+      width: 34px; height: 34px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      border: 1px solid #D1D9E6; background: #fff; color: #546E7A;
+    }
+    .page-btn:hover { border-color: #2B7FE0; color: #2B7FE0; background: #EBF3FF; }
+    .page-btn.active { background: #2B7FE0; color: #fff; border-color: #2B7FE0; }
+    .page-btn.disabled { opacity: 0.4; cursor: default; pointer-events: none; }
+
+    /* ── 모달 오버레이 ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(26,35,50,0.45);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal {
+      background: #FFFFFF;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      width: 600px; max-height: 90vh;
+      overflow-y: auto;
+      display: flex; flex-direction: column;
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 24px 28px 20px;
+      border-bottom: 1px solid #F0F2F5;
+      position: sticky; top: 0; background: #fff; z-index: 1;
+    }
+    .modal-title { font-size: 18px; font-weight: 700; color: #1A2332; }
+    .modal-close {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #F4F6F9; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: #546E7A;
+    }
+    .modal-close:hover { background: #FDECEA; color: #E53935; }
+    .modal-body { padding: 24px 28px; flex: 1; }
+    .modal-footer {
+      padding: 16px 28px 24px;
+      border-top: 1px solid #F0F2F5;
+      display: flex; gap: 10px; justify-content: flex-end;
+      position: sticky; bottom: 0; background: #fff;
+    }
+
+    /* 모달 섹션 */
+    .modal-section { margin-bottom: 24px; }
+    .modal-section-title {
+      font-size: 13px; font-weight: 700; color: #1A2332;
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .modal-section-title::after {
+      content: ''; flex: 1; height: 1px; background: #F0F2F5;
+    }
+
+    /* 사용자 프로필 */
+    .modal-profile {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px; background: #F8FAFF;
+      border-radius: 12px; margin-bottom: 20px;
+    }
+    .modal-avatar {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .modal-profile-info { flex: 1; }
+    .modal-profile-name {
+      font-size: 17px; font-weight: 700; color: #1A2332;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .modal-profile-meta { font-size: 13px; color: #546E7A; margin-top: 4px; }
+
+    /* 정보 그리드 */
+    .info-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    }
+    .info-item { display: flex; flex-direction: column; gap: 4px; }
+    .info-label { font-size: 11px; font-weight: 600; color: #90A4AE; text-transform: uppercase; letter-spacing: 0.5px; }
+    .info-value { font-size: 14px; color: #1A2332; font-weight: 500; }
+
+    /* 신체 정보 그리드 */
+    .body-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .body-item { display: flex; flex-direction: column; gap: 6px; }
+    .body-input-wrap { display: flex; align-items: center; gap: 6px; }
+    .body-input {
+      width: 90px; padding: 7px 10px;
+      border: 1px solid #D1D9E6; border-radius: 8px;
+      font-size: 14px; font-weight: 500; color: #1A2332;
+      font-family: 'Noto Sans KR', sans-serif; outline: none;
+    }
+    .body-input:focus { border-color: #2B7FE0; box-shadow: 0 0 0 3px rgba(43,127,224,0.12); }
+    .body-unit { font-size: 13px; color: #546E7A; }
+    .body-gender-wrap { display: flex; gap: 12px; align-items: center; padding: 6px 0; }
+    .gender-option { display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 14px; font-weight: 500; color: #1A2332; }
+    .gender-option input[type="radio"] { accent-color: #2B7FE0; cursor: pointer; width: 15px; height: 15px; }
+
+    /* 권한 범위 설정 */
+    .perm-list { display: flex; flex-direction: column; gap: 10px; }
+    .perm-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; border-radius: 10px;
+      background: #F8FAFF; border: 1px solid #EBF3FF;
+    }
+    .perm-info { display: flex; flex-direction: column; gap: 2px; }
+    .perm-name { font-size: 13px; font-weight: 600; color: #1A2332; }
+    .perm-desc { font-size: 11px; color: #546E7A; }
+
+    /* 토글 스위치 */
+    .toggle-wrap { display: flex; align-items: center; gap: 8px; }
+    .toggle-label-text { font-size: 12px; color: #546E7A; }
+    .toggle {
+      position: relative; width: 42px; height: 24px; flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0; border-radius: 24px;
+      background: #D1D9E6; cursor: pointer; transition: 0.2s;
+    }
+    .toggle-slider::before {
+      content: ''; position: absolute;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: #fff; left: 3px; top: 3px; transition: 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .toggle input:checked + .toggle-slider { background: #2B7FE0; }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
+
+    /* 스크롤바 */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #D1D9E6; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #B0BEC5; }
+
+    /* QR 모달 */
+    .qr-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      display: none; align-items: center; justify-content: center; z-index: 600;
+    }
+    .qr-modal-overlay.open { display: flex; }
+    .qr-modal {
+      background: #fff; border-radius: 20px;
+      width: 400px; box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    .qr-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px; border-bottom: 1px solid #F0F2F5;
+    }
+    .qr-modal-title { font-size: 16px; font-weight: 700; color: #1A2332; }
+    .qr-modal-close {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: #F4F6F9; border: none; cursor: pointer;
+      font-size: 16px; color: #546E7A; display: flex; align-items: center; justify-content: center;
+    }
+    .qr-modal-body { padding: 28px 24px; text-align: center; }
+    .qr-user-info { margin-bottom: 20px; }
+    .qr-user-name { font-size: 17px; font-weight: 700; color: #1A2332; }
+    .qr-user-sub { font-size: 12px; color: #546E7A; margin-top: 4px; }
+    .qr-wrap {
+      display: inline-block; padding: 16px; background: #fff;
+      border: 2px solid #E8EDF5; border-radius: 16px; margin-bottom: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .qr-grid {
+      display: grid; grid-template-columns: repeat(21,10px);
+      grid-template-rows: repeat(21,10px); gap: 1px;
+    }
+    .qr-cell { width: 10px; height: 10px; border-radius: 1px; }
+    .qr-cell.on  { background: #1A2332; }
+    .qr-cell.off { background: transparent; }
+    .qr-code-text {
+      font-size: 18px; font-weight: 700; letter-spacing: 4px;
+      color: #2B7FE0; background: #EBF3FF; border-radius: 8px;
+      padding: 8px 20px; display: inline-block; margin-bottom: 12px;
+    }
+    .qr-timer {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; color: #E53935; font-weight: 600;
+      background: #FDECEA; padding: 4px 12px; border-radius: 20px;
+      margin-bottom: 16px;
+    }
+    .qr-guide {
+      font-size: 12px; color: #546E7A; line-height: 1.7;
+      background: #F4F6F9; border-radius: 10px; padding: 12px 16px;
+      text-align: left; margin-bottom: 16px;
+    }
+    .qr-modal-footer {
+      display: flex; gap: 10px; justify-content: center;
+      padding: 0 24px 24px;
+    }
+    .btn-qr-regen {
+      height: 40px; padding: 0 18px; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      border: 1px solid #2B7FE0; background: #fff; color: #2B7FE0;
+    }
+    .btn-qr-regen:hover { background: #EBF3FF; }
+    .btn-qr-close {
+      height: 40px; padding: 0 18px; border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      border: none; background: #2B7FE0; color: #fff;
+    }
+    .btn-qr-close:hover { background: #1A5FB4; }
+    .action-btn.action-qr {
+      background: #EBF3FF; color: #2B7FE0; border: 1px solid #BFD9F7;
+    }
+    .action-btn.action-qr:hover { background: #2B7FE0; color: #fff; }
+
+    /* ── 사이드바 토글 ── */
+    .sidebar-toggle-btn {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: transparent; border: none;
+      font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #546E7A; transition: background 0.15s; flex-shrink: 0;
+    }
+    .sidebar-toggle-btn:hover { background: #F4F6F9; color: #1A2332; }
+    .sidebar { transition: transform 0.25s ease; }
+    .main    { transition: margin-left 0.25s ease; }
+    body.sidebar-hidden .sidebar { transform: translateX(-240px); }
+    body.sidebar-hidden .main    { margin-left: 0; }  </style>
+</head>
+<body>
+
+<!-- ── 헤더 ── -->
+<header class="header">
+  <button class="sidebar-toggle-btn" onclick="document.body.classList.toggle('sidebar-hidden')" title="메뉴 접기/펼치기">☰</button>
+
+  <div class="header-logo">
+    <div class="logo-icon">HC</div>
+    <div>
+      <div class="logo-text">HealthCare Watch</div>
+      <div class="logo-sub">관리자 포털</div>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <span class="header-title">관리자 포털</span>
+  <div class="header-right">
+    <div class="header-notif">
+      🔔
+      <span class="notif-badge">3</span>
+    </div>
+    <div class="header-user">
+      <div class="user-avatar">관</div>
+      <div class="user-info">
+        <span class="user-name">김관리자</span>
+        <span class="user-role">최고 관리자</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── 레이아웃 ── -->
+<div class="layout">
+
+  <!-- ── 사이드바 ── -->
+  <nav class="sidebar">
+    <a class="nav-item"  href="dashboard.html"><span class="nav-icon">📊</span> 대시보드</a>
+    <a class="nav-item"  href="notice.html"><span class="nav-icon">📢</span> 공지사항</a>
+    <a class="nav-item"  href="hospitals.html"><span class="nav-icon">🏥</span> 병원·기관 관리</a>
+    <a class="nav-item"  href="operators.html"><span class="nav-icon">👨‍💼</span> 운영자 관리</a>
+    <a class="nav-item active"  href="accounts.html"><span class="nav-icon">👥</span> 계정 관리<span class="nav-badge yellow">5</span></a>
+    <a class="nav-item"  href="permissions.html"><span class="nav-icon">🔐</span> 권한 관리</a>
+    <a class="nav-item" href="peer-averages.html"><span class="nav-icon">📈</span> 또래 평균 관리</a>
+    <a class="nav-item"  href="settings.html"><span class="nav-icon">⚙️</span> 시스템 설정</a>
+
+  <div class="sidebar-footer">
+      <a href="profile.html" class="sidebar-footer-item">
+        <span>👤</span> 내 계정
+      </a>
+      <div class="sidebar-footer-item">
+        <span>🚪</span> 로그아웃
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── 메인 ── -->
+  <main class="main">
+
+    <!-- 페이지 헤더 -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">계정 관리</div>
+        <div class="page-subtitle">전체 203명 · 승인 대기 5명 포함</div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-outline btn-sm">📥 CSV 내보내기</button>
+        <button class="btn btn-primary btn-sm" onclick="document.getElementById('modal').style.display='flex'">+ 계정 등록</button>
+      </div>
+    </div>
+
+    <!-- 필터 바 -->
+    <div class="filter-bar">
+      <div class="filter-row">
+        <div class="filter-label">역할</div>
+        <div class="tab-group">
+          <div class="tab-item active">전체 <span class="tab-count">203</span></div>
+          <div class="tab-item">시니어 <span class="tab-count">87</span></div>
+          <div class="tab-item">자녀 <span class="tab-count">74</span></div>
+          <div class="tab-item">의료진 <span class="tab-count">29</span></div>
+          <div class="tab-item">와치관리자 <span class="tab-count">13</span></div>
+        </div>
+        <div class="search-box" style="margin-left:auto;">
+          <span style="color:#90A4AE;font-size:15px;">🔍</span>
+          <input type="text" placeholder="이름, 이메일, 연락처 검색..." />
+        </div>
+      </div>
+      <div class="filter-row">
+        <div class="filter-label">상태</div>
+        <div class="tab-group">
+          <div class="tab-item active">전체 <span class="tab-count">203</span></div>
+          <div class="tab-item">활성 <span class="tab-count">192</span></div>
+          <div class="tab-item">승인대기 <span class="tab-count">5</span></div>
+          <div class="tab-item">비활성 <span class="tab-count">6</span></div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+          <span style="font-size:12px;color:#546E7A;">정렬:</span>
+          <select style="height:32px;padding:0 10px;border:1px solid #D1D9E6;border-radius:6px;font-family:'Noto Sans KR',sans-serif;font-size:12px;color:#1A2332;background:#fff;cursor:pointer;outline:none;">
+            <option>가입일 최신순</option>
+            <option>이름순</option>
+            <option>역할순</option>
+            <option>상태순</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 테이블 카드 -->
+    <div class="table-card">
+      <div class="table-card-header">
+        <div class="table-info">총 <strong>203명</strong> 중 <strong>14명</strong> 표시 (1 / 15 페이지)</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="font-size:12px;color:#546E7A;">페이지당:</span>
+          <select style="height:30px;padding:0 8px;border:1px solid #D1D9E6;border-radius:6px;font-family:'Noto Sans KR',sans-serif;font-size:12px;color:#1A2332;background:#fff;cursor:pointer;outline:none;">
+            <option>14개</option>
+            <option>25개</option>
+            <option>50개</option>
+          </select>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40px;"><input type="checkbox" style="cursor:pointer;" /></th>
+            <th class="sortable">이름 <span class="sort-icon">↕</span></th>
+            <th>역할</th>
+            <th class="sortable">이메일 <span class="sort-icon">↕</span></th>
+            <th>연락처</th>
+            <th class="sortable">가입일 <span class="sort-icon">↓</span></th>
+            <th>상태</th>
+            <th style="text-align:center;">액션</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- 1 -->
+          <tr>
+            <td><input type="checkbox" style="cursor:pointer;" /></td>
+            <td>
+              <div class="td-user">
+                <div class="td-avatar" style="background:linear-gradient(135deg,#2B7FE0,#1A5FB4);">김</div>
+                <div>
+                  <div class="td-name">김순자</div>
+                  <div class="td-email">kim.sonja@gmail.com</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="role-badge role-senior">시니어</span></td>
+            <td style="color:#546E7A;font-size:12px;">kim.sonja@gmail.com</td>
+            <td style="font-size:12px;color:#546E7A;">010-2345-6789</td>
+            <td style="font-size:12px;color:#546E7A;">2025-01-15</td>
+            <td><span class="status-badge status-active"><span class="status-dot"></span>활성</span></td>
+            <td>
+              <div class="action-buttons" style="justify-content:center;">
+                <button class="action-btn action-qr" onclick="openQR('김순자','HC-2025-0012')">QR 연동</button>
+                <button class="action-btn action-detail" onclick="openModal('김순자','시니어','senior')">상세</button>
+                <button class="action-btn action-deact">비활성화</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 2 -->
+          <tr>
+            <td><input type="checkbox" style="cursor:pointer;" /></td>
+            <td>
+              <div class="td-user">
+                <div class="td-avatar" style="background:linear-gradient(135deg,#34C4A0,#2AA08A);">이</div>
+                <div>
+                  <div class="td-name">이민준</div>
+                  <div class="td-email">lee.minjun@naver.com</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="role-badge role-child">자녀</span></td>
+            <td style="color:#546E7A;font-size:12px;">lee.minjun@naver.com</td>
+            <td style="font-size:12px;color:#546E7A;">010-3456-7890</td>
+            <td style="font-size:12px;color:#546E7A;">2025-01-15</td>
+            <td><span class="status-badge status-active"><span class="status-dot"></span>활성</span></td>
+            <td>
+              <div class="action-buttons" style="justify-content:center;">
+                <button class="action-btn action-detail" onclick="openModal('이민준','자녀','child')">상세</button>
+                <button class="action-btn action-deact">비활성화</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 3 승인대기 -->
+          <tr style="background:#FFFAF3;">
+            <td><input type="checkbox" style="cursor:pointer;" /></td>
+            <td>
+              <div class="td-user">
+                <div class="td-avatar" style="background:linear-gradient(135deg,#5C6BC0,#3F51B5);">박</div>
+                <div>
+                  <div class="td-name">박원장</div>
+                  <div class="td-email">park@seoul-hospital.com</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="role-badge role-doctor">의료진</span></td>
+            <td style="color:#546E7A;font-size:12px;">park@seoul-hospital.com</td>
+            <td style="font-size:12px;color:#546E7A;">010-9876-5432</td>
+            <td style="font-size:12px;color:#546E7A;">2025-02-01</td>
+            <td><span class="status-badge status-pending"><span class="status-dot"></span>승인대기</span></td>
+            <td>
+              <div class="action-buttons" style="justify-content:center;">
+                <button class="action-btn action-approve">승인</button>
+                <button class="action-btn action-reject">거절</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 4 -->
+          <tr>
+            <td><input type="checkbox" style="cursor:pointer;" /></td>
+            <td>
+              <div class="td-user">
+                <div class="td-avatar" style="background:linear-gradient(135deg,#F5A623,#E6920F);">최</div>
+                <div>
+                  <div class="td-name">최관리</div>
+                  <div class="td-email">choi@watchcare.kr</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="role-badge role-watch">와치관리자</span></td>
+            <td style="color:#546E7A;font-size:12px;">choi@watchcare.kr</td>
+            <td style="font-size:12px;color:#546E7A;">010-5678-9012</td>
+            <td style="font-size:12px;color:#546E7A;">2025-03-10</td>
+            <td><span class="status-badge status-active"><span class="status-dot"></span>활성</span></td>
+            <td>
+              <div class="action-buttons" style="justify-content:center;">
+                <button class="action-btn action-detail" onclick="openModal('최관리','와치관리자','watch')">상세</button>
+                <button class="action-btn action-deact">비활성화</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 5 승인대기 -->
+          <tr style="background:#FFFAF3;">
+            <td><input type="checkbox" style="cursor:pointer;" /></td>
+            <td>
+              <div class="td-user">
+                <div class="td-avatar" style="background:linear-gradient(135deg,#5C6BC0,#3F51B5);">정</div>
+                <div>
+                  <div class="td-name">정간호</div>
+                  <div class="td-email">jung@asan-med.co.kr</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="role-badge role-doctor">의료진</span></td>
+            <td style="color:#546E7A;font-size:12px;">jung@asan-med.co.kr</td>
+            <td style="font-size:12px;color:#546E7A;">010-1111-2222</td>
+            <td style="font-size:12px;color:#546E7A;">2025-02-12</td>
+            <td><span class="status-badge status-pending"><span class="status-dot"></span>승인대기</span></td>
+            <td>
+              <div class="action-buttons" style="justify-content:center;">
+                <button class="action-btn action-approve">승인</button>
+                <button class="action-btn action-reject">거절</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 6 -->
+          <tr>
+            <td><input type="checkbox" style="cursor:pointer;" /></td>
+            <td>
+              <div class="td-user">
+                <div class="td-avatar" style="background:linear-gradient(135deg,#2B7FE0,#1A5FB4);">홍</div>
+                <div>
+                  <div class="td-name">홍영순</div>
+                  <div class="td-email">hong.ys@daum.net</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="role-badge role-senior">시니어</span></td>
+            <td style="color:#546E7A;font-size:12px;">hong.ys@daum.net</td>
+            <td style="font-size:12px;color:#546E7A;">010-6677-8899</td>
+            <td style="font-size:12px;color:#546E7A;">2025-03-22</td>
+            <td><span class="status-badge status-active"><span class="status-dot"></span>활성</span></td>
+            <td>
+              <div class="action-buttons" style="justify-content:center;">
+                <button class="action-btn action-qr" onclick="openQR('홍영순','HC-2025-0031')">QR 연동</button>
+                <button class="action-btn action-detail" onclick="openModal('홍영순','시니어','senior')">상세</button>
+                <button class="action-btn action-deact">비활성화</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 7 비활성 -->
+          <tr style="opacity:0.7;">
+            <td><input type="checkbox" style="cursor:pointer;" /></td>
+            <td>
+              <div class="td-user">
+                <div class="td-avatar" style="background:linear-gradient(135deg,#90A4AE,#78909C);">강</div>
+                <div>
+                  <div class="td-name">강동구</div>
+                  <div class="td-email">kang.dg@gmail.com</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="role-badge role-child">자녀</span></td>
+            <td style="color:#546E7A;font-size:12px;">kang.dg@gmail.com</td>
+            <td style="font-size:12px;color:#546E7A;">010-4455-6677</td>
+            <td style="font-size:12px;color:#546E7A;">2025-01-28</td>
+            <td><span class="status-badge status-inactive"><span class="status-dot"></span>비활성</span></td>
+            <td>
+              <div class="action-buttons" style="justify-content:center;">
+                <button class="action-btn action-detail">상세</button>
+                <button class="action-btn action-act">활성화</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 8 -->
+          <tr>
+            <td><input type="checkbox" style="cursor:pointer;" /></td>
+            <td>
+              <div class="td-user">
+                <div class="td-avatar" style="background:linear-gradient(135deg,#34C4A0,#2AA08A);">오</div>
+                <div>
+                  <div class="td-name">오미란</div>
+                  <div class="td-email">oh.mr@naver.com</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="role-badge role-child">자녀</span></td>
+            <td style="color:#546E7A;font-size:12px;">oh.mr@naver.com</td>
+            <td style="font-size:12px;color:#546E7A;">010-7788-9900</td>
+            <td style="font-size:12px;color:#546E7A;">2025-04-03</td>
+            <td><span class="status-badge status-active"><span class="status-dot"></span>활성</span></td>
+            <td>
+              <div class="action-buttons" style="justify-content:center;">
+                <button class="action-btn action-detail">상세</button>
+                <button class="action-btn action-deact">비활성화</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 9 승인대기 -->
+          <tr style="background:#FFFAF3;">
+            <td><input type="checkbox" style="cursor:pointer;" /></td>
+            <td>
+              <div class="td-user">
+                <div class="td-avatar" style="background:linear-gradient(135deg,#5C6BC0,#3F51B5);">강</div>
+                <div>
+                  <div class="td-name">강의사</div>
+                  <div class="td-email">kang@kangnam-clinic.com</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="role-badge role-doctor">의료진</span></td>
+            <td style="color:#546E7A;font-size:12px;">kang@kangnam-clinic.com</td>
+            <td style="font-size:12px;color:#546E7A;">010-2233-4455</td>
+            <td style="font-size:12px;color:#546E7A;">2025-04-20</td>
+            <td><span class="status-badge status-pending"><span class="status-dot"></span>승인대기</span></td>
+            <td>
+              <div class="action-buttons" style="justify-content:center;">
+                <button class="action-btn action-approve">승인</button>
+                <button class="action-btn action-reject">거절</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 10 -->
+          <tr>
+            <td><input type="checkbox" style="cursor:pointer;" /></td>
+            <td>
+              <div class="td-user">
+                <div class="td-avatar" style="background:linear-gradient(135deg,#2B7FE0,#1A5FB4);">이</div>
+                <div>
+                  <div class="td-name">이철수</div>
+                  <div class="td-email">lee.cs@hanmail.net</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="role-badge role-senior">시니어</span></td>
+            <td style="color:#546E7A;font-size:12px;">lee.cs@hanmail.net</td>
+            <td style="font-size:12px;color:#546E7A;">010-8899-0011</td>
+            <td style="font-size:12px;color:#546E7A;">2025-02-14</td>
+            <td><span class="status-badge status-active"><span class="status-dot"></span>활성</span></td>
+            <td>
+              <div class="action-buttons" style="justify-content:center;">
+                <button class="action-btn action-detail">상세</button>
+                <button class="action-btn action-deact">비활성화</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 11 -->
+          <tr>
+            <td><input type="checkbox" style="cursor:pointer;" /></td>
+            <td>
+              <div class="td-user">
+                <div class="td-avatar" style="background:linear-gradient(135deg,#F5A623,#E6920F);">윤</div>
+                <div>
+                  <div class="td-name">윤도현</div>
+                  <div class="td-email">yoon@watchpro.kr</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="role-badge role-watch">와치관리자</span></td>
+            <td style="color:#546E7A;font-size:12px;">yoon@watchpro.kr</td>
+            <td style="font-size:12px;color:#546E7A;">010-3344-5566</td>
+            <td style="font-size:12px;color:#546E7A;">2025-03-01</td>
+            <td><span class="status-badge status-active"><span class="status-dot"></span>활성</span></td>
+            <td>
+              <div class="action-buttons" style="justify-content:center;">
+                <button class="action-btn action-detail">상세</button>
+                <button class="action-btn action-deact">비활성화</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 12 -->
+          <tr>
+            <td><input type="checkbox" style="cursor:pointer;" /></td>
+            <td>
+              <div class="td-user">
+                <div class="td-avatar" style="background:linear-gradient(135deg,#2B7FE0,#1A5FB4);">박</div>
+                <div>
+                  <div class="td-name">박영희</div>
+                  <div class="td-email">park.yh@gmail.com</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="role-badge role-senior">시니어</span></td>
+            <td style="color:#546E7A;font-size:12px;">park.yh@gmail.com</td>
+            <td style="font-size:12px;color:#546E7A;">010-5566-7788</td>
+            <td style="font-size:12px;color:#546E7A;">2025-01-20</td>
+            <td><span class="status-badge status-active"><span class="status-dot"></span>활성</span></td>
+            <td>
+              <div class="action-buttons" style="justify-content:center;">
+                <button class="action-btn action-detail">상세</button>
+                <button class="action-btn action-deact">비활성화</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 13 비활성 -->
+          <tr style="opacity:0.7;">
+            <td><input type="checkbox" style="cursor:pointer;" /></td>
+            <td>
+              <div class="td-user">
+                <div class="td-avatar" style="background:linear-gradient(135deg,#90A4AE,#78909C);">송</div>
+                <div>
+                  <div class="td-name">송기룡</div>
+                  <div class="td-email">song.kr@naver.com</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="role-badge role-child">자녀</span></td>
+            <td style="color:#546E7A;font-size:12px;">song.kr@naver.com</td>
+            <td style="font-size:12px;color:#546E7A;">010-7700-8811</td>
+            <td style="font-size:12px;color:#546E7A;">2025-02-28</td>
+            <td><span class="status-badge status-inactive"><span class="status-dot"></span>비활성</span></td>
+            <td>
+              <div class="action-buttons" style="justify-content:center;">
+                <button class="action-btn action-detail">상세</button>
+                <button class="action-btn action-act">활성화</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 14 -->
+          <tr>
+            <td><input type="checkbox" style="cursor:pointer;" /></td>
+            <td>
+              <div class="td-user">
+                <div class="td-avatar" style="background:linear-gradient(135deg,#34C4A0,#2AA08A);">김</div>
+                <div>
+                  <div class="td-name">김대호</div>
+                  <div class="td-email">kim.dh@kakao.com</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="role-badge role-child">자녀</span></td>
+            <td style="color:#546E7A;font-size:12px;">kim.dh@kakao.com</td>
+            <td style="font-size:12px;color:#546E7A;">010-9900-1122</td>
+            <td style="font-size:12px;color:#546E7A;">2025-04-10</td>
+            <td><span class="status-badge status-active"><span class="status-dot"></span>활성</span></td>
+            <td>
+              <div class="action-buttons" style="justify-content:center;">
+                <button class="action-btn action-detail">상세</button>
+                <button class="action-btn action-deact">비활성화</button>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+
+      <!-- 페이지네이션 -->
+      <div class="pagination">
+        <div class="page-btn disabled">&#8249;</div>
+        <div class="page-btn active">1</div>
+        <div class="page-btn">2</div>
+        <div class="page-btn">3</div>
+        <div class="page-btn">4</div>
+        <div class="page-btn">5</div>
+        <span style="font-size:13px;color:#90A4AE;padding:0 4px;">···</span>
+        <div class="page-btn">15</div>
+        <div class="page-btn">&#8250;</div>
+      </div>
+
+    </div><!-- /table-card -->
+
+  </main>
+</div>
+
+<!-- ── 계정 상세 모달 ── -->
+<div id="modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">계정 상세 정보</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- 프로필 -->
+      <div class="modal-profile">
+        <div class="modal-avatar" id="modal-avatar" style="background:linear-gradient(135deg,#2B7FE0,#1A5FB4);">김</div>
+        <div class="modal-profile-info">
+          <div class="modal-profile-name">
+            <span id="modal-name">김순자</span>
+            <span id="modal-role-badge" class="role-badge role-senior">시니어</span>
+            <span class="status-badge status-active" style="margin-left:4px;"><span class="status-dot"></span>활성</span>
+          </div>
+          <div class="modal-profile-meta">가입일: 2025-01-15 · 마지막 로그인: 2026-04-24 오전 9:32</div>
+        </div>
+      </div>
+
+      <!-- 기본 정보 -->
+      <div class="modal-section">
+        <div class="modal-section-title">기본 정보</div>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">이름</div>
+            <div class="info-value" id="modal-info-name">김순자</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">이메일</div>
+            <div class="info-value">kim.sonja@gmail.com</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">연락처</div>
+            <div class="info-value">010-2345-6789</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">생년월일</div>
+            <div class="info-value">1948-03-12 (78세)</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">주소</div>
+            <div class="info-value">서울 강남구 역삼로 211</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">연결 기기</div>
+            <div class="info-value">Galaxy Watch HC-01 <span style="color:#34C4A0;font-size:12px;">● 연결됨</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 신체 정보 -->
+      <div class="modal-section">
+        <div class="modal-section-title">신체 정보</div>
+        <div class="body-grid">
+          <div class="body-item">
+            <label class="info-label">키</label>
+            <div class="body-input-wrap">
+              <input type="number" class="body-input" id="modal-height" value="162" min="100" max="250" />
+              <span class="body-unit">cm</span>
+            </div>
+          </div>
+          <div class="body-item">
+            <label class="info-label">몸무게</label>
+            <div class="body-input-wrap">
+              <input type="number" class="body-input" id="modal-weight" value="58" min="20" max="200" />
+              <span class="body-unit">kg</span>
+            </div>
+          </div>
+          <div class="body-item">
+            <label class="info-label">출생년도</label>
+            <div class="body-input-wrap">
+              <input type="number" class="body-input" id="modal-birthyear" value="1948" min="1900" max="2020" style="width:100px;" />
+              <span class="body-unit">년</span>
+            </div>
+          </div>
+          <div class="body-item">
+            <label class="info-label">성별</label>
+            <div class="body-gender-wrap">
+              <label class="gender-option">
+                <input type="radio" name="modal-gender" value="female" checked />
+                <span>여성</span>
+              </label>
+              <label class="gender-option">
+                <input type="radio" name="modal-gender" value="male" />
+                <span>남성</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 연결 계정 -->
+      <div class="modal-section">
+        <div class="modal-section-title">연결된 가족/의료진</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#F8FAFF;border-radius:10px;">
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#34C4A0,#2AA08A);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600;">이</div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:600;color:#1A2332;">이민준 <span class="role-badge role-child" style="font-size:10px;padding:2px 7px;">자녀</span></div>
+              <div style="font-size:11px;color:#546E7A;">lee.minjun@naver.com</div>
+            </div>
+            <span style="font-size:11px;color:#34C4A0;font-weight:600;">● 연결됨</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#F8FAFF;border-radius:10px;">
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#5C6BC0,#3F51B5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600;">박</div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:600;color:#1A2332;">박원장 <span class="role-badge role-doctor" style="font-size:10px;padding:2px 7px;">의료진</span></div>
+              <div style="font-size:11px;color:#546E7A;">park@seoul-hospital.com</div>
+            </div>
+            <span style="font-size:11px;color:#F5A623;font-weight:600;">⏳ 승인대기</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 권한 범위 설정 -->
+      <div class="modal-section">
+        <div class="modal-section-title">권한 범위 설정</div>
+        <div class="perm-list">
+
+          <div class="perm-item">
+            <div class="perm-info">
+              <div class="perm-name">건강 데이터 조회</div>
+              <div class="perm-desc">심박수, 혈압, 활동량 등 실시간 건강 데이터 열람 허용</div>
+            </div>
+            <div class="toggle-wrap">
+              <span class="toggle-label-text">허용</span>
+              <label class="toggle">
+                <input type="checkbox" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="perm-item">
+            <div class="perm-info">
+              <div class="perm-name">긴급 이벤트 알림 수신</div>
+              <div class="perm-desc">SOS, 낙상, 비정상 심박수 발생 시 푸시 알림 발송</div>
+            </div>
+            <div class="toggle-wrap">
+              <span class="toggle-label-text">허용</span>
+              <label class="toggle">
+                <input type="checkbox" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="perm-item">
+            <div class="perm-info">
+              <div class="perm-name">위치 정보 조회</div>
+              <div class="perm-desc">시니어의 현재 위치 및 이동 경로 열람 허용</div>
+            </div>
+            <div class="toggle-wrap">
+              <span class="toggle-label-text">허용</span>
+              <label class="toggle">
+                <input type="checkbox" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="perm-item">
+            <div class="perm-info">
+              <div class="perm-name">보호자 연락처 관리</div>
+              <div class="perm-desc">비상 연락망 추가·수정·삭제 권한</div>
+            </div>
+            <div class="toggle-wrap">
+              <span class="toggle-label-text">비허용</span>
+              <label class="toggle">
+                <input type="checkbox" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="perm-item">
+            <div class="perm-info">
+              <div class="perm-name">복약 알림 설정</div>
+              <div class="perm-desc">복약 시간 및 알림 내용 설정·변경 권한</div>
+            </div>
+            <div class="toggle-wrap">
+              <span class="toggle-label-text">허용</span>
+              <label class="toggle">
+                <input type="checkbox" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="perm-item">
+            <div class="perm-info">
+              <div class="perm-name">보고서 다운로드</div>
+              <div class="perm-desc">주간·월간 건강 리포트 PDF 다운로드 허용</div>
+            </div>
+            <div class="toggle-wrap">
+              <span class="toggle-label-text">비허용</span>
+              <label class="toggle">
+                <input type="checkbox" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 메모 -->
+      <div class="modal-section" style="margin-bottom:0;">
+        <div class="modal-section-title">관리자 메모</div>
+        <textarea rows="3" placeholder="내부 메모 입력 (사용자에게 노출되지 않음)" style="width:100%;padding:12px;border:1px solid #D1D9E6;border-radius:10px;font-family:'Noto Sans KR',sans-serif;font-size:13px;color:#1A2332;resize:none;outline:none;background:#FAFBFC;">자녀 이민준과 연결된 시니어. 매주 화·목 재활 병원 방문. 특이사항 없음.</textarea>
+      </div>
+
+    </div><!-- /modal-body -->
+
+    <div class="modal-footer">
+      <button class="btn btn-sm" style="background:#FDECEA;color:#E53935;border:1px solid #FFCDD2;">비활성화</button>
+      <button class="btn btn-primary btn-sm">💾 저장</button>
+      <button class="btn btn-outline btn-sm" onclick="closeModal()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── QR 연동 모달 ── -->
+<div class="qr-modal-overlay" id="qr-modal">
+  <div class="qr-modal">
+    <div class="qr-modal-header">
+      <span class="qr-modal-title">📱 워치 연동 QR</span>
+      <button class="qr-modal-close" onclick="closeQR()">×</button>
+    </div>
+    <div class="qr-modal-body">
+      <div class="qr-user-info">
+        <div class="qr-user-name" id="qr-user-name">김순자</div>
+        <div class="qr-user-sub">계정코드: <strong id="qr-account-code" style="color:#2B7FE0;">HC-2025-0012</strong></div>
+      </div>
+
+      <!-- 페이크 QR 코드 -->
+      <div class="qr-wrap">
+        <svg width="160" height="160" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+          <!-- 좌상 finder -->
+          <rect x="8"  y="8"  width="42" height="42" rx="4" fill="#1A2332"/>
+          <rect x="14" y="14" width="30" height="30" rx="2" fill="#fff"/>
+          <rect x="20" y="20" width="18" height="18" rx="1" fill="#1A2332"/>
+          <!-- 우상 finder -->
+          <rect x="110" y="8"  width="42" height="42" rx="4" fill="#1A2332"/>
+          <rect x="116" y="14" width="30" height="30" rx="2" fill="#fff"/>
+          <rect x="122" y="20" width="18" height="18" rx="1" fill="#1A2332"/>
+          <!-- 좌하 finder -->
+          <rect x="8"  y="110" width="42" height="42" rx="4" fill="#1A2332"/>
+          <rect x="14" y="116" width="30" height="30" rx="2" fill="#fff"/>
+          <rect x="20" y="122" width="18" height="18" rx="1" fill="#1A2332"/>
+          <!-- 데이터 패턴 (임의 배열) -->
+          <rect x="60" y="8"  width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="72" y="8"  width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="84" y="8"  width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="96" y="8"  width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="60" y="20" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="84" y="20" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="96" y="20" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="60" y="32" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="72" y="32" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="8"  y="60" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="20" y="60" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="32" y="60" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="44" y="60" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="60" y="60" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="72" y="60" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="84" y="60" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="96" y="60" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="110" y="60" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="122" y="60" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="145" y="60" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="8"  y="72" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="32" y="72" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="60" y="72" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="84" y="72" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="110" y="72" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="134" y="72" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="8"  y="84" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="20" y="84" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="44" y="84" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="60" y="84" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="72" y="84" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="96" y="84" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="110" y="84" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="122" y="84" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="145" y="84" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="60" y="96" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="84" y="96" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="110" y="96" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="134" y="96" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="60" y="110" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="72" y="110" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="96" y="110" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="110" y="110" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="145" y="110" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="60" y="122" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="84" y="122" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="96" y="122" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="122" y="122" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="134" y="122" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="60" y="134" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="72" y="134" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="84" y="134" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="110" y="134" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="145" y="134" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="60" y="145" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="84" y="145" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="122" y="145" width="7" height="7" rx="1" fill="#1A2332"/>
+          <rect x="134" y="145" width="7" height="7" rx="1" fill="#1A2332"/>
+        </svg>
+      </div>
+
+      <div class="qr-code-text" id="qr-pair-code">A7F3-K9M2</div>
+      <div class="qr-timer" id="qr-timer">⏱ <span id="qr-countdown">29:58</span> 후 만료</div>
+
+      <div class="qr-guide">
+        <strong>연동 방법</strong><br>
+        ① 시니어의 스마트폰에서 HealthCare 앱 실행<br>
+        ② 앱 첫 화면 하단 <em>"QR로 계정 연결"</em> 터치<br>
+        ③ 이 QR 코드를 카메라로 스캔<br>
+        ④ 연결 확인 후 워치 페어링 진행
+      </div>
+    </div>
+    <div class="qr-modal-footer">
+      <button class="btn-qr-regen" onclick="regenQR()">🔄 재생성</button>
+      <button class="btn-qr-close" onclick="closeQR()">확인</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const roleMap = {
+    senior: { label: '시니어', cls: 'role-senior', bg: 'linear-gradient(135deg,#2B7FE0,#1A5FB4)' },
+    child:  { label: '자녀',   cls: 'role-child',  bg: 'linear-gradient(135deg,#34C4A0,#2AA08A)' },
+    doctor: { label: '의료진', cls: 'role-doctor', bg: 'linear-gradient(135deg,#5C6BC0,#3F51B5)' },
+    watch:  { label: '와치관리자', cls: 'role-watch', bg: 'linear-gradient(135deg,#F5A623,#E6920F)' },
+  };
+  function openModal(name, roleLabel, roleKey) {
+    const r = roleMap[roleKey] || roleMap.senior;
+    document.getElementById('modal-name').textContent = name;
+    document.getElementById('modal-info-name').textContent = name;
+    const avatar = document.getElementById('modal-avatar');
+    avatar.textContent = name.charAt(0);
+    avatar.style.background = r.bg;
+    const badge = document.getElementById('modal-role-badge');
+    badge.textContent = r.label;
+    badge.className = 'role-badge ' + r.cls;
+    document.getElementById('modal').style.display = 'flex';
+  }
+  function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+  }
+
+  let qrTimer = null;
+  let qrSeconds = 1798;
+
+  function openQR(name, code) {
+    document.getElementById('qr-user-name').textContent = name;
+    document.getElementById('qr-account-code').textContent = code;
+    document.getElementById('qr-modal').classList.add('open');
+    qrSeconds = 1798;
+    startQRTimer();
+  }
+
+  function closeQR() {
+    document.getElementById('qr-modal').classList.remove('open');
+    clearInterval(qrTimer);
+  }
+
+  function startQRTimer() {
+    clearInterval(qrTimer);
+    updateCountdown();
+    qrTimer = setInterval(() => {
+      qrSeconds--;
+      if (qrSeconds <= 0) {
+        clearInterval(qrTimer);
+        document.getElementById('qr-countdown').textContent = '만료됨';
+        document.getElementById('qr-pair-code').style.opacity = '0.3';
+      } else {
+        updateCountdown();
+      }
+    }, 1000);
+  }
+
+  function updateCountdown() {
+    const m = String(Math.floor(qrSeconds / 60)).padStart(2,'0');
+    const s = String(qrSeconds % 60).padStart(2,'0');
+    document.getElementById('qr-countdown').textContent = m + ':' + s;
+  }
+
+  function regenQR() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const rand = () => Array.from({length:4}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+    document.getElementById('qr-pair-code').textContent = rand() + '-' + rand();
+    document.getElementById('qr-pair-code').style.opacity = '1';
+    qrSeconds = 1798;
+    startQRTimer();
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M-02 홈 자세히 보기 | 헬스케어 앱</title>
+  <!-- Google Fonts: Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ===== 디자인 토큰 ===== */
+    :root {
+      --primary:        #2B7FE0;
+      --primary-dark:   #1A5FB4;
+      --secondary:      #34C4A0;
+      --danger:         #E53935;
+      --warning:        #F5A623;
+      --bg:             #F4F6F9;
+      --surface:        #FFFFFF;
+      --border:         #D1D9E6;
+      --text-primary:   #1A2332;
+      --text-secondary: #546E7A;
+      --text-disabled:  #B0BEC5;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: #C8D0DC; }
+
+    /* ===== 모바일 컨테이너 ===== */
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 16px;
+      color: var(--text-primary);
+      background: var(--bg);
+      max-width: 390px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding-bottom: 80px;
+      position: relative;
+    }
+
+    /* ===== 앱 헤더 ===== */
+    /* 기획 의도: 자세히 보기 모드임을 명시, "간단보기" 버튼으로 M-01 복귀 */
+    .app-header {
+      background: var(--surface);
+      padding: 20px 16px 16px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-left {
+      flex: 1;
+      min-width: 0;
+    }
+    .header-greeting {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+    .header-greeting span { color: var(--primary); }
+    .header-date {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    /* "간단보기" 토글: 외곽선 스타일로 차별화 */
+    .btn-toggle {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      text-decoration: none;
+      display: inline-block;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+    .btn-toggle:hover { background: var(--primary); color: #fff; }
+
+    .icon-bell {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; cursor: pointer; flex-shrink: 0;
+    }
+    .icon-bell svg { width: 22px; height: 22px; }
+    .badge {
+      position: absolute; top: 6px; right: 6px;
+      width: 8px; height: 8px;
+      background: var(--danger); border-radius: 50%;
+      border: 2px solid var(--surface);
+    }
+
+    /* ===== 스크롤 영역 ===== */
+    .scroll-area {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ===== 공통 카드 ===== */
+    .card {
+      background: var(--surface);
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      padding: 20px;
+    }
+
+    /* 섹션 타이틀 공통 */
+    .section-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ===== 건강 지표 그리드 (2열) ===== */
+    /* 기획 의도: 6개 핵심 지표를 2열 그리드로 배치.
+       전일 대비 증감을 화살표 + 색상으로 즉시 파악. */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .metric-mini-card {
+      background: var(--bg);
+      border-radius: 14px;
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .metric-mini-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .metric-mini-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    /* 전일 대비 배지 */
+    .delta {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .delta.up   { background: rgba(229,57,53,0.12); color: var(--danger); }
+    .delta.down { background: rgba(43,127,224,0.12); color: var(--primary); }
+    .delta.same { background: rgba(176,190,197,0.2);  color: var(--text-disabled); }
+
+    .metric-mini-value {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .metric-mini-unit {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-left: 2px;
+      font-weight: 400;
+    }
+    .metric-mini-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .metric-mini-status {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      align-self: flex-start;
+    }
+    .st-normal  { background: rgba(52,196,160,0.15); color: var(--secondary); }
+    .st-caution { background: rgba(245,166,35,0.15); color: var(--warning); }
+    .st-danger  { background: rgba(229,57,53,0.15);  color: var(--danger); }
+
+    /* ===== 이번 주 트렌드 섹션 ===== */
+    /* 기획 의도: 걸음수 7일 트렌드를 CSS 바 차트로 표현.
+       외부 라이브러리 없이 순수 CSS로 구현. */
+    .chart-bar-group {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      height: 100px;
+      gap: 6px;
+      padding: 0 4px;
+    }
+    .chart-day {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      height: 100%;
+    }
+    .chart-bar-wrap {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .chart-bar {
+      width: 100%;
+      border-radius: 6px 6px 0 0;
+      min-height: 4px;
+      background: linear-gradient(180deg, #64B5F6, var(--primary));
+      transition: height 0.5s ease;
+    }
+    .chart-bar.today {
+      background: linear-gradient(180deg, #4DD0B8, var(--secondary));
+    }
+    .chart-day-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .chart-day-label.today-label {
+      color: var(--secondary);
+      font-weight: 700;
+    }
+    .chart-value-label {
+      font-size: 10px;
+      color: var(--text-disabled);
+    }
+    .chart-legend {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .chart-legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 3px;
+      display: inline-block;
+      margin-right: 4px;
+    }
+
+    /* ===== 또래 평균 비교 카드 ===== */
+    /* 기획 의도: 동연령대(70대 여성) 평균 대비 본인 상태 비교.
+       경쟁이 아닌 건강 기준 참고용으로 부드럽게 표현. */
+    .compare-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .compare-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .compare-metric-name {
+      font-size: 14px;
+      color: var(--text-secondary);
+      width: 52px;
+      flex-shrink: 0;
+    }
+    .compare-bar-wrap {
+      flex: 1;
+      height: 10px;
+      background: var(--bg);
+      border-radius: 5px;
+      overflow: hidden;
+      position: relative;
+    }
+    /* 또래 평균 위치 마커 */
+    .compare-avg-marker {
+      position: absolute;
+      top: -3px;
+      width: 2px;
+      height: 16px;
+      background: var(--text-disabled);
+      border-radius: 1px;
+    }
+    .compare-bar-fill {
+      height: 100%;
+      border-radius: 5px;
+    }
+    .compare-bar-fill.better { background: var(--secondary); }
+    .compare-bar-fill.worse  { background: var(--warning); }
+    .compare-bar-fill.same   { background: var(--primary); }
+    .compare-values {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      flex-shrink: 0;
+      text-align: right;
+      width: 54px;
+    }
+    .compare-tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .compare-tag.better { background: rgba(52,196,160,0.15); color: var(--secondary); }
+    .compare-tag.worse  { background: rgba(245,166,35,0.15);  color: var(--warning); }
+    .compare-tag.same   { background: rgba(43,127,224,0.12);  color: var(--primary); }
+
+    .compare-note {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--text-disabled);
+      text-align: center;
+    }
+
+    /* ===== 복약 현황 (요약) ===== */
+    .med-summary-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--bg);
+      border-radius: 12px;
+      margin-bottom: 10px;
+    }
+    .med-summary-left { display: flex; align-items: center; gap: 10px; }
+    .med-summary-icon { font-size: 22px; }
+    .med-summary-text {}
+    .med-summary-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .med-summary-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .med-summary-badge {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--primary);
+    }
+    .med-pending-alert {
+      padding: 12px 16px;
+      background: rgba(245,166,35,0.12);
+      border-left: 4px solid var(--warning);
+      border-radius: 8px;
+      font-size: 14px;
+      color: #8B5E10;
+      font-weight: 600;
+    }
+
+    /* ===== 오늘 일정 요약 ===== */
+    .schedule-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .schedule-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--bg);
+      border-radius: 12px;
+    }
+    .schedule-time-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 44px;
+      flex-shrink: 0;
+    }
+    .schedule-time {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+    }
+    .schedule-ampm {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .schedule-divider {
+      width: 1px;
+      height: 36px;
+      background: var(--border);
+    }
+    .schedule-content {}
+    .schedule-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .schedule-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .schedule-tag {
+      margin-left: auto;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+    .tag-hospital { background: rgba(43,127,224,0.12); color: var(--primary); }
+    .tag-exercise { background: rgba(52,196,160,0.12); color: var(--secondary); }
+    .tag-family   { background: rgba(245,166,35,0.12);  color: var(--warning); }
+
+    /* ===== SOS 버튼 ===== */
+    .sos-btn {
+      position: fixed;
+      bottom: 80px;
+      right: calc(50% - 195px + 16px);
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(229,57,53,0.5);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 2px; z-index: 200;
+      animation: pulse 2s infinite;
+    }
+    .sos-btn .sos-icon { font-size: 22px; line-height: 1; }
+    .sos-btn .sos-text { font-size: 14px; font-weight: 900; line-height: 1; }
+
+    @keyframes pulse {
+      0%   { box-shadow: 0 4px 20px rgba(229,57,53,0.5); }
+      50%  { box-shadow: 0 4px 30px rgba(229,57,53,0.9), 0 0 0 8px rgba(229,57,53,0.15); }
+      100% { box-shadow: 0 4px 20px rgba(229,57,53,0.5); }
+    }
+
+    /* ===== 하단 탭바 ===== */
+    .tab-bar {
+      position: fixed;
+      bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 390px; height: 64px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex; align-items: stretch;
+      z-index: 300;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+    }
+    .tab-item {
+      flex: 1;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 3px; cursor: pointer;
+      color: var(--text-disabled);
+      text-decoration: none;
+    }
+    .tab-item.active { color: var(--primary); }
+    .tab-item svg { width: 24px; height: 24px; }
+    .tab-label { font-size: 11px; font-weight: 600; }
+
+    @media (max-width: 375px) {
+      .sos-btn { right: 16px; }
+      .tab-bar { width: 100%; }
+    }
+
+    /* ===== 비교 토글 바 ===== */
+    .compare-toggle-bar {
+      display: flex;
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 3px;
+      margin-bottom: 14px;
+    }
+    .compare-toggle-bar button {
+      flex: 1;
+      height: 34px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      background: transparent;
+      color: var(--text-secondary);
+      transition: all 0.15s;
+    }
+    .compare-toggle-bar button.active {
+      background: var(--surface);
+      color: var(--primary);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+    }
+    /* ===== 미니 비교 배너 ===== */
+    .mini-compare {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: block;
+      margin-top: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .mini-compare.up        { background: #FFEBEE; color: #E53935; }
+    .mini-compare.down      { background: #E3F2FD; color: #2B7FE0; }
+    .mini-compare.same      { background: #F5F5F5; color: #546E7A; }
+    .mini-compare.goal-ok   { background: #E8F5E9; color: #2E7D32; }
+    .mini-compare.goal-miss { background: #FFF3E0; color: #E65100; }
+
+    /* ===== 수동 입력 카드 ===== */
+    .record-card { background: var(--surface); border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); padding: 18px 20px; }
+    .record-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .record-btn {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--bg); border: 1.5px solid transparent;
+      border-radius: 14px; padding: 12px 12px;
+      cursor: pointer; font-family: inherit; text-align: left;
+      transition: border-color 0.15s;
+    }
+    .record-btn:active { border-color: var(--primary); background: #EBF3FD; }
+    .record-btn-icon { font-size: 22px; flex-shrink: 0; }
+    .record-btn-label { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+    .record-btn-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+    /* ===== 입력 바텀시트 ===== */
+    .input-sheet { position: fixed; inset: 0; z-index: 400; display: none; }
+    .input-sheet.open { display: block; }
+    .sheet-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.45); }
+    .sheet-panel {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      width: 100%; max-width: 390px; margin: 0 auto;
+      background: #fff;
+      border-radius: 24px 24px 0 0; padding: 12px 20px 40px;
+      box-sizing: border-box;
+    }
+    .sheet-handle { width: 40px; height: 4px; background: #D1D9E6; border-radius: 2px; margin: 0 auto 20px; }
+    .sheet-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .sheet-subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+    .sheet-num-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 24px; }
+    .sheet-input {
+      width: 140px; flex: none; height: 60px;
+      border: 2px solid #D1D9E6; border-radius: 12px;
+      font-size: 30px; font-family: 'Roboto', 'Noto Sans KR', sans-serif;
+      font-weight: 700; text-align: right; padding: 0 14px;
+      color: var(--text-primary); outline: none;
+    }
+    .sheet-input:focus { border-color: var(--primary); }
+    .sheet-unit { font-size: 17px; color: var(--text-secondary); white-space: nowrap; }
+    .sheet-cond-row { display: flex; gap: 6px; margin-bottom: 24px; }
+    .sheet-cond-btn {
+      flex: 1; background: var(--bg); border: 2px solid transparent;
+      border-radius: 14px; padding: 12px 4px 10px;
+      text-align: center; cursor: pointer; font-family: inherit;
+    }
+    .sheet-cond-btn .cond-emoji { font-size: 24px; display: block; }
+    .sheet-cond-btn .cond-label { font-size: 10px; color: var(--text-secondary); margin-top: 4px; display: block; }
+    .sheet-cond-btn.sel { border-color: var(--primary); background: #EBF3FD; }
+    .sheet-save { width: 100%; height: 52px; background: var(--primary); color: #fff; border: none; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; margin-bottom: 8px; }
+    .sheet-cancel { width: 100%; height: 44px; background: transparent; color: var(--text-secondary); border: none; font-size: 14px; cursor: pointer; font-family: inherit; }
+
+    /* ===== 저장 토스트 ===== */
+    .save-toast {
+      position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%);
+      background: #1A2332EE; color: #fff;
+      padding: 12px 22px; border-radius: 24px;
+      font-size: 14px; font-weight: 600; z-index: 500;
+      opacity: 0; transition: opacity 0.25s;
+      white-space: nowrap; pointer-events: none;
+    }
+    .save-toast.show { opacity: 1; }
+
+  </style>
+</head>
+<body>
+
+  <!-- =============================================
+       앱 헤더
+       기획 의도: "간단보기" 버튼(외곽선 스타일)으로
+       M-01로 돌아갈 수 있음을 명확히 표시.
+       ============================================= -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="header-greeting">
+        안녕하세요,<br><span>김순자</span>님 👋
+      </div>
+      <div class="header-date">2026년 4월 25일 토요일</div>
+    </div>
+    <div class="header-right">
+      <a href="home-simple.html" class="btn-toggle">← 간단보기</a>
+      <div class="icon-bell" title="알림" onclick="location.href='message.html'" style="cursor:pointer;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#546E7A" stroke-width="2" stroke-linecap="round">
+          <path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 01-3.46 0"/>
+        </svg>
+        <span class="badge"></span>
+      </div>
+    </div>
+  </header>
+
+  <main class="scroll-area">
+
+    <!-- ────────────────────────────────────────
+         건강 지표 그리드 2열 (M-02-C2)
+         기획 의도: 6개 핵심 지표(심박수·혈압·혈중산소·
+         걸음수·수면·체중)를 2열로 배치.
+         전일 대비 증감을 화살표+색으로 즉시 파악.
+         ──────────────────────────────────────── -->
+    <section class="card" aria-label="건강 지표">
+      <div class="section-title">📊 건강 지표</div>
+      <!-- 비교 기준 토글 -->
+      <div class="compare-toggle-bar">
+        <button id="btn-peer" class="active" onclick="setCompare('peer')">또래 평균 비교</button>
+        <button id="btn-yest" onclick="setCompare('yest')">어제와 비교</button>
+        <button id="btn-goal" onclick="setCompare('goal')">목표 비교</button>
+      </div>
+      <div class="metrics-grid">
+
+        <!-- 심박수 -->
+        <div class="metric-mini-card">
+          <div class="metric-mini-header">
+            <div class="metric-mini-icon" style="background:#FFEAEA;">❤️</div>
+            <!-- 전일 대비: 어제 75bpm → 오늘 72bpm (▼ 개선) -->
+            <span class="delta down">▼ 3</span>
+          </div>
+          <div>
+            <span class="metric-mini-value">72</span>
+            <span class="metric-mini-unit">bpm</span>
+          </div>
+          <div class="metric-mini-label">심박수</div>
+          <span class="metric-mini-status st-normal">정상</span>
+          <span class="mini-compare up" id="mc-heart">또래보다 높음 ↑</span>
+        </div>
+
+        <!-- 혈압 -->
+        <div class="metric-mini-card">
+          <div class="metric-mini-header">
+            <div class="metric-mini-icon" style="background:#E8F4FD;">🩺</div>
+            <!-- 전일 대비: 어제 122/78 → 오늘 118/76 (▼ 개선) -->
+            <span class="delta down">▼ 4</span>
+          </div>
+          <div>
+            <span class="metric-mini-value" style="font-size:20px;">118/76</span>
+            <span class="metric-mini-unit">mmHg</span>
+          </div>
+          <div class="metric-mini-label">혈압</div>
+          <span class="metric-mini-status st-normal">정상</span>
+          <span class="mini-compare down" id="mc-bp">또래보다 낮음 ↓</span>
+        </div>
+
+        <!-- 혈중산소 (SpO2) -->
+        <div class="metric-mini-card">
+          <div class="metric-mini-header">
+            <div class="metric-mini-icon" style="background:#E8F5E9;">💨</div>
+            <!-- 전일 대비: 어제 97% → 오늘 97% (동일) -->
+            <span class="delta same">— 0</span>
+          </div>
+          <div>
+            <span class="metric-mini-value">97</span>
+            <span class="metric-mini-unit">%</span>
+          </div>
+          <div class="metric-mini-label">혈중산소</div>
+          <span class="metric-mini-status st-normal">정상</span>
+          <span class="mini-compare same" id="mc-spo2">또래와 동일</span>
+        </div>
+
+        <!-- 걸음수 -->
+        <div class="metric-mini-card">
+          <div class="metric-mini-header">
+            <div class="metric-mini-icon" style="background:#E8FAF5;">🚶</div>
+            <!-- 전일 대비: 어제 4,210보 → 오늘 3,240보 (▼ 감소, 주의) -->
+            <span class="delta up">▼ 970</span>
+          </div>
+          <div>
+            <span class="metric-mini-value" style="font-size:20px;">3,240</span>
+            <span class="metric-mini-unit">보</span>
+          </div>
+          <div class="metric-mini-label">걸음수</div>
+          <span class="metric-mini-status st-caution">목표 미달</span>
+          <span class="mini-compare down" id="mc-steps">또래보다 낮음 ↓</span>
+        </div>
+
+        <!-- 수면 -->
+        <div class="metric-mini-card">
+          <div class="metric-mini-header">
+            <div class="metric-mini-icon" style="background:#EDE7F6;">🌙</div>
+            <!-- 전일 대비: 어제 6.2h → 오늘 7.1h (▲ 개선) -->
+            <span class="delta down" style="background:rgba(52,196,160,0.12);color:var(--secondary);">▲ 0.9h</span>
+          </div>
+          <div>
+            <span class="metric-mini-value">7.1</span>
+            <span class="metric-mini-unit">시간</span>
+          </div>
+          <div class="metric-mini-label">수면</div>
+          <span class="metric-mini-status st-normal">양호</span>
+          <span class="mini-compare up" id="mc-sleep">또래보다 높음 ↑</span>
+        </div>
+
+        <!-- 체중 -->
+        <div class="metric-mini-card">
+          <div class="metric-mini-header">
+            <div class="metric-mini-icon" style="background:#FFF8E1;">⚖️</div>
+            <!-- 전일 대비: 어제 61.5kg → 오늘 61.2kg (▼ 0.3 감소, 유지 중) -->
+            <span class="delta down">▼ 0.3</span>
+          </div>
+          <div>
+            <span class="metric-mini-value">61.2</span>
+            <span class="metric-mini-unit">kg</span>
+          </div>
+          <div class="metric-mini-label">체중</div>
+          <span class="metric-mini-status st-normal">정상</span>
+          <span class="mini-compare same" id="mc-weight">또래와 비슷</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ────────────────────────────────────────
+         이번 주 걸음수 트렌드 (M-02-C3)
+         기획 의도: 7일 걸음수 바 차트를 CSS만으로
+         구현. 오늘(토)을 초록색으로 강조.
+         목표선(5,000보)을 점선으로 표시.
+         ──────────────────────────────────────── -->
+    <section class="card" aria-label="이번 주 걸음수 트렌드">
+      <div class="section-title">📈 이번 주 걸음수 트렌드</div>
+
+      <!-- 최대 6,120보 기준 비율 계산 -->
+      <div class="chart-bar-group" role="img" aria-label="이번 주 걸음수 바 차트">
+        <!-- 일: 4,200보 → 4200/6120 ≈ 68.6% -->
+        <div class="chart-day">
+          <div class="chart-bar-wrap">
+            <div class="chart-bar" style="height:68.6%;" title="일요일: 4,200보"></div>
+          </div>
+          <span class="chart-day-label">일</span>
+        </div>
+        <!-- 월: 5,800보 → 94.7% -->
+        <div class="chart-day">
+          <div class="chart-bar-wrap">
+            <div class="chart-bar" style="height:94.7%;" title="월요일: 5,800보"></div>
+          </div>
+          <span class="chart-day-label">월</span>
+        </div>
+        <!-- 화: 6,120보 → 100% -->
+        <div class="chart-day">
+          <div class="chart-bar-wrap">
+            <div class="chart-bar" style="height:100%;" title="화요일: 6,120보"></div>
+          </div>
+          <span class="chart-day-label">화</span>
+        </div>
+        <!-- 수: 5,300보 → 86.6% -->
+        <div class="chart-day">
+          <div class="chart-bar-wrap">
+            <div class="chart-bar" style="height:86.6%;" title="수요일: 5,300보"></div>
+          </div>
+          <span class="chart-day-label">수</span>
+        </div>
+        <!-- 목: 4,800보 → 78.4% -->
+        <div class="chart-day">
+          <div class="chart-bar-wrap">
+            <div class="chart-bar" style="height:78.4%;" title="목요일: 4,800보"></div>
+          </div>
+          <span class="chart-day-label">목</span>
+        </div>
+        <!-- 금: 4,210보 → 68.8% -->
+        <div class="chart-day">
+          <div class="chart-bar-wrap">
+            <div class="chart-bar" style="height:68.8%;" title="금요일: 4,210보"></div>
+          </div>
+          <span class="chart-day-label">금</span>
+        </div>
+        <!-- 토(오늘): 3,240보 → 52.9% / 초록 강조 -->
+        <div class="chart-day">
+          <div class="chart-bar-wrap">
+            <div class="chart-bar today" style="height:52.9%;" title="오늘(토): 3,240보"></div>
+          </div>
+          <span class="chart-day-label today-label">오늘</span>
+        </div>
+      </div>
+
+      <!-- 범례 -->
+      <div class="chart-legend">
+        <span><span class="chart-legend-dot" style="background:var(--primary);"></span>이번 주</span>
+        <span><span class="chart-legend-dot" style="background:var(--secondary);"></span>오늘</span>
+        <span style="margin-left:auto;font-size:12px;color:var(--text-secondary);">목표: 5,000보/일</span>
+      </div>
+      <div style="margin-top:10px;font-size:13px;color:var(--text-secondary);text-align:center;">
+        이번 주 평균 <strong style="color:var(--primary);">4,810보</strong> · 목표 달성일 <strong style="color:var(--secondary);">3일</strong>
+      </div>
+    </section>
+
+    <!-- ────────────────────────────────────────
+         또래 평균 비교 카드 (M-02-C4)
+         기획 의도: 동연령·동성 그룹(70대 여성) 평균과
+         비교해 본인의 건강 수준 맥락 제공.
+         우월감 자극 대신 "건강 참고 기준"으로 표현.
+         ──────────────────────────────────────── -->
+    <section class="card" aria-label="또래 평균 비교">
+      <div class="section-title">👥 또래 평균 비교 <span style="font-size:13px;font-weight:400;color:var(--text-secondary);">(70대 여성)</span></div>
+
+      <div class="compare-row">
+        <!-- 심박수: 나 72, 또래 평균 76 → 더 낮음(좋음) -->
+        <div class="compare-item">
+          <span class="compare-metric-name">심박수</span>
+          <div class="compare-bar-wrap">
+            <!-- 또래 평균 마커: 76/100 = 76% 위치 -->
+            <div class="compare-avg-marker" style="left:76%;"></div>
+            <!-- 내 수치: 72/100 = 72% -->
+            <div class="compare-bar-fill better" style="width:72%;"></div>
+          </div>
+          <span class="compare-values">72 / 76</span>
+          <span class="compare-tag better">우수</span>
+        </div>
+
+        <!-- 혈압(수축기): 나 118, 또래 평균 128 → 더 낮음(좋음) -->
+        <div class="compare-item">
+          <span class="compare-metric-name">혈압</span>
+          <div class="compare-bar-wrap">
+            <!-- 또래 평균 마커: 128/160 = 80% 위치 -->
+            <div class="compare-avg-marker" style="left:80%;"></div>
+            <!-- 내 수치: 118/160 ≈ 73.7% -->
+            <div class="compare-bar-fill better" style="width:73.7%;"></div>
+          </div>
+          <span class="compare-values">118 / 128</span>
+          <span class="compare-tag better">우수</span>
+        </div>
+
+        <!-- 걸음수: 나 3,240, 또래 평균 4,100 → 적음(주의) -->
+        <div class="compare-item">
+          <span class="compare-metric-name">걸음수</span>
+          <div class="compare-bar-wrap">
+            <!-- 또래 평균 마커: 4100/6000 ≈ 68.3% 위치 -->
+            <div class="compare-avg-marker" style="left:68.3%;"></div>
+            <!-- 내 수치: 3240/6000 = 54% -->
+            <div class="compare-bar-fill worse" style="width:54%;"></div>
+          </div>
+          <span class="compare-values">3,240 / 4,100</span>
+          <span class="compare-tag worse">노력 필요</span>
+        </div>
+
+        <!-- 수면: 나 7.1h, 또래 평균 6.8h → 더 많음(좋음) -->
+        <div class="compare-item">
+          <span class="compare-metric-name">수면</span>
+          <div class="compare-bar-wrap">
+            <!-- 또래 평균 마커: 6.8/9 ≈ 75.5% 위치 -->
+            <div class="compare-avg-marker" style="left:75.5%;"></div>
+            <!-- 내 수치: 7.1/9 ≈ 78.8% -->
+            <div class="compare-bar-fill better" style="width:78.8%;"></div>
+          </div>
+          <span class="compare-values">7.1h / 6.8h</span>
+          <span class="compare-tag better">우수</span>
+        </div>
+      </div>
+
+      <p class="compare-note">|  = 또래 평균 기준선 · 데이터 기준: 2026년 4월</p>
+    </section>
+
+    <!-- ────────────────────────────────────────
+         복약 현황 + 오늘 일정 요약 (M-02-C5)
+         기획 의도: 자세히 보기에서도 복약·일정을
+         한 카드에 압축 요약. 상세는 각 탭에서 확인.
+         ──────────────────────────────────────── -->
+    <section class="card" aria-label="복약 및 일정 요약">
+      <div class="section-title">💊 오늘 복약 현황</div>
+
+      <div class="med-summary-row">
+        <div class="med-summary-left">
+          <span class="med-summary-icon">✅</span>
+          <div class="med-summary-text">
+            <div class="med-summary-title">고혈압약 · 당뇨약</div>
+            <div class="med-summary-sub">오전 8시 복용 완료</div>
+          </div>
+        </div>
+        <span class="med-summary-badge">2 / 3</span>
+      </div>
+
+      <div class="med-pending-alert" role="alert">
+        ⚠️ <strong>골다공증약(칼슘제)</strong> 미복용 · 오후 1시 예정
+      </div>
+
+      <!-- 구분선 -->
+      <div style="border-top:1px solid var(--border);margin:20px 0;"></div>
+
+      <div class="section-title">📅 오늘 일정</div>
+      <div class="schedule-list">
+        <!-- 병원 예약 -->
+        <div class="schedule-item">
+          <div class="schedule-time-col">
+            <span class="schedule-time">2:00</span>
+            <span class="schedule-ampm">오후</span>
+          </div>
+          <div class="schedule-divider"></div>
+          <div class="schedule-content">
+            <div class="schedule-title">내과 정기 검진</div>
+            <div class="schedule-sub">서울 하나 내과 · 박민준 원장</div>
+          </div>
+          <span class="schedule-tag tag-hospital">병원</span>
+        </div>
+        <!-- 운동 -->
+        <div class="schedule-item">
+          <div class="schedule-time-col">
+            <span class="schedule-time">4:30</span>
+            <span class="schedule-ampm">오후</span>
+          </div>
+          <div class="schedule-divider"></div>
+          <div class="schedule-content">
+            <div class="schedule-title">헬스장 걷기 운동</div>
+            <div class="schedule-sub">목표 30분 · 2,000보 추가</div>
+          </div>
+          <span class="schedule-tag tag-exercise">운동</span>
+        </div>
+        <!-- 가족 -->
+        <div class="schedule-item">
+          <div class="schedule-time-col">
+            <span class="schedule-time">7:00</span>
+            <span class="schedule-ampm">오후</span>
+          </div>
+          <div class="schedule-divider"></div>
+          <div class="schedule-content">
+            <div class="schedule-title">딸 영상통화</div>
+            <div class="schedule-sub">김민지 · 주간 안부 통화</div>
+          </div>
+          <span class="schedule-tag tag-family">가족</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="record-card">
+      <div style="font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:6px;">
+        ✏️ 직접 측정 기록
+      </div>
+      <div class="record-grid">
+        <button class="record-btn" onclick="openSheet('glucose')">
+          <span class="record-btn-icon">🩸</span>
+          <div><div class="record-btn-label">혈당</div><div class="record-btn-sub">오전 8:15 · 105 mg/dL</div></div>
+        </button>
+        <button class="record-btn" onclick="openSheet('weight')">
+          <span class="record-btn-icon">⚖️</span>
+          <div><div class="record-btn-label">체중</div><div class="record-btn-sub">어제 · 67.5 kg</div></div>
+        </button>
+        <button class="record-btn" onclick="openSheet('bp')">
+          <span class="record-btn-icon">🩺</span>
+          <div><div class="record-btn-label">혈압 (가정용)</div><div class="record-btn-sub">워치 측정과 비교</div></div>
+        </button>
+        <button class="record-btn" onclick="openSheet('condition')">
+          <span class="record-btn-icon">😊</span>
+          <div><div class="record-btn-label">컨디션</div><div class="record-btn-sub">오늘 기분 기록</div></div>
+        </button>
+      </div>
+    </div>
+
+  </main><!-- /scroll-area -->
+
+  <!-- 바텀시트 -->
+  <div class="input-sheet" id="input-sheet">
+    <div class="sheet-backdrop" onclick="closeSheet()"></div>
+    <div class="sheet-panel">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <div class="sheet-title" id="sheet-title">혈당 입력</div>
+        <div class="sheet-subtitle" id="sheet-subtitle">수치를 입력해 주세요</div>
+      </div>
+      <div class="sheet-num-row" id="sheet-num-row">
+        <input type="number" id="sheet-input" class="sheet-input" placeholder="0" inputmode="decimal">
+        <span class="sheet-unit" id="sheet-unit">mg/dL</span>
+      </div>
+      <div class="sheet-cond-row" id="sheet-cond-row" style="display:none;">
+        <button class="sheet-cond-btn" onclick="selCond(1)"><span class="cond-emoji">😞</span><span class="cond-label">매우 나쁨</span></button>
+        <button class="sheet-cond-btn" onclick="selCond(2)"><span class="cond-emoji">😐</span><span class="cond-label">나쁨</span></button>
+        <button class="sheet-cond-btn" onclick="selCond(3)"><span class="cond-emoji">😶</span><span class="cond-label">보통</span></button>
+        <button class="sheet-cond-btn" onclick="selCond(4)"><span class="cond-emoji">😊</span><span class="cond-label">좋음</span></button>
+        <button class="sheet-cond-btn" onclick="selCond(5)"><span class="cond-emoji">😄</span><span class="cond-label">매우 좋음</span></button>
+      </div>
+      <button class="sheet-save" onclick="saveEntry()">저장하기</button>
+      <button class="sheet-cancel" onclick="closeSheet()">취소</button>
+    </div>
+  </div>
+  <div class="save-toast" id="save-toast">✅ 기록이 저장됐어요</div>
+
+  <!-- =============================================
+       SOS 버튼 (고정)
+       기획 의도: 자세히 보기 화면에서도 응급 버튼
+       동일하게 고정 표시. 접근성 확보.
+       ============================================= -->
+  <button class="sos-btn" onclick="alert('SOS 신호를 전송합니다.\n보호자 및 119에 연락합니다.')" aria-label="SOS 긴급 호출">
+    <span class="sos-icon">🆘</span>
+    <span class="sos-text">SOS</span>
+  </button>
+
+  <!-- =============================================
+       하단 탭바 (고정, 5탭)
+       기획 의도: 홈 탭 활성 유지 (자세히 보기도
+       홈 화면의 하위 모드이므로 홈 탭 강조).
+       ============================================= -->
+  <nav class="tab-bar" aria-label="하단 메뉴">
+    <a href="home-simple.html" class="tab-item active" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+      <span class="tab-label">홈</span>
+    </a>
+    <a href="health-data.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+      <span class="tab-label">건강</span>
+    </a>
+    <a href="medication.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      <span class="tab-label">복약</span>
+    </a>
+    <a href="schedule.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <span class="tab-label">일정</span>
+    </a>
+    <a href="settings.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+      </svg>
+      <span class="tab-label">설정</span>
+    </a>
+  </nav>
+
+  <script>
+    const COMPARE_DATA = {
+      heart:  { peer:{dir:'up',   label:'또래보다 높음 ↑'}, yest:{dir:'down', label:'어제보다 낮음 ↓'}, goal:{dir:'goal-ok',   label:'목표 달성 ✓'} },
+      bp:     { peer:{dir:'down', label:'또래보다 낮음 ↓'}, yest:{dir:'up',   label:'어제보다 높음 ↑'}, goal:{dir:'goal-ok',   label:'목표 달성 ✓'} },
+      spo2:   { peer:{dir:'same', label:'또래와 동일'},      yest:{dir:'same', label:'어제와 동일'},      goal:{dir:'goal-ok',   label:'목표 달성 ✓'} },
+      steps:  { peer:{dir:'down', label:'또래보다 낮음 ↓'}, yest:{dir:'down', label:'어제보다 낮음 ↓'}, goal:{dir:'goal-miss', label:'목표 미달 ↓'} },
+      sleep:  { peer:{dir:'up',   label:'또래보다 높음 ↑'}, yest:{dir:'up',   label:'어제보다 높음 ↑'}, goal:{dir:'goal-ok',   label:'목표 달성 ✓'} },
+      weight: { peer:{dir:'same', label:'또래와 비슷'},      yest:{dir:'down', label:'어제보다 낮음 ↓'}, goal:{dir:'goal-miss', label:'목표까지 1.2kg'} },
+    };
+
+    function setCompare(mode) {
+      document.getElementById('btn-peer').classList.toggle('active', mode === 'peer');
+      document.getElementById('btn-yest').classList.toggle('active', mode === 'yest');
+      document.getElementById('btn-goal').classList.toggle('active', mode === 'goal');
+      Object.keys(COMPARE_DATA).forEach(function(key) {
+        var d = COMPARE_DATA[key][mode];
+        var el = document.getElementById('mc-' + key);
+        if (!el) return;
+        el.className = 'mini-compare ' + d.dir;
+        el.textContent = d.label;
+      });
+    }
+
+
+  const SHEETS = {
+    glucose:   { title:'혈당 입력',       sub:'공복 혈당을 입력해 주세요',                     unit:'mg/dL', cond:false },
+    weight:    { title:'체중 입력',        sub:'아침 공복 체중을 입력해 주세요',                 unit:'kg',    cond:false },
+    bp:        { title:'혈압 직접 측정',   sub:'가정용 혈압계 수치를 입력해 주세요 (수축기)',     unit:'mmHg',  cond:false },
+    condition: { title:'컨디션 기록',      sub:'오늘의 컨디션을 선택해 주세요',                  unit:'',      cond:true  }
+  };
+
+  function openSheet(type) {
+    const s = SHEETS[type] || {};
+    document.getElementById('sheet-title').textContent    = s.title || '직접 입력';
+    document.getElementById('sheet-subtitle').textContent = s.sub   || '';
+    document.getElementById('sheet-unit').textContent     = s.unit  || '';
+    document.getElementById('sheet-input').value = '';
+    document.getElementById('sheet-num-row').style.display  = s.cond ? 'none' : 'flex';
+    document.getElementById('sheet-cond-row').style.display = s.cond ? 'flex' : 'none';
+    document.querySelectorAll('.sheet-cond-btn').forEach(b => b.classList.remove('sel'));
+    document.getElementById('input-sheet').classList.add('open');
+    if (!s.cond) setTimeout(() => document.getElementById('sheet-input').focus(), 100);
+  }
+
+  function closeSheet() {
+    document.getElementById('input-sheet').classList.remove('open');
+  }
+
+  function selCond(n) {
+    document.querySelectorAll('.sheet-cond-btn').forEach((b, i) => b.classList.toggle('sel', i + 1 === n));
+  }
+
+  function saveEntry() {
+    closeSheet();
+    const t = document.getElementById('save-toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  </script>
+</body>
+</html>

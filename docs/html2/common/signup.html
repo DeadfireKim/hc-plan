@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>케어링크 — 회원가입</title>
+
+  <!-- Google Fonts: Noto Sans KR (디자인 시스템 요구사항) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── 디자인 시스템 토큰 ─────────────────────────────── */
+    :root {
+      --color-primary:        #2B7FE0;
+      --color-primary-dark:   #1A5FB4;
+      --color-secondary:      #34C4A0;
+      --color-danger:         #E53935;
+      --color-warning:        #F5A623;
+      --color-bg:             #F4F6F9;
+      --color-surface:        #FFFFFF;
+      --color-border:         #D1D9E6;
+      --color-text-primary:   #1A2332;
+      --color-text-secondary: #546E7A;
+      --color-text-disabled:  #B0BEC5;
+
+      --radius-button: 12px;
+      --radius-card:   16px;
+      --radius-input:  10px;
+
+      --height-button: 56px;
+      --height-input:  52px;
+
+      --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    /* ── 리셋 & 기본 ────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: var(--color-bg);
+      min-height: 100dvh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    /* ── 모바일 컨테이너 ────────────────────────────────── */
+    /* 기획 의도: 로그인과 동일한 390px 제약으로 일관된 UX 유지 */
+    .screen {
+      width: 100%;
+      max-width: 390px;
+      min-height: 100dvh;
+      background-color: var(--color-surface);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── 상단 헤더 ──────────────────────────────────────── */
+    /* 기획 의도: 뒤로 가기 + 서비스명으로 맥락 유지 */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px 12px;
+      gap: 8px;
+      position: sticky;
+      top: 0;
+      background: var(--color-surface);
+      z-index: 10;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .back-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-primary);
+      border-radius: 8px;
+      -webkit-tap-highlight-color: transparent;
+      flex-shrink: 0;
+    }
+    .back-btn:active { background: var(--color-bg); }
+
+    .top-bar-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    /* ── 진행 단계 표시 스테퍼 ──────────────────────────── */
+    /* 기획 의도: 3단계 온보딩을 시각화해 사용자가 현재 위치와
+       남은 과정을 파악하고 이탈을 최소화                         */
+    .stepper-section {
+      padding: 20px 24px 0;
+    }
+
+    .stepper {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+    }
+
+    .step-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      position: relative;
+    }
+
+    /* 단계 간 연결선 */
+    .step-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: var(--color-border);
+      z-index: 0;
+      transition: background 0.3s ease;
+    }
+
+    /* 완료된 단계의 연결선 */
+    .step-item.done:not(:last-child)::after {
+      background: var(--color-primary);
+    }
+
+    /* 단계 원형 번호 */
+    .step-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+      background: var(--color-border);
+      color: var(--color-text-disabled);
+      transition: background 0.25s, color 0.25s;
+      border: 2px solid var(--color-border);
+    }
+
+    /* 현재 활성 단계 */
+    .step-item.active .step-circle {
+      background: var(--color-primary);
+      color: #fff;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 4px rgba(43, 127, 224, 0.15);
+    }
+
+    /* 완료된 단계 */
+    .step-item.done .step-circle {
+      background: var(--color-primary);
+      color: #fff;
+      border-color: var(--color-primary);
+    }
+
+    .step-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--color-text-disabled);
+      margin-top: 6px;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .step-item.active .step-label { color: var(--color-primary); font-weight: 600; }
+    .step-item.done  .step-label  { color: var(--color-text-secondary); }
+
+    /* 체크 아이콘 (완료 단계용) */
+    .step-check { display: none; }
+    .step-item.done .step-num   { display: none; }
+    .step-item.done .step-check { display: block; }
+
+    /* ── 단계 설명 헤딩 ─────────────────────────────────── */
+    .step-heading {
+      padding: 28px 24px 4px;
+    }
+
+    .step-heading h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      letter-spacing: -0.4px;
+    }
+
+    .step-heading p {
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      margin-top: 6px;
+      line-height: 1.55;
+    }
+
+    /* ── 역할 선택 카드 그리드 ──────────────────────────── */
+    /* 기획 의도: 앱 사용 목적에 따라 서로 다른 기능과 데이터를
+       제공해야 하므로 진입 시점에 역할을 명확히 분기             */
+    .role-grid {
+      padding: 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+
+    /* 역할 카드 */
+    /* 기획 의도: 카드형 선택 UI — 단순 라디오버튼 대비
+       아이콘·설명·배지가 포함되어 각 역할의 특성을 직관적으로 전달 */
+    .role-card {
+      background: var(--color-surface);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-card); /* 16px */
+      box-shadow: var(--shadow-card);
+      padding: 18px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 선택 시 Primary 테두리 강조 */
+    /* 기획 의도: 선택 상태를 border + 배경 미묘한 틴트로 이중 표현 */
+    .role-card.selected {
+      border-color: var(--color-primary);
+      background: rgba(43, 127, 224, 0.04);
+      box-shadow: 0 4px 16px rgba(43, 127, 224, 0.18);
+    }
+
+    /* 선택 체크 배지 (카드 우상단) */
+    .role-card .check-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .role-card.selected .check-badge { display: flex; }
+
+    /* 역할 아이콘 컨테이너 */
+    .role-icon-wrap {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* 시니어 본인 — 초록(secondary) 계열 */
+    .role-icon-wrap.senior {
+      background: rgba(52, 196, 160, 0.12);
+    }
+
+    /* 자녀·보호자 — 파랑(primary) 계열 */
+    .role-icon-wrap.guardian {
+      background: rgba(43, 127, 224, 0.10);
+    }
+
+    /* 의료진·관리자 — 보라 계열 */
+    .role-icon-wrap.medical {
+      background: rgba(126, 87, 194, 0.10);
+    }
+
+    .role-icon-wrap svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    /* 역할 텍스트 */
+    .role-info { flex: 1; min-width: 0; }
+
+    .role-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* 추천 배지 */
+    .badge-rec {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--color-secondary);
+      background: rgba(52, 196, 160, 0.12);
+      padding: 2px 7px;
+      border-radius: 20px;
+      letter-spacing: 0.2px;
+    }
+
+    .role-desc {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      margin-top: 4px;
+      line-height: 1.55;
+    }
+
+    /* 역할 기능 태그 목록 */
+    .role-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .tag {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 2px 8px;
+    }
+
+    /* 선택 시 태그 색상 */
+    .role-card.selected .tag {
+      background: rgba(43, 127, 224, 0.07);
+      border-color: rgba(43, 127, 224, 0.25);
+      color: var(--color-primary);
+    }
+
+    /* ── 하단 버튼 영역 ─────────────────────────────────── */
+    /* 기획 의도: 다음 단계 버튼을 항상 가시 영역 하단에 고정,
+       역할 미선택 시 비활성화하여 실수 방지                      */
+    .bottom-action {
+      padding: 16px 24px;
+      padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+      background: var(--color-surface);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .btn {
+      width: 100%;
+      height: var(--height-button); /* 56px */
+      border: none;
+      border-radius: var(--radius-button); /* 12px */
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity 0.15s ease, transform 0.12s ease, background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active:not(:disabled) { opacity: 0.88; transform: scale(0.985); }
+
+    /* Primary 버튼 */
+    .btn-primary {
+      background: var(--color-primary);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(43, 127, 224, 0.30);
+    }
+    .btn-primary:disabled {
+      background: var(--color-text-disabled);
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    /* 로그인 링크 */
+    .login-prompt {
+      text-align: center;
+      padding: 14px 24px 20px;
+      font-size: 13px;
+      color: var(--color-text-secondary);
+    }
+    .login-prompt a {
+      color: var(--color-primary);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    /* ── 접근성 ─────────────────────────────────────────── */
+    .btn:focus-visible,
+    .role-card:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* ── 선택 안내 토스트 (기획용) ─────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: rgba(26, 35, 50, 0.90);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px 20px;
+      border-radius: 24px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s;
+      z-index: 100;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- ──────────────────────────────────────────────────────
+     C-02 회원가입 — 1단계: 역할 선택
+     기획 의도: 헬스케어 앱은 사용 주체에 따라 시니어 본인,
+     보호자, 의료진이 완전히 다른 화면과 권한을 가짐.
+     초기 역할 분기를 통해 개인화된 온보딩 경로를 제공하며,
+     잘못 선택해도 계정 설정에서 변경 가능하도록 기획
+────────────────────────────────────────────────────────── -->
+<div class="screen" role="main">
+
+  <!-- 1) 상단 헤더 -->
+  <!-- 기획 의도: 뒤로 가기로 로그인 화면으로 복귀 경로 확보 -->
+  <header class="top-bar">
+    <button class="back-btn" onclick="window.location.href='login.html'" aria-label="뒤로 가기">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+           aria-hidden="true">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+    </button>
+    <span class="top-bar-title">회원가입</span>
+  </header>
+
+  <!-- 2) 진행 단계 스테퍼 -->
+  <!-- 기획 의도: 전체 3단계 중 1단계임을 명시하여 사용자가
+       완료까지 얼마나 남았는지 예측 가능하게 함                   -->
+  <section class="stepper-section" aria-label="회원가입 진행 단계">
+    <div class="stepper" role="list">
+
+      <!-- 1단계: 역할 선택 (현재 활성) -->
+      <div class="step-item active" role="listitem" aria-current="step">
+        <div class="step-circle" aria-label="1단계 역할 선택 (현재)">
+          <span class="step-num" aria-hidden="true">1</span>
+          <!-- 완료 시 체크 아이콘으로 교체 -->
+          <svg class="step-check" width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+               aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <span class="step-label">역할<br>선택</span>
+      </div>
+
+      <!-- 2단계: 정보 입력 (미완료) -->
+      <div class="step-item" role="listitem" aria-label="2단계 정보 입력 (미완료)">
+        <div class="step-circle">
+          <span class="step-num" aria-hidden="true">2</span>
+          <svg class="step-check" width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+               aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <span class="step-label">정보<br>입력</span>
+      </div>
+
+      <!-- 3단계: 가입 완료 (미완료) -->
+      <div class="step-item" role="listitem" aria-label="3단계 가입 완료 (미완료)">
+        <div class="step-circle">
+          <span class="step-num" aria-hidden="true">3</span>
+          <svg class="step-check" width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+               aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <span class="step-label">가입<br>완료</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 3) 단계 설명 헤딩 -->
+  <section class="step-heading">
+    <h2>어떤 용도로 사용하시나요?</h2>
+    <p>역할에 맞는 기능과 화면을 제공해 드려요.<br>나중에 설정에서 변경할 수 있어요.</p>
+  </section>
+
+  <!-- 4) 역할 선택 카드 목록 -->
+  <!-- 기획 의도: 각 카드는 역할 아이콘 + 명칭 + 설명 + 주요 기능 태그로 구성.
+       시각적으로 역할의 가치와 목적을 전달하여 올바른 선택 유도   -->
+  <section class="role-grid" aria-label="역할 선택" role="radiogroup">
+
+    <!-- ① 시니어 본인 카드 -->
+    <!-- 기획 의도: 주 사용자 대상. '추천' 배지로 진입을 유도하며
+         건강 데이터 자가 관리 중심 기능 태그 노출               -->
+    <div class="role-card" id="card-senior"
+         role="radio" aria-checked="false" tabindex="0"
+         aria-label="시니어 본인 — 나의 건강을 직접 관리"
+         onclick="selectRole('senior')"
+         onkeydown="if(event.key==='Enter'||event.key===' ')selectRole('senior')">
+
+      <!-- 선택 체크 배지 -->
+      <div class="check-badge" aria-hidden="true">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+             stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+
+      <!-- 아이콘 영역 -->
+      <div class="role-icon-wrap senior" aria-hidden="true">
+        <!-- 사람 + 하트 아이콘: 시니어 본인 건강 케어 -->
+        <svg viewBox="0 0 24 24" fill="none"
+             stroke="#34C4A0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+          <path d="M16 3.5c.5-.5 1.5-.5 2 0s.5 1.5 0 2L16 8l-2-2 2-2.5Z" stroke-width="1.5"/>
+        </svg>
+      </div>
+
+      <!-- 역할 정보 -->
+      <div class="role-info">
+        <div class="role-title">
+          시니어 본인
+          <span class="badge-rec">추천</span>
+        </div>
+        <p class="role-desc">내 건강 데이터를 직접 기록하고 확인해요. 가족에게 건강 상태를 공유할 수 있어요.</p>
+        <div class="role-tags">
+          <span class="tag">건강 일지</span>
+          <span class="tag">복약 알림</span>
+          <span class="tag">응급 SOS</span>
+          <span class="tag">가족 공유</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② 자녀·보호자 카드 -->
+    <!-- 기획 의도: 멀리 사는 자녀나 보호자가 부모 건강을 원격으로
+         모니터링하는 시나리오. 케어 대상자 연결이 핵심 기능        -->
+    <div class="role-card" id="card-guardian"
+         role="radio" aria-checked="false" tabindex="0"
+         aria-label="자녀·보호자 — 가족 건강을 원격으로 돌봄"
+         onclick="selectRole('guardian')"
+         onkeydown="if(event.key==='Enter'||event.key===' ')selectRole('guardian')">
+
+      <div class="check-badge" aria-hidden="true">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+             stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+
+      <div class="role-icon-wrap guardian" aria-hidden="true">
+        <!-- 가족(집) + 보호 아이콘 -->
+        <svg viewBox="0 0 24 24" fill="none"
+             stroke="#2B7FE0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+
+      <div class="role-info">
+        <div class="role-title">자녀·보호자</div>
+        <p class="role-desc">부모님·가족의 건강을 원격으로 확인하고 케어해요. 이상 징후 발생 시 즉시 알림을 받아요.</p>
+        <div class="role-tags">
+          <span class="tag">실시간 모니터링</span>
+          <span class="tag">이상 알림</span>
+          <span class="tag">위치 확인</span>
+          <span class="tag">복약 관리</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ 의료진·관리자 카드 -->
+    <!-- 기획 의도: 요양원 직원·가정간호사·주치의 등 전문 케어 인력.
+         다수 시니어 동시 관리, 차트 접근, 알림 설정이 핵심 기능   -->
+    <div class="role-card" id="card-medical"
+         role="radio" aria-checked="false" tabindex="0"
+         aria-label="의료진·관리자 — 다수 환자·이용자 통합 케어"
+         onclick="selectRole('medical')"
+         onkeydown="if(event.key==='Enter'||event.key===' ')selectRole('medical')">
+
+      <div class="check-badge" aria-hidden="true">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+             stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+
+      <div class="role-icon-wrap medical" aria-hidden="true">
+        <!-- 의사 가방 + 십자 아이콘 -->
+        <svg viewBox="0 0 24 24" fill="none"
+             stroke="#7E57C2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+          <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+          <line x1="12" y1="12" x2="12" y2="16"/>
+          <line x1="10" y1="14" x2="14" y2="14"/>
+        </svg>
+      </div>
+
+      <div class="role-info">
+        <div class="role-title">의료진·관리자</div>
+        <p class="role-desc">담당 시니어·환자의 건강 데이터를 통합 관리해요. 전문가 전용 대시보드를 사용할 수 있어요.</p>
+        <div class="role-tags">
+          <span class="tag">통합 대시보드</span>
+          <span class="tag">차트 열람</span>
+          <span class="tag">리포트 생성</span>
+          <span class="tag">다중 케어</span>
+        </div>
+      </div>
+    </div>
+
+  </section><!-- /role-grid -->
+
+  <!-- 로그인 링크 -->
+  <div class="login-prompt">
+    이미 계정이 있으신가요?
+    <a href="login.html" aria-label="로그인 페이지로 이동">로그인</a>
+  </div>
+
+  <!-- 5) 하단 다음 버튼 -->
+  <!-- 기획 의도: 역할 미선택 시 disabled 상태로 진행 차단.
+       역할 선택 완료 시 활성화되어 2단계 정보 입력으로 이동      -->
+  <footer class="bottom-action">
+    <button class="btn btn-primary" id="next-btn"
+            disabled aria-disabled="true"
+            onclick="goNextStep()"
+            aria-label="다음 단계: 정보 입력으로 이동">
+      다음
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+           aria-hidden="true">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </button>
+  </footer>
+
+</div><!-- /screen -->
+
+<!-- 선택 완료 토스트 -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  // ── 현재 선택된 역할 ──────────────────────────────────
+  let selectedRole = null;
+
+  // 역할 이름 맵 (토스트 메시지용)
+  const roleLabels = {
+    senior:   '시니어 본인',
+    guardian: '자녀·보호자',
+    medical:  '의료진·관리자',
+  };
+
+  // ── 역할 선택 함수 ────────────────────────────────────
+  // 기획 의도: 카드 클릭/키보드로 역할 선택 → 시각 피드백 + 다음 버튼 활성화
+  function selectRole(role) {
+    // 이전 선택 해제
+    document.querySelectorAll('.role-card').forEach(card => {
+      card.classList.remove('selected');
+      card.setAttribute('aria-checked', 'false');
+    });
+
+    // 새 선택 적용
+    const card = document.getElementById('card-' + role);
+    card.classList.add('selected');
+    card.setAttribute('aria-checked', 'true');
+    selectedRole = role;
+
+    // 다음 버튼 활성화
+    const nextBtn = document.getElementById('next-btn');
+    nextBtn.disabled = false;
+    nextBtn.setAttribute('aria-disabled', 'false');
+
+    // 선택 토스트 표시
+    showToast(roleLabels[role] + '(으)로 시작할게요 ✓');
+  }
+
+  // ── 토스트 메시지 ─────────────────────────────────────
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  // ── 다음 단계 이동 ────────────────────────────────────
+  // 기획 의도: 실제 서비스에서는 선택된 역할을 state/store에 저장 후 2단계로 라우팅.
+  //           기획 목업에서는 선택 확인 토스트 후 이동 시뮬레이션
+  function goNextStep() {
+    if (!selectedRole) return;
+    const nextBtn = document.getElementById('next-btn');
+    nextBtn.textContent = '잠시만요...';
+    nextBtn.disabled = true;
+
+    // 기획용: 1.2초 후 다음 단계 진입 시뮬레이션 (실제 구현 시 라우터 이동으로 교체)
+    setTimeout(() => {
+      showToast('2단계: 정보 입력으로 이동합니다');
+      nextBtn.innerHTML = '다음 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+      nextBtn.disabled = false;
+    }, 1200);
+  }
+</script>
+</body>
+</html>

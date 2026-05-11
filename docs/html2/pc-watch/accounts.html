@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>계정 관리 — HealthWatch 와치 관리자</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans KR', sans-serif; background: #F4F6F9; color: #1A2332; min-width: 1280px; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    /* ── 헤더 ── */
+    header { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: #fff; border-bottom: 1px solid #D1D9E6; display: flex; align-items: center; padding: 0 24px; z-index: 100; gap: 16px; }
+    .header-logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; color: #2B7FE0; text-decoration: none; }
+    .header-divider { width: 1px; height: 24px; background: #D1D9E6; }
+    .header-role { font-size: 15px; font-weight: 600; color: #1A2332; }
+    .header-hospital { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #1B8A6B; background: #E8FAF4; border-radius: 6px; padding: 4px 10px; }
+    .header-spacer { flex: 1; }
+    .header-bell { position: relative; width: 36px; height: 36px; border-radius: 8px; background: #F4F6F9; border: 1px solid #D1D9E6; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .header-bell-dot { position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; border-radius: 50%; background: #E53935; }
+    .header-account { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #546E7A; cursor: pointer; }
+    .header-account-avatar { width: 34px; height: 34px; border-radius: 50%; background: #2B7FE0; color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+    /* ── 레이아웃 ── */
+    .layout { display: flex; margin-top: 60px; height: calc(100vh - 60px); }
+
+    /* ── 사이드바 ── */
+    aside { width: 240px; background: #fff; border-right: 1px solid #D1D9E6; display: flex; flex-direction: column; padding: 20px 0; flex-shrink: 0; overflow-y: auto; }
+    .nav-section-label { font-size: 11px; font-weight: 600; color: #546E7A; letter-spacing: 0.08em; text-transform: uppercase; padding: 16px 20px 6px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 20px; font-size: 14px; font-weight: 500; color: #546E7A; cursor: pointer; text-decoration: none; transition: background 0.15s, color 0.15s; position: relative; }
+    .nav-item:hover { background: #F4F6F9; color: #1A2332; }
+    .nav-item.active { background: #EBF3FF; color: #2B7FE0; font-weight: 600; }
+    .nav-item.active::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; background: #2B7FE0; border-radius: 0 3px 3px 0; }
+    .nav-divider { height: 1px; background: #D1D9E6; margin: 8px 16px; }
+
+    /* ── 메인 ── */
+    main { flex: 1; overflow-y: auto; padding: 32px; }
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+    .page-title { font-size: 22px; font-weight: 700; color: #1A2332; }
+    .page-subtitle { font-size: 14px; color: #546E7A; margin-top: 4px; }
+
+    /* ── 탭 ── */
+    .tab-bar { display: flex; border-bottom: 2px solid #E8ECF0; margin-bottom: 24px; }
+    .tab-btn { padding: 12px 24px; font-size: 14px; font-weight: 500; color: #546E7A; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; cursor: pointer; transition: all 0.15s; font-family: 'Noto Sans KR', sans-serif; white-space: nowrap; }
+    .tab-btn:hover { color: #1A2332; }
+    .tab-btn.active { color: #2B7FE0; font-weight: 700; border-bottom-color: #2B7FE0; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── 요약 카드 ── */
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+    .summary-card { background: #fff; border-radius: 14px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid transparent; }
+    .summary-card.blue   { border-left-color: #2B7FE0; }
+    .summary-card.green  { border-left-color: #34C4A0; }
+    .summary-card.yellow { border-left-color: #F5A623; }
+    .summary-card.purple { border-left-color: #9C27B0; }
+    .summary-card-label { font-size: 12px; font-weight: 600; color: #546E7A; margin-bottom: 8px; }
+    .summary-card-value { font-size: 26px; font-weight: 700; }
+    .summary-card.blue   .summary-card-value { color: #2B7FE0; }
+    .summary-card.green  .summary-card-value { color: #1B8A6B; }
+    .summary-card.yellow .summary-card-value { color: #E65100; }
+    .summary-card.purple .summary-card-value { color: #6A1B9A; }
+
+    /* ── 필터 바 ── */
+    .filter-bar { display: flex; align-items: center; gap: 12px; background: #fff; border-radius: 12px; padding: 14px 18px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .filter-bar input[type="text"], .filter-bar select { height: 38px; border: 1.5px solid #D1D9E6; border-radius: 8px; padding: 0 12px; font-size: 14px; color: #1A2332; font-family: 'Noto Sans KR', sans-serif; background: #F8FAFC; outline: none; transition: border-color 0.15s; }
+    .filter-bar input[type="text"] { flex: 1; min-width: 180px; }
+    .filter-bar input:focus, .filter-bar select:focus { border-color: #2B7FE0; background: #fff; }
+    .filter-count { margin-left: auto; font-size: 13px; color: #546E7A; white-space: nowrap; }
+    .filter-count strong { color: #1A2332; }
+
+    /* ── 버튼 ── */
+    .btn-primary { height: 40px; padding: 0 20px; background: #2B7FE0; color: #fff; font-size: 14px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: 'Noto Sans KR', sans-serif; transition: background 0.15s; white-space: nowrap; }
+    .btn-primary:hover { background: #1A5FB4; }
+    .btn-secondary { height: 40px; padding: 0 20px; background: #fff; color: #546E7A; font-size: 14px; font-weight: 600; border: 1.5px solid #D1D9E6; border-radius: 8px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; transition: all 0.15s; }
+    .btn-secondary:hover { background: #F4F6F9; }
+    .btn-sm { height: 32px; padding: 0 14px; font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; transition: all 0.15s; display: inline-flex; align-items: center; }
+    .btn-sm.edit  { background: #fff; color: #546E7A; border: 1.5px solid #D1D9E6; }
+    .btn-sm.edit:hover  { background: #F4F6F9; }
+    .btn-sm.deact { background: #fff; color: #E53935; border: 1.5px solid #E53935; }
+    .btn-sm.deact:hover { background: #FDECEA; }
+    .btn-sm.act   { background: #2B7FE0; color: #fff; border: none; }
+    .btn-sm.act:hover   { background: #1A5FB4; }
+
+    /* ── 테이블 ── */
+    .table-card { background: #fff; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { background: #F8FAFC; padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #546E7A; border-bottom: 1px solid #E8ECF0; white-space: nowrap; }
+    tbody td { padding: 13px 16px; font-size: 14px; color: #1A2332; border-bottom: 1px solid #F0F2F5; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #FAFBFC; }
+    tbody tr.unmatched td { background: #FFFBF0; }
+    tbody tr.unmatched:hover td { background: #FFF8E1; }
+    .empty-row td { text-align: center; padding: 40px; color: #8FA3B1; font-size: 14px; }
+
+    /* ── 이름 링크 ── */
+    .name-link { color: #2B7FE0; font-weight: 600; cursor: pointer; text-decoration: none; }
+    .name-link:hover { text-decoration: underline; color: #1A5FB4; }
+
+    /* ── 배지 ── */
+    .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .badge-ok     { background: #E8FAF4; color: #1B8A6B; }
+    .badge-ok .badge-dot { background: #34C4A0; }
+    .badge-warn   { background: #FFF3E0; color: #E65100; }
+    .badge-warn .badge-dot { background: #F5A623; }
+    .badge-purple { background: #F3E5F5; color: #6A1B9A; }
+    .badge-purple .badge-dot { background: #9C27B0; }
+    .badge-blue   { background: #EBF3FF; color: #1A5FB4; }
+    .badge-blue .badge-dot { background: #2B7FE0; }
+
+    /* ── 모달 (등록/수정) ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: center; justify-content: center; z-index: 500; }
+    .modal-overlay.show { display: flex; }
+    .modal-box { background: #fff; border-radius: 16px; padding: 32px; width: 480px; box-shadow: 0 8px 40px rgba(0,0,0,0.18); }
+    .modal-title { font-size: 18px; font-weight: 700; color: #1A2332; margin-bottom: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { font-size: 13px; font-weight: 600; color: #546E7A; margin-bottom: 6px; display: block; }
+    .form-input, .form-select { width: 100%; height: 42px; border: 1.5px solid #D1D9E6; border-radius: 8px; padding: 0 14px; font-size: 14px; color: #1A2332; font-family: 'Noto Sans KR', sans-serif; background: #F8FAFC; outline: none; }
+    .form-input:focus, .form-select:focus { border-color: #2B7FE0; background: #fff; }
+    .modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
+
+    /* ── 상세 레이어 팝업 ── */
+    .detail-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: center; justify-content: center; z-index: 600; }
+    .detail-overlay.show { display: flex; }
+    .detail-panel {
+      width: 520px; max-height: 82vh;
+      background: #fff; border-radius: 20px;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.22);
+      display: flex; flex-direction: column;
+      animation: popIn 0.2s ease;
+    }
+    @keyframes popIn { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
+
+    .detail-head {
+      padding: 24px 24px 20px;
+      border-bottom: 1px solid #E8ECF0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .detail-head-title { font-size: 16px; font-weight: 700; color: #1A2332; }
+    .detail-close {
+      width: 32px; height: 32px; border-radius: 8px; border: none;
+      background: #F4F6F9; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: #546E7A; transition: background 0.15s;
+    }
+    .detail-close:hover { background: #E8ECF0; }
+
+    .detail-body { flex: 1; overflow-y: auto; padding: 24px; }
+
+    .detail-profile {
+      display: flex; align-items: center; gap: 16px;
+      padding: 20px; background: #F8FAFC; border-radius: 14px;
+      margin-bottom: 24px;
+    }
+    .detail-avatar {
+      width: 60px; height: 60px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .detail-avatar.medical { background: linear-gradient(135deg, #2B7FE0, #1A5FB4); }
+    .detail-avatar.senior  { background: linear-gradient(135deg, #34C4A0, #1B8A6B); }
+    .detail-avatar.child   { background: linear-gradient(135deg, #F5A623, #E65100); }
+    .detail-avatar.watch   { background: linear-gradient(135deg, #9C27B0, #6A1B9A); }
+
+    .detail-profile-info {}
+    .detail-profile-name { font-size: 20px; font-weight: 700; color: #1A2332; margin-bottom: 4px; }
+    .detail-profile-sub  { font-size: 13px; color: #546E7A; margin-bottom: 8px; }
+
+    .detail-section-label {
+      font-size: 11px; font-weight: 700; color: #546E7A;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .detail-info-grid {
+      display: flex; flex-direction: column; gap: 0;
+      background: #fff; border: 1px solid #E8ECF0;
+      border-radius: 12px; overflow: hidden; margin-bottom: 24px;
+    }
+    .detail-info-row {
+      display: flex; align-items: center;
+      padding: 13px 16px; border-bottom: 1px solid #F0F2F5;
+    }
+    .detail-info-row:last-child { border-bottom: none; }
+    .detail-info-key { font-size: 12px; font-weight: 600; color: #8FA3B1; width: 100px; flex-shrink: 0; }
+    .detail-info-val { font-size: 14px; color: #1A2332; font-weight: 500; }
+
+    .detail-foot {
+      padding: 16px 24px;
+      border-top: 1px solid #E8ECF0;
+      display: flex; gap: 10px;
+    }
+    .detail-foot .btn-primary  { flex: 1; justify-content: center; }
+    .detail-foot .btn-secondary { flex: 1; justify-content: center; height: 40px; }
+
+    /* ── 토스트 ── */
+    .toast { position: fixed; bottom: 32px; right: 32px; background: #1A2332; color: #fff; padding: 14px 22px; border-radius: 10px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.18); opacity: 0; transform: translateY(12px); transition: all 0.3s; pointer-events: none; z-index: 999; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- 토스트 -->
+<div class="toast" id="toast">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34C4A0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toast-msg">저장되었습니다.</span>
+</div>
+
+<!-- ── 상세 레이어 팝업 ── -->
+<div class="detail-overlay" id="detail-overlay" onclick="if(event.target===this)closeDetail()">
+  <div class="detail-panel">
+    <div class="detail-head">
+      <span class="detail-head-title" id="detail-head-title">계정 상세</span>
+      <button class="detail-close" onclick="closeDetail()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="detail-body" id="detail-body"></div>
+    <div class="detail-foot" id="detail-foot"></div>
+  </div>
+</div>
+
+<!-- 의료진 등록 모달 -->
+<div class="modal-overlay" id="modal-md" onclick="if(event.target===this)closeModal('modal-md')">
+  <div class="modal-box">
+    <div class="modal-title">의료진 계정 등록</div>
+    <div class="form-group"><label class="form-label">이름</label><input class="form-input" id="md-name" type="text" placeholder="이름 입력" /></div>
+    <div class="form-group"><label class="form-label">직종</label><input class="form-input" id="md-role" type="text" placeholder="예: 내과 전문의, 간호사" /></div>
+    <div class="form-group"><label class="form-label">소속팀</label><input class="form-input" id="md-dept" type="text" placeholder="예: 내과 1팀" /></div>
+    <div class="form-group"><label class="form-label">연락처</label><input class="form-input" id="md-phone" type="text" placeholder="010-0000-0000" /></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-md')">취소</button>
+      <button class="btn-primary" onclick="saveMedical()">등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- 의료진 수정 모달 -->
+<div class="modal-overlay" id="modal-md-edit" onclick="if(event.target===this)closeModal('modal-md-edit')">
+  <div class="modal-box">
+    <div class="modal-title">의료진 정보 수정</div>
+    <input type="hidden" id="edit-md-id" />
+    <div class="form-group"><label class="form-label">이름</label><input class="form-input" id="edit-md-name" type="text" /></div>
+    <div class="form-group"><label class="form-label">직종</label><input class="form-input" id="edit-md-role" type="text" /></div>
+    <div class="form-group"><label class="form-label">소속팀</label><input class="form-input" id="edit-md-dept" type="text" /></div>
+    <div class="form-group"><label class="form-label">연락처</label><input class="form-input" id="edit-md-phone" type="text" /></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-md-edit')">취소</button>
+      <button class="btn-primary" onclick="updateMedical()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 시니어 등록 모달 -->
+<div class="modal-overlay" id="modal-sr" onclick="if(event.target===this)closeModal('modal-sr')">
+  <div class="modal-box">
+    <div class="modal-title">시니어 계정 등록</div>
+    <div class="form-group"><label class="form-label">이름</label><input class="form-input" id="sr-name" type="text" placeholder="이름 입력" /></div>
+    <div class="form-group"><label class="form-label">나이</label><input class="form-input" id="sr-age" type="number" placeholder="나이 입력" min="50" max="110" /></div>
+    <div class="form-group"><label class="form-label">연락처</label><input class="form-input" id="sr-phone" type="text" placeholder="010-0000-0000" /></div>
+    <div class="form-group"><label class="form-label">주소</label><input class="form-input" id="sr-addr" type="text" placeholder="주소 입력" /></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-sr')">취소</button>
+      <button class="btn-primary" onclick="saveSenior()">등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- 자녀 등록 모달 -->
+<div class="modal-overlay" id="modal-ch" onclick="if(event.target===this)closeModal('modal-ch')">
+  <div class="modal-box">
+    <div class="modal-title">자녀 계정 등록</div>
+    <div class="form-group"><label class="form-label">이름</label><input class="form-input" id="ch-name" type="text" placeholder="이름 입력" /></div>
+    <div class="form-group"><label class="form-label">연락처</label><input class="form-input" id="ch-phone" type="text" placeholder="010-0000-0000" /></div>
+    <div class="form-group"><label class="form-label">관계</label>
+      <select class="form-select" id="ch-relation"><option value="아들">아들</option><option value="딸">딸</option><option value="배우자">배우자</option><option value="기타">기타</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">연결 시니어</label><select class="form-select" id="ch-senior"></select></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-ch')">취소</button>
+      <button class="btn-primary" onclick="saveChild()">등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- 와치관리자 등록 모달 -->
+<div class="modal-overlay" id="modal-wm" onclick="if(event.target===this)closeModal('modal-wm')">
+  <div class="modal-box">
+    <div class="modal-title">와치관리자 계정 등록</div>
+    <div class="form-group"><label class="form-label">이름</label><input class="form-input" id="wm-name" type="text" placeholder="이름 입력" /></div>
+    <div class="form-group"><label class="form-label">연락처</label><input class="form-input" id="wm-phone" type="text" placeholder="010-0000-0000" /></div>
+    <div class="form-group"><label class="form-label">이메일 (로그인 ID)</label><input class="form-input" id="wm-email" type="email" placeholder="example@hospital.kr" /></div>
+    <div class="form-group"><label class="form-label">관리 범위</label>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+        <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;"><input type="checkbox" id="wm-scope-device" checked /> 기기 관리</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;"><input type="checkbox" id="wm-scope-match"  checked /> 매칭 관리</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;"><input type="checkbox" id="wm-scope-notice" checked /> 공지사항</label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-wm')">취소</button>
+      <button class="btn-primary" onclick="saveWatchManager()">등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 헤더 ── -->
+<header>
+  <a class="header-logo" href="dashboard.html">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="8" fill="#2B7FE0"/><path d="M8 14.5C8 10.91 10.91 8 14.5 8C18.09 8 21 10.91 21 14.5" stroke="white" stroke-width="2" stroke-linecap="round"/><circle cx="14.5" cy="14.5" r="2.5" fill="white"/><path d="M14.5 17V20" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+    HealthWatch
+  </a>
+  <div class="header-divider"></div>
+  <span class="header-role">와치 관리자</span>
+  <div class="header-hospital">🏥 한마음내과의원</div>
+  <div class="header-spacer"></div>
+  <div class="header-bell">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#546E7A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    <span class="header-bell-dot"></span>
+  </div>
+  <div class="header-account">
+    <div class="header-account-avatar">김</div>
+    <span>김관리 님</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#546E7A" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+</header>
+
+<div class="layout">
+  <aside>
+    <div style="margin:12px 16px;padding:12px 14px;background:#E8FAF4;border-radius:10px;border:1px solid #B2DFDB;">
+      <div style="font-size:11px;font-weight:600;color:#546E7A;margin-bottom:4px;">소속 병원</div>
+      <div style="font-size:13px;font-weight:700;color:#1B8A6B;">🏥 한마음내과의원</div>
+      <div style="font-size:11px;color:#546E7A;margin-top:2px;">코드: HNI-2024-031</div>
+    </div>
+    <span class="nav-section-label">메인 메뉴</span>
+    <a class="nav-item" href="dashboard.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      대시보드
+    </a>
+    <a class="nav-item" href="hospital.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      내 병원 정보
+    </a>
+    <a class="nav-item" href="devices.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      기기 목록
+    </a>
+    <a class="nav-item" href="device-detail.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      기기 설정
+    </a>
+    <a class="nav-item" href="matching.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      의료진-시니어 매칭
+    </a>
+    <a class="nav-item active" href="accounts.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+      계정 관리
+    </a>
+    <a class="nav-item" href="data.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      데이터 수집 현황
+    </a>
+    <div class="nav-divider"></div>
+    <span class="nav-section-label">계정</span>
+    <a class="nav-item" href="account.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      내 계정
+    </a>
+  </aside>
+
+  <main>
+    <div class="page-header">
+      <div>
+        <div class="page-title">계정 관리</div>
+        <div class="page-subtitle">한마음내과의원 소속 계정을 관리합니다.</div>
+      </div>
+      <div id="add-btn-wrap"></div>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('medical')">의료진</button>
+      <button class="tab-btn" onclick="switchTab('senior')">시니어</button>
+      <button class="tab-btn" onclick="switchTab('child')">자녀</button>
+      <button class="tab-btn" onclick="switchTab('watch')">와치관리자</button>
+    </div>
+
+    <!-- 의료진 탭 -->
+    <div class="tab-panel active" id="panel-medical">
+      <div class="summary-grid">
+        <div class="summary-card blue"><div class="summary-card-label">전체 의료진</div><div class="summary-card-value" id="md-total">8</div></div>
+        <div class="summary-card green"><div class="summary-card-label">활성</div><div class="summary-card-value" id="md-active">7</div></div>
+        <div class="summary-card yellow"><div class="summary-card-label">비활성</div><div class="summary-card-value" id="md-inactive">1</div></div>
+      </div>
+      <div class="filter-bar">
+        <input type="text" id="md-search" placeholder="이름 검색" oninput="renderMedical()" />
+        <select id="md-role-filter" onchange="renderMedical()">
+          <option value="">전체 직종</option><option value="의사">의사</option><option value="간호사">간호사</option><option value="물리치료사">물리치료사</option><option value="재활의학과">재활의학과</option>
+        </select>
+        <select id="md-status-filter" onchange="renderMedical()">
+          <option value="">전체 상태</option><option value="활성">활성</option><option value="비활성">비활성</option>
+        </select>
+        <span class="filter-count">총 <strong id="md-count">8</strong>명</span>
+      </div>
+      <div class="table-card">
+        <table><thead><tr><th>이름</th><th>직종</th><th>소속팀</th><th>연락처</th><th>담당 시니어</th><th>상태</th><th>액션</th></tr></thead>
+        <tbody id="md-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- 시니어 탭 -->
+    <div class="tab-panel" id="panel-senior">
+      <div class="summary-grid">
+        <div class="summary-card blue"><div class="summary-card-label">전체 시니어</div><div class="summary-card-value" id="sr-total">12</div></div>
+        <div class="summary-card green"><div class="summary-card-label">기기 매칭됨</div><div class="summary-card-value" id="sr-matched">10</div></div>
+        <div class="summary-card yellow"><div class="summary-card-label">미매칭</div><div class="summary-card-value" id="sr-unmatched">2</div></div>
+      </div>
+      <div class="filter-bar">
+        <input type="text" id="sr-search" placeholder="이름 검색" oninput="renderSeniors()" />
+        <select id="sr-match-filter" onchange="renderSeniors()">
+          <option value="">전체</option><option value="matched">매칭됨</option><option value="unmatched">미매칭</option>
+        </select>
+        <span class="filter-count">총 <strong id="sr-count">12</strong>명</span>
+      </div>
+      <div class="table-card">
+        <table><thead><tr><th>이름</th><th>나이</th><th>연락처</th><th>담당 의료진</th><th>매칭 기기</th><th>등록일</th><th>액션</th></tr></thead>
+        <tbody id="sr-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- 자녀 탭 -->
+    <div class="tab-panel" id="panel-child">
+      <div class="summary-grid">
+        <div class="summary-card blue"><div class="summary-card-label">전체 자녀 계정</div><div class="summary-card-value" id="ch-total">6</div></div>
+        <div class="summary-card green"><div class="summary-card-label">연결된 시니어</div><div class="summary-card-value" id="ch-linked">6</div></div>
+        <div class="summary-card yellow"><div class="summary-card-label">미연결</div><div class="summary-card-value" id="ch-unlinked">0</div></div>
+      </div>
+      <div class="filter-bar">
+        <input type="text" id="ch-search" placeholder="이름 또는 시니어명 검색" oninput="renderChildren()" />
+        <select id="ch-rel-filter" onchange="renderChildren()">
+          <option value="">전체 관계</option><option value="아들">아들</option><option value="딸">딸</option><option value="배우자">배우자</option><option value="기타">기타</option>
+        </select>
+        <span class="filter-count">총 <strong id="ch-count">6</strong>명</span>
+      </div>
+      <div class="table-card">
+        <table><thead><tr><th>이름</th><th>연락처</th><th>관계</th><th>연결 시니어</th><th>알림 수신</th><th>등록일</th><th>액션</th></tr></thead>
+        <tbody id="ch-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- 와치관리자 탭 -->
+    <div class="tab-panel" id="panel-watch">
+      <div class="summary-grid">
+        <div class="summary-card purple"><div class="summary-card-label">전체 와치관리자</div><div class="summary-card-value" id="wm-total">2</div></div>
+        <div class="summary-card green"><div class="summary-card-label">활성</div><div class="summary-card-value" id="wm-active">2</div></div>
+        <div class="summary-card yellow"><div class="summary-card-label">비활성</div><div class="summary-card-value" id="wm-inactive">0</div></div>
+      </div>
+      <div class="filter-bar">
+        <input type="text" id="wm-search" placeholder="이름 검색" oninput="renderWatchManagers()" />
+        <select id="wm-status-filter" onchange="renderWatchManagers()">
+          <option value="">전체 상태</option><option value="활성">활성</option><option value="비활성">비활성</option>
+        </select>
+        <span class="filter-count">총 <strong id="wm-count">2</strong>명</span>
+      </div>
+      <div class="table-card">
+        <table><thead><tr><th>이름</th><th>연락처</th><th>이메일 (ID)</th><th>관리 범위</th><th>상태</th><th>액션</th></tr></thead>
+        <tbody id="wm-tbody"></tbody></table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  /* ── 데이터 ── */
+  let medicals = [
+    { id:'M001', name:'김건강', role:'내과 전문의', dept:'내과 1팀',   phone:'010-1111-2222', seniors:2, status:'활성',  regDate:'2023-06-01' },
+    { id:'M002', name:'이간호', role:'간호사',       dept:'병동 2팀',   phone:'010-2222-3333', seniors:1, status:'활성',  regDate:'2023-07-15' },
+    { id:'M003', name:'박물리', role:'물리치료사',    dept:'재활치료팀', phone:'010-3333-4444', seniors:0, status:'활성',  regDate:'2023-08-01' },
+    { id:'M004', name:'최영진', role:'외과 전문의',  dept:'외과 1팀',   phone:'010-4444-5555', seniors:3, status:'활성',  regDate:'2023-09-10' },
+    { id:'M005', name:'이수진', role:'간호사',        dept:'병동 1팀',   phone:'010-5555-6666', seniors:2, status:'활성',  regDate:'2023-10-05' },
+    { id:'M006', name:'김성민', role:'내과 전문의',  dept:'내과 2팀',   phone:'010-6666-7777', seniors:1, status:'활성',  regDate:'2023-11-20' },
+    { id:'M007', name:'박준형', role:'재활의학과',   dept:'재활치료팀', phone:'010-7777-8888', seniors:2, status:'활성',  regDate:'2024-01-08' },
+    { id:'M008', name:'정미래', role:'간호사',        dept:'병동 3팀',   phone:'010-8888-9999', seniors:0, status:'비활성', regDate:'2024-02-14' },
+  ];
+
+  let seniors = [
+    { id:'S001', name:'김순자', age:75, phone:'010-1234-5678', doctor:'김건강 의사',    device:'W-001', regDate:'2024-03-15' },
+    { id:'S002', name:'이영희', age:82, phone:'010-2345-6789', doctor:'김건강 의사',    device:'W-002', regDate:'2024-04-02' },
+    { id:'S003', name:'박철수', age:68, phone:'010-3456-7890', doctor:'이간호 간호사',  device:'W-003', regDate:'2024-04-10' },
+    { id:'S004', name:'정말순', age:79, phone:'010-4567-8901', doctor:'최영진 의사',    device:'W-005', regDate:'2024-05-01' },
+    { id:'S005', name:'최순분', age:71, phone:'010-5678-9012', doctor:'이수진 간호사',  device:'W-007', regDate:'2024-05-12' },
+    { id:'S006', name:'강복순', age:85, phone:'010-6789-0123', doctor:'김성민 의사',    device:'W-008', regDate:'2024-06-03' },
+    { id:'S007', name:'윤길자', age:77, phone:'010-7890-1234', doctor:'이수진 간호사',  device:'W-046', regDate:'2024-06-15' },
+    { id:'S008', name:'조말례', age:73, phone:'010-8901-2345', doctor:'최영진 의사',    device:'W-048', regDate:'2024-07-01' },
+    { id:'S009', name:'한영숙', age:80, phone:'010-9012-3456', doctor:'박준형 의사',    device:'W-038', regDate:'2024-07-20' },
+    { id:'S010', name:'노순옥', age:67, phone:'010-0123-4567', doctor:'김성민 의사',    device:'W-047', regDate:'2024-08-05' },
+    { id:'S011', name:'서말순', age:88, phone:'010-1357-2468', doctor:'미배정',         device:'-',     regDate:'2025-01-10' },
+    { id:'S012', name:'임복자', age:76, phone:'010-2468-1357', doctor:'미배정',         device:'-',     regDate:'2025-02-15' },
+  ];
+
+  let children = [
+    { id:'C001', name:'김민준', phone:'010-1111-3333', relation:'아들', seniorName:'김순자', seniorId:'S001', notify:true,  regDate:'2024-03-16' },
+    { id:'C002', name:'이지현', phone:'010-2222-4444', relation:'딸',   seniorName:'이영희', seniorId:'S002', notify:true,  regDate:'2024-04-03' },
+    { id:'C003', name:'박성호', phone:'010-3333-5555', relation:'아들', seniorName:'박철수', seniorId:'S003', notify:true,  regDate:'2024-04-11' },
+    { id:'C004', name:'정수진', phone:'010-4444-6666', relation:'딸',   seniorName:'정말순', seniorId:'S004', notify:false, regDate:'2024-05-02' },
+    { id:'C005', name:'최정호', phone:'010-5555-7777', relation:'아들', seniorName:'최순분', seniorId:'S005', notify:true,  regDate:'2024-05-13' },
+    { id:'C006', name:'강미래', phone:'010-6666-8888', relation:'딸',   seniorName:'강복순', seniorId:'S006', notify:true,  regDate:'2024-06-04' },
+  ];
+
+  let watchManagers = [
+    { id:'WM001', name:'김관리', phone:'010-9999-0001', email:'kim.guan@hnm.kr', scope:'기기 관리 · 매칭 관리 · 공지사항', status:'활성', regDate:'2023-05-01' },
+    { id:'WM002', name:'이담당', phone:'010-9999-0002', email:'lee.dam@hnm.kr',  scope:'기기 관리 · 공지사항',            status:'활성', regDate:'2024-01-15' },
+  ];
+
+  /* ── 탭 전환 ── */
+  const ADD_BTNS = {
+    medical: `<button class="btn-primary" onclick="openModal('modal-md')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>계정 추가</button>`,
+    senior:  `<button class="btn-primary" onclick="openModal('modal-sr')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>계정 추가</button>`,
+    child:   `<button class="btn-primary" onclick="openAddChild()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>계정 추가</button>`,
+    watch:   `<button class="btn-primary" onclick="openModal('modal-wm')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>계정 추가</button>`,
+  };
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    ['medical','senior','child','watch'].forEach((t,i) => { if(t===tab) document.querySelectorAll('.tab-btn')[i].classList.add('active'); });
+    document.getElementById('panel-'+tab).classList.add('active');
+    document.getElementById('add-btn-wrap').innerHTML = ADD_BTNS[tab];
+  }
+
+  /* ── 상세 레이어 팝업 ── */
+  function openDetail(type, id) {
+    let body = '', foot = '', title = '';
+    if (type === 'medical') {
+      const m = medicals.find(x=>x.id===id); if(!m) return;
+      title = '의료진 계정 상세';
+      body = `
+        <div class="detail-profile">
+          <div class="detail-avatar medical">${m.name[0]}</div>
+          <div class="detail-profile-info">
+            <div class="detail-profile-name">${m.name}</div>
+            <div class="detail-profile-sub">${m.role} · ${m.dept}</div>
+            <span class="badge ${m.status==='활성'?'badge-ok':'badge-warn'}"><span class="badge-dot"></span>${m.status}</span>
+          </div>
+        </div>
+        <div class="detail-section-label">기본 정보</div>
+        <div class="detail-info-grid">
+          <div class="detail-info-row"><span class="detail-info-key">역할</span><span class="detail-info-val"><span style="font-size:12px;font-weight:600;color:#1A5FB4;background:#EBF3FF;padding:3px 12px;border-radius:12px;">의료진</span></span></div>
+          <div class="detail-info-row"><span class="detail-info-key">직종</span><span class="detail-info-val">${m.role}</span></div>
+          <div class="detail-info-row"><span class="detail-info-key">소속팀</span><span class="detail-info-val">${m.dept}</span></div>
+          <div class="detail-info-row"><span class="detail-info-key">연락처</span><span class="detail-info-val">${m.phone}</span></div>
+          <div class="detail-info-row"><span class="detail-info-key">담당 시니어</span><span class="detail-info-val">${m.seniors}명</span></div>
+          <div class="detail-info-row"><span class="detail-info-key">등록일</span><span class="detail-info-val">${m.regDate}</span></div>
+          <div class="detail-info-row"><span class="detail-info-key">계정 상태</span><span class="detail-info-val"><span class="badge ${m.status==='활성'?'badge-ok':'badge-warn'}"><span class="badge-dot"></span>${m.status}</span></span></div>
+        </div>`;
+      foot = `<button class="btn-primary" onclick="closeDetail();openEditMedical('${m.id}')">정보 수정</button>
+              <button class="btn-secondary" onclick="${m.status==='활성'?`toggleMdStatus('${m.id}')`:`toggleMdStatus('${m.id}')`};closeDetail()">${m.status==='활성'?'비활성화':'활성화'}</button>`;
+    } else if (type === 'senior') {
+      const s = seniors.find(x=>x.id===id); if(!s) return;
+      title = '시니어 계정 상세';
+      const matched = s.device !== '-';
+      body = `
+        <div class="detail-profile">
+          <div class="detail-avatar senior">${s.name[0]}</div>
+          <div class="detail-profile-info">
+            <div class="detail-profile-name">${s.name}</div>
+            <div class="detail-profile-sub">${s.age}세</div>
+            <span class="badge ${matched?'badge-ok':'badge-warn'}"><span class="badge-dot"></span>${matched?'기기 매칭됨':'미매칭'}</span>
+          </div>
+        </div>
+        <div class="detail-section-label">기본 정보</div>
+        <div class="detail-info-grid">
+          <div class="detail-info-row"><span class="detail-info-key">역할</span><span class="detail-info-val"><span style="font-size:12px;font-weight:600;color:#1B8A6B;background:#E8FAF4;padding:3px 12px;border-radius:12px;">시니어</span></span></div>
+          <div class="detail-info-row"><span class="detail-info-key">나이</span><span class="detail-info-val">${s.age}세</span></div>
+          <div class="detail-info-row"><span class="detail-info-key">연락처</span><span class="detail-info-val">${s.phone}</span></div>
+          <div class="detail-info-row"><span class="detail-info-key">담당 의료진</span><span class="detail-info-val" style="${s.doctor==='미배정'?'color:#8FA3B1;':''}">${s.doctor}</span></div>
+          <div class="detail-info-row"><span class="detail-info-key">매칭 기기</span><span class="detail-info-val" style="${matched?'color:#2B7FE0;font-weight:600;':'color:#8FA3B1;'}">${matched?s.device:'미매칭'}</span></div>
+          <div class="detail-info-row"><span class="detail-info-key">등록일</span><span class="detail-info-val">${s.regDate}</span></div>
+        </div>`;
+      foot = `<button class="btn-primary" onclick="closeDetail()">기기 매칭 관리</button>
+              <button class="btn-secondary" onclick="closeDetail()">수정</button>`;
+    } else if (type === 'child') {
+      const c = children.find(x=>x.id===id); if(!c) return;
+      title = '자녀 계정 상세';
+      body = `
+        <div class="detail-profile">
+          <div class="detail-avatar child">${c.name[0]}</div>
+          <div class="detail-profile-info">
+            <div class="detail-profile-name">${c.name}</div>
+            <div class="detail-profile-sub">${c.relation} · ${c.seniorName}님 보호자</div>
+            <span class="badge badge-blue"><span class="badge-dot"></span>${c.relation}</span>
+          </div>
+        </div>
+        <div class="detail-section-label">기본 정보</div>
+        <div class="detail-info-grid">
+          <div class="detail-info-row"><span class="detail-info-key">역할</span><span class="detail-info-val"><span style="font-size:12px;font-weight:600;color:#E65100;background:#FFF3E0;padding:3px 12px;border-radius:12px;">자녀</span></span></div>
+          <div class="detail-info-row"><span class="detail-info-key">연락처</span><span class="detail-info-val">${c.phone}</span></div>
+          <div class="detail-info-row"><span class="detail-info-key">관계</span><span class="detail-info-val">${c.relation}</span></div>
+          <div class="detail-info-row"><span class="detail-info-key">연결 시니어</span><span class="detail-info-val">${c.seniorName}</span></div>
+          <div class="detail-info-row"><span class="detail-info-key">알림 수신</span><span class="detail-info-val" style="${c.notify?'color:#1B8A6B;':'color:#8FA3B1;'}">${c.notify?'수신 중':'미수신'}</span></div>
+          <div class="detail-info-row"><span class="detail-info-key">등록일</span><span class="detail-info-val">${c.regDate}</span></div>
+        </div>`;
+      foot = `<button class="btn-primary" onclick="closeDetail()">수정</button>
+              <button class="btn-secondary" onclick="removeChild('${c.id}');closeDetail()">삭제</button>`;
+    } else if (type === 'watch') {
+      const w = watchManagers.find(x=>x.id===id); if(!w) return;
+      const isSelf = w.id === 'WM001';
+      title = '와치관리자 계정 상세';
+      body = `
+        <div class="detail-profile">
+          <div class="detail-avatar watch">${w.name[0]}</div>
+          <div class="detail-profile-info">
+            <div class="detail-profile-name">${w.name}${isSelf?'<span style="font-size:12px;color:#2B7FE0;background:#EBF3FF;padding:2px 8px;border-radius:4px;margin-left:8px;">나</span>':''}</div>
+            <div class="detail-profile-sub">와치관리자</div>
+            <span class="badge ${w.status==='활성'?'badge-ok':'badge-warn'}"><span class="badge-dot"></span>${w.status}</span>
+          </div>
+        </div>
+        <div class="detail-section-label">기본 정보</div>
+        <div class="detail-info-grid">
+          <div class="detail-info-row"><span class="detail-info-key">역할</span><span class="detail-info-val"><span style="font-size:12px;font-weight:600;color:#6A1B9A;background:#F3E5F5;padding:3px 12px;border-radius:12px;">와치관리자</span></span></div>
+          <div class="detail-info-row"><span class="detail-info-key">연락처</span><span class="detail-info-val">${w.phone}</span></div>
+          <div class="detail-info-row"><span class="detail-info-key">이메일 (ID)</span><span class="detail-info-val">${w.email}</span></div>
+          <div class="detail-info-row"><span class="detail-info-key">관리 범위</span><span class="detail-info-val">${w.scope}</span></div>
+          <div class="detail-info-row"><span class="detail-info-key">등록일</span><span class="detail-info-val">${w.regDate}</span></div>
+          <div class="detail-info-row"><span class="detail-info-key">계정 상태</span><span class="detail-info-val"><span class="badge ${w.status==='활성'?'badge-ok':'badge-warn'}"><span class="badge-dot"></span>${w.status}</span></span></div>
+        </div>`;
+      foot = isSelf
+        ? `<button class="btn-secondary" onclick="closeDetail()" style="width:100%;justify-content:center;">닫기</button>`
+        : `<button class="btn-primary" onclick="closeDetail()">수정</button>
+           <button class="btn-secondary" onclick="toggleWmStatus('${w.id}');closeDetail()">${w.status==='활성'?'비활성화':'활성화'}</button>`;
+    }
+    document.getElementById('detail-head-title').textContent = title;
+    document.getElementById('detail-body').innerHTML = body;
+    document.getElementById('detail-foot').innerHTML = foot;
+    document.getElementById('detail-overlay').classList.add('show');
+  }
+  function closeDetail() { document.getElementById('detail-overlay').classList.remove('show'); }
+
+  /* ── 의료진 렌더 ── */
+  function renderMedical() {
+    const q = document.getElementById('md-search').value.trim().toLowerCase();
+    const role = document.getElementById('md-role-filter').value;
+    const status = document.getElementById('md-status-filter').value;
+    const list = medicals.filter(m => (!q||m.name.includes(q)) && (!role||m.role.includes(role)) && (!status||m.status===status));
+    const tbody = document.getElementById('md-tbody');
+    tbody.innerHTML = list.length === 0
+      ? '<tr class="empty-row"><td colspan="7">검색 결과가 없습니다.</td></tr>'
+      : list.map(m => `<tr>
+          <td><span class="name-link" onclick="openDetail('medical','${m.id}')">${m.name}</span></td>
+          <td>${m.role}</td>
+          <td style="color:#546E7A;">${m.dept}</td>
+          <td style="color:#546E7A;font-size:13px;">${m.phone}</td>
+          <td style="text-align:center;">${m.seniors}명</td>
+          <td><span class="badge ${m.status==='활성'?'badge-ok':'badge-warn'}"><span class="badge-dot"></span>${m.status}</span></td>
+          <td style="display:flex;gap:6px;">
+            <button class="btn-sm edit" onclick="openEditMedical('${m.id}')">수정</button>
+            ${m.status==='활성'
+              ? `<button class="btn-sm deact" onclick="toggleMdStatus('${m.id}')">비활성화</button>`
+              : `<button class="btn-sm act"   onclick="toggleMdStatus('${m.id}')">활성화</button>`}
+          </td>
+        </tr>`).join('');
+    document.getElementById('md-count').textContent    = list.length;
+    document.getElementById('md-total').textContent    = medicals.length;
+    document.getElementById('md-active').textContent   = medicals.filter(m=>m.status==='활성').length;
+    document.getElementById('md-inactive').textContent = medicals.filter(m=>m.status==='비활성').length;
+  }
+  function toggleMdStatus(id) {
+    const m = medicals.find(x=>x.id===id); if(!m) return;
+    m.status = m.status==='활성'?'비활성':'활성';
+    renderMedical(); showToast(`${m.name} 계정이 ${m.status}되었습니다.`);
+  }
+  function openEditMedical(id) {
+    const m = medicals.find(x=>x.id===id); if(!m) return;
+    document.getElementById('edit-md-id').value   = id;
+    document.getElementById('edit-md-name').value  = m.name;
+    document.getElementById('edit-md-role').value  = m.role;
+    document.getElementById('edit-md-dept').value  = m.dept;
+    document.getElementById('edit-md-phone').value = m.phone;
+    openModal('modal-md-edit');
+  }
+  function updateMedical() {
+    const id = document.getElementById('edit-md-id').value;
+    const m = medicals.find(x=>x.id===id); if(!m) return;
+    m.name  = document.getElementById('edit-md-name').value.trim()  || m.name;
+    m.role  = document.getElementById('edit-md-role').value.trim()  || m.role;
+    m.dept  = document.getElementById('edit-md-dept').value.trim()  || m.dept;
+    m.phone = document.getElementById('edit-md-phone').value.trim() || m.phone;
+    closeModal('modal-md-edit'); renderMedical(); showToast('의료진 정보가 수정되었습니다.');
+  }
+  function saveMedical() {
+    const name = document.getElementById('md-name').value.trim();
+    if(!name){ alert('이름을 입력해 주세요.'); return; }
+    medicals.push({ id:'M'+String(medicals.length+1).padStart(3,'0'), name, role:document.getElementById('md-role').value.trim(), dept:document.getElementById('md-dept').value.trim(), phone:document.getElementById('md-phone').value.trim(), seniors:0, status:'활성', regDate:new Date().toISOString().slice(0,10) });
+    ['md-name','md-role','md-dept','md-phone'].forEach(i=>document.getElementById(i).value='');
+    closeModal('modal-md'); renderMedical(); showToast('의료진 계정이 등록되었습니다.');
+  }
+
+  /* ── 시니어 렌더 ── */
+  function renderSeniors() {
+    const q = document.getElementById('sr-search').value.trim().toLowerCase();
+    const match = document.getElementById('sr-match-filter').value;
+    const list = seniors.filter(s => (!q||s.name.includes(q)) && (!match||(match==='matched'&&s.device!=='-')||(match==='unmatched'&&s.device==='-')));
+    const tbody = document.getElementById('sr-tbody');
+    tbody.innerHTML = list.length === 0
+      ? '<tr class="empty-row"><td colspan="7">검색 결과가 없습니다.</td></tr>'
+      : list.map(s => {
+          const unmatched = s.device==='-';
+          return `<tr ${unmatched?'class="unmatched"':''}>
+            <td><span class="name-link" onclick="openDetail('senior','${s.id}')">${s.name}</span></td>
+            <td>${s.age}세</td>
+            <td style="color:#546E7A;font-size:13px;">${s.phone}</td>
+            <td style="${s.doctor==='미배정'?'color:#8FA3B1;':''}">${s.doctor}</td>
+            <td>${unmatched?'<span style="color:#8FA3B1;">미매칭</span>':`<span style="color:#2B7FE0;font-weight:600;">${s.device}</span>`}</td>
+            <td style="color:#546E7A;font-size:13px;">${s.regDate}</td>
+            <td><button class="btn-sm edit" onclick="openDetail('senior','${s.id}')">상세</button></td>
+          </tr>`;
+        }).join('');
+    document.getElementById('sr-count').textContent     = list.length;
+    document.getElementById('sr-total').textContent     = seniors.length;
+    document.getElementById('sr-matched').textContent   = seniors.filter(s=>s.device!=='-').length;
+    document.getElementById('sr-unmatched').textContent = seniors.filter(s=>s.device==='-').length;
+  }
+  function saveSenior() {
+    const name = document.getElementById('sr-name').value.trim();
+    if(!name){ alert('이름을 입력해 주세요.'); return; }
+    seniors.push({ id:'S'+String(seniors.length+1).padStart(3,'0'), name, age:parseInt(document.getElementById('sr-age').value)||0, phone:document.getElementById('sr-phone').value.trim(), doctor:'미배정', device:'-', regDate:new Date().toISOString().slice(0,10) });
+    ['sr-name','sr-age','sr-phone','sr-addr'].forEach(i=>document.getElementById(i).value='');
+    closeModal('modal-sr'); renderSeniors(); showToast('시니어 계정이 등록되었습니다.');
+  }
+
+  /* ── 자녀 렌더 ── */
+  function openAddChild() {
+    document.getElementById('ch-senior').innerHTML = seniors.map(s=>`<option value="${s.id}">${s.name} (${s.age}세)</option>`).join('');
+    openModal('modal-ch');
+  }
+  function renderChildren() {
+    const q   = document.getElementById('ch-search').value.trim().toLowerCase();
+    const rel = document.getElementById('ch-rel-filter').value;
+    const list = children.filter(c => (!q||(c.name.includes(q)||c.seniorName.includes(q))) && (!rel||c.relation===rel));
+    const tbody = document.getElementById('ch-tbody');
+    tbody.innerHTML = list.length === 0
+      ? '<tr class="empty-row"><td colspan="7">검색 결과가 없습니다.</td></tr>'
+      : list.map(c => `<tr>
+          <td><span class="name-link" onclick="openDetail('child','${c.id}')">${c.name}</span></td>
+          <td style="color:#546E7A;font-size:13px;">${c.phone}</td>
+          <td><span class="badge badge-blue"><span class="badge-dot"></span>${c.relation}</span></td>
+          <td>${c.seniorName}</td>
+          <td style="${c.notify?'color:#1B8A6B;font-weight:600;':'color:#8FA3B1;'}">${c.notify?'수신 중':'미수신'}</td>
+          <td style="color:#546E7A;font-size:13px;">${c.regDate}</td>
+          <td style="display:flex;gap:6px;">
+            <button class="btn-sm edit" onclick="openDetail('child','${c.id}')">상세</button>
+            <button class="btn-sm deact" onclick="removeChild('${c.id}')">삭제</button>
+          </td>
+        </tr>`).join('');
+    document.getElementById('ch-count').textContent    = list.length;
+    document.getElementById('ch-total').textContent    = children.length;
+    document.getElementById('ch-linked').textContent   = children.filter(c=>c.seniorId).length;
+    document.getElementById('ch-unlinked').textContent = children.filter(c=>!c.seniorId).length;
+  }
+  function saveChild() {
+    const name = document.getElementById('ch-name').value.trim();
+    if(!name){ alert('이름을 입력해 주세요.'); return; }
+    const srId = document.getElementById('ch-senior').value;
+    const sr = seniors.find(s=>s.id===srId);
+    children.push({ id:'C'+String(children.length+1).padStart(3,'0'), name, phone:document.getElementById('ch-phone').value.trim(), relation:document.getElementById('ch-relation').value, seniorName:sr?sr.name:'', seniorId:srId, notify:true, regDate:new Date().toISOString().slice(0,10) });
+    ['ch-name','ch-phone'].forEach(i=>document.getElementById(i).value='');
+    closeModal('modal-ch'); renderChildren(); showToast('자녀 계정이 등록되었습니다.');
+  }
+  function removeChild(id) {
+    if(!confirm('자녀 계정을 삭제하시겠습니까?')) return;
+    children = children.filter(c=>c.id!==id);
+    renderChildren(); showToast('자녀 계정이 삭제되었습니다.');
+  }
+
+  /* ── 와치관리자 렌더 ── */
+  function renderWatchManagers() {
+    const q      = document.getElementById('wm-search').value.trim().toLowerCase();
+    const status = document.getElementById('wm-status-filter').value;
+    const list = watchManagers.filter(w => (!q||w.name.includes(q)) && (!status||w.status===status));
+    const tbody = document.getElementById('wm-tbody');
+    tbody.innerHTML = list.length === 0
+      ? '<tr class="empty-row"><td colspan="6">검색 결과가 없습니다.</td></tr>'
+      : list.map(w => {
+          const isSelf = w.id === 'WM001';
+          return `<tr>
+            <td>
+              <span class="name-link" onclick="openDetail('watch','${w.id}')">${w.name}</span>
+              ${isSelf?'<span style="font-size:11px;color:#2B7FE0;background:#EBF3FF;padding:1px 6px;border-radius:4px;margin-left:6px;">나</span>':''}
+            </td>
+            <td style="color:#546E7A;font-size:13px;">${w.phone}</td>
+            <td style="color:#546E7A;font-size:13px;">${w.email}</td>
+            <td style="font-size:13px;">${w.scope}</td>
+            <td><span class="badge ${w.status==='활성'?'badge-ok':'badge-warn'}"><span class="badge-dot"></span>${w.status}</span></td>
+            <td style="display:flex;gap:6px;">
+              <button class="btn-sm edit" ${isSelf?'disabled style="opacity:0.4;cursor:not-allowed;"':''}>수정</button>
+              ${w.status==='활성'
+                ? `<button class="btn-sm deact" ${isSelf?'disabled style="opacity:0.4;cursor:not-allowed;"':''} onclick="toggleWmStatus('${w.id}')">비활성화</button>`
+                : `<button class="btn-sm act" onclick="toggleWmStatus('${w.id}')">활성화</button>`}
+            </td>
+          </tr>`;
+        }).join('');
+    document.getElementById('wm-count').textContent    = list.length;
+    document.getElementById('wm-total').textContent    = watchManagers.length;
+    document.getElementById('wm-active').textContent   = watchManagers.filter(w=>w.status==='활성').length;
+    document.getElementById('wm-inactive').textContent = watchManagers.filter(w=>w.status==='비활성').length;
+  }
+  function toggleWmStatus(id) {
+    const w = watchManagers.find(x=>x.id===id); if(!w) return;
+    w.status = w.status==='활성'?'비활성':'활성';
+    renderWatchManagers(); showToast(`${w.name} 계정이 ${w.status}되었습니다.`);
+  }
+  function saveWatchManager() {
+    const name = document.getElementById('wm-name').value.trim();
+    if(!name){ alert('이름을 입력해 주세요.'); return; }
+    const scopes = [];
+    if(document.getElementById('wm-scope-device').checked) scopes.push('기기 관리');
+    if(document.getElementById('wm-scope-match').checked)  scopes.push('매칭 관리');
+    if(document.getElementById('wm-scope-notice').checked) scopes.push('공지사항');
+    watchManagers.push({ id:'WM'+String(watchManagers.length+1).padStart(3,'0'), name, phone:document.getElementById('wm-phone').value.trim(), email:document.getElementById('wm-email').value.trim(), scope:scopes.join(' · ')||'없음', status:'활성', regDate:new Date().toISOString().slice(0,10) });
+    ['wm-name','wm-phone','wm-email'].forEach(i=>document.getElementById(i).value='');
+    closeModal('modal-wm'); renderWatchManagers(); showToast('와치관리자 계정이 등록되었습니다.');
+  }
+
+  /* ── 공통 ── */
+  function openModal(id)  { document.getElementById(id).classList.add('show'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+  function showToast(msg) {
+    document.getElementById('toast-msg').textContent = msg;
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 2800);
+  }
+
+  /* ── 초기화 ── */
+  switchTab('medical');
+  renderMedical();
+  renderSeniors();
+  renderChildren();
+  renderWatchManagers();
+</script>
+</body>
+</html>
