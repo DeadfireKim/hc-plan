@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M-04-S 복약 간단보기 | 헬스케어 앱</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ===== 디자인 토큰 (home-simple과 동일) ===== */
+    :root {
+      --primary:        #2B7FE0;
+      --primary-dark:   #1A5FB4;
+      --secondary:      #34C4A0;
+      --danger:         #E53935;
+      --warning:        #F5A623;
+      --bg:             #F4F6F9;
+      --surface:        #FFFFFF;
+      --border:         #D1D9E6;
+      --text-primary:   #1A2332;
+      --text-secondary: #546E7A;
+      --text-disabled:  #B0BEC5;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: #C8D0DC; }
+
+    /* 기획 의도: 시니어 가독성 — body 18px */
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 18px;
+      color: var(--text-primary);
+      background: var(--bg);
+      max-width: 390px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding-bottom: 80px;
+      position: relative;
+    }
+
+    /* ===== 앱 헤더 ===== */
+    .app-header {
+      background: var(--surface);
+      padding: 18px 16px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .btn-toggle {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      text-decoration: none;
+      display: inline-block;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+    .btn-toggle:hover { background: var(--primary-dark); }
+
+    /* ===== 스크롤 영역 ===== */
+    .scroll-area {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ===== 오늘 진행 요약 카드 (큰 X/Y 완료 표시) ===== */
+    /* 기획 의도: 시니어가 "오늘 약 다 먹었는지"를 한 눈에 파악하도록
+       2/3 → 거대한 숫자 + 진행 바로 강조 */
+    .summary-card {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(43,127,224,0.3);
+      padding: 24px 22px;
+      color: #fff;
+    }
+    .summary-label {
+      font-size: 16px;
+      opacity: 0.9;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+    .summary-count-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .summary-count {
+      font-size: 64px;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .summary-total {
+      font-size: 22px;
+      font-weight: 500;
+      opacity: 0.85;
+    }
+    .progress-bar-track {
+      height: 12px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: #fff;
+      border-radius: 6px;
+      transition: width 0.6s ease;
+    }
+
+    /* ===== 다음 복약 알림 카드 (큰 시간) ===== */
+    /* 기획 의도: "다음에 먹어야 할 약"을 매우 크게 표시 */
+    .next-med-card {
+      background: var(--surface);
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 24px 22px;
+      border-left: 6px solid var(--warning);
+    }
+    .next-med-label {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    .next-med-time {
+      font-size: 44px;
+      font-weight: 900;
+      color: var(--warning);
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .next-med-time .ampm {
+      font-size: 24px;
+      font-weight: 700;
+      margin-right: 6px;
+    }
+    .next-med-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .next-med-sub {
+      font-size: 15px;
+      color: var(--text-secondary);
+    }
+
+    /* ===== 오늘 복약 목록 ===== */
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 4px 4px 0;
+      padding: 0 4px;
+    }
+    .med-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .med-item {
+      background: var(--surface);
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 18px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-left: 6px solid var(--border);
+      transition: all 0.2s;
+    }
+    .med-item.done {
+      border-left-color: var(--secondary);
+      background: #F8FFFE;
+    }
+    .med-item.pending {
+      border-left-color: var(--warning);
+    }
+    .med-time-col {
+      flex-shrink: 0;
+      min-width: 64px;
+      text-align: center;
+    }
+    .med-time-ampm {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .med-time-main {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--text-primary);
+      line-height: 1.1;
+    }
+    .med-item.pending .med-time-main { color: var(--warning); }
+    .med-info { flex: 1; min-width: 0; }
+    .med-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .med-dosage {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    .med-status-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 22px;
+      font-weight: 900;
+    }
+    .med-status-icon.done {
+      background: var(--secondary);
+      color: #fff;
+    }
+    .med-status-icon.pending {
+      background: var(--bg);
+      color: var(--text-disabled);
+      border: 2px dashed var(--border);
+    }
+    /* 큰 "먹었어요" 버튼 (시니어용) */
+    .btn-take {
+      width: 100%;
+      height: 56px;
+      border-radius: 14px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-family: inherit;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 14px;
+      transition: all 0.15s;
+    }
+    .btn-take:active {
+      background: var(--primary-dark);
+      transform: scale(0.98);
+    }
+
+    /* ===== 토스트 ===== */
+    .toast {
+      position: fixed;
+      bottom: calc(64px + 20px);
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--text-primary);
+      color: #fff;
+      padding: 14px 24px;
+      border-radius: 28px;
+      font-size: 15px;
+      font-weight: 600;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      z-index: 500;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ===== 하단 탭바 ===== */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 390px;
+      height: 64px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: stretch;
+      z-index: 300;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+    }
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      cursor: pointer;
+      color: var(--text-disabled);
+      text-decoration: none;
+    }
+    .tab-item.active { color: var(--primary); }
+    .tab-item svg { width: 24px; height: 24px; }
+    .tab-label {
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 375px) {
+      .summary-count { font-size: 56px; }
+      .next-med-time { font-size: 38px; }
+      .tab-bar { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =============================================
+       앱 헤더
+       기획 의도: 화면 제목 + "자세히 보기" 토글 → M-04-D 전환
+       ============================================= -->
+  <header class="app-header">
+    <h1 class="header-title">복약 관리</h1>
+    <a href="medication-detail.html" class="btn-toggle">자세히 보기 →</a>
+  </header>
+
+  <main class="scroll-area">
+
+    <!-- ────────────────────────────────────────
+         오늘 복약 진행 요약 (큰 숫자)
+         기획 의도: 시니어가 "약 다 먹었나"를 한눈에
+         거대한 2/3 표시 + 진행 바
+         ──────────────────────────────────────── -->
+    <div class="summary-card">
+      <div class="summary-label">오늘 복약 현황</div>
+      <div class="summary-count-row">
+        <span class="summary-count" id="done-count">2</span>
+        <span class="summary-total">/ 3 완료</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill" style="width: 66.7%;"></div>
+      </div>
+    </div>
+
+    <!-- ────────────────────────────────────────
+         다음 복약 알림 (큰 시간 강조)
+         기획 의도: "다음에 먹어야 할 약" 강조
+         시간을 44px로 거대하게 표시
+         ──────────────────────────────────────── -->
+    <div class="next-med-card">
+      <div class="next-med-label">⏰ 다음 복약 시간</div>
+      <div class="next-med-time"><span class="ampm">오후</span>8:00</div>
+      <div class="next-med-name">로수바스타틴</div>
+      <div class="next-med-sub">고지혈증약 · 10mg · 1정 · 식후</div>
+    </div>
+
+    <!-- ────────────────────────────────────────
+         오늘 복약 목록
+         기획 의도: 시간/약 이름 모두 큰 폰트.
+         미완료 항목엔 큰 "먹었어요" 버튼.
+         ──────────────────────────────────────── -->
+    <div class="section-title">오늘 복약 목록</div>
+
+    <div class="med-list">
+
+      <!-- ① 오전 8시 — 완료 -->
+      <div class="med-item done" id="med-1">
+        <div class="med-time-col">
+          <div class="med-time-ampm">오전</div>
+          <div class="med-time-main">8:00</div>
+        </div>
+        <div class="med-info">
+          <div class="med-name">암로디핀</div>
+          <div class="med-dosage">혈압약 · 5mg · 1정</div>
+        </div>
+        <div class="med-status-icon done" aria-label="복약 완료">✓</div>
+      </div>
+
+      <!-- ② 오후 1시 — 완료 -->
+      <div class="med-item done" id="med-2">
+        <div class="med-time-col">
+          <div class="med-time-ampm">오후</div>
+          <div class="med-time-main">1:00</div>
+        </div>
+        <div class="med-info">
+          <div class="med-name">메트포르민</div>
+          <div class="med-dosage">혈당약 · 500mg · 1정</div>
+        </div>
+        <div class="med-status-icon done" aria-label="복약 완료">✓</div>
+      </div>
+
+      <!-- ③ 오후 8시 — 미완료 (큰 버튼 표시) -->
+      <div class="med-item pending" id="med-3">
+        <div class="med-time-col">
+          <div class="med-time-ampm">오후</div>
+          <div class="med-time-main">8:00</div>
+        </div>
+        <div class="med-info">
+          <div class="med-name">로수바스타틴</div>
+          <div class="med-dosage">고지혈증약 · 10mg · 1정</div>
+          <!-- 큰 "먹었어요" 버튼 -->
+          <button class="btn-take" id="take-btn-3" onclick="takeMed(3)">
+            💊 먹었어요
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <div class="toast" id="toast">✅ 복약 완료!</div>
+
+  <!-- =============================================
+       하단 탭바 (복약 탭 활성)
+       ============================================= -->
+  <nav class="tab-bar" aria-label="하단 메뉴">
+    <a href="home-simple.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+      <span class="tab-label">홈</span>
+    </a>
+    <a href="health-simple.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+      <span class="tab-label">건강</span>
+    </a>
+    <a href="medication-simple.html" class="tab-item active" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      <span class="tab-label">복약</span>
+    </a>
+    <a href="schedule-simple.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <span class="tab-label">일정</span>
+    </a>
+    <a href="settings.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+      </svg>
+      <span class="tab-label">설정</span>
+    </a>
+  </nav>
+
+  <script>
+    /* 기획 의도: 시니어가 "먹었어요" 큰 버튼을 누르면
+       즉시 완료 상태로 전환, 큰 ✓ 아이콘 + 토스트로 피드백 */
+    function takeMed(idx) {
+      const item = document.getElementById('med-' + idx);
+      item.classList.remove('pending');
+      item.classList.add('done');
+
+      // 버튼을 ✓ 아이콘으로 대체
+      const btn = document.getElementById('take-btn-' + idx);
+      if (btn) btn.remove();
+
+      const icon = document.createElement('div');
+      icon.className = 'med-status-icon done';
+      icon.setAttribute('aria-label', '복약 완료');
+      icon.textContent = '✓';
+      item.appendChild(icon);
+
+      // 진행률 업데이트
+      document.getElementById('done-count').textContent = '3';
+      document.getElementById('progress-fill').style.width = '100%';
+
+      // 토스트 표시
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+  </script>
+</body>
+</html>

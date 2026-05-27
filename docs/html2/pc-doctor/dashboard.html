@@ -399,24 +399,24 @@
   <a class="nav-item active" href="dashboard.html">
     <span class="nav-icon">📊</span> 대시보드
   </a>
-  <a class="nav-item" href="#">
+  <a class="nav-item" href="patient-detail.html">
     <span class="nav-icon">👥</span> 담당 환자
     <span class="nav-badge">12</span>
   </a>
 
   <div class="sidebar-divider"></div>
   <span class="sidebar-section-label">진료 관리</span>
-  <a class="nav-item" href="#">
+  <a class="nav-item" href="#" onclick="event.preventDefault();showWipToast('건강 데이터');">
     <span class="nav-icon">❤️</span> 건강 데이터
   </a>
-  <a class="nav-item" href="#">
+  <a class="nav-item" href="#" onclick="event.preventDefault();showWipToast('복약 관리');">
     <span class="nav-icon">💊</span> 복약 관리
   </a>
-  <a class="nav-item" href="#">
+  <a class="nav-item" href="#" onclick="event.preventDefault();showWipToast('상담 일정');">
     <span class="nav-icon">📅</span> 상담 일정
     <span class="nav-badge warn">2</span>
   </a>
-  <a class="nav-item" href="#">
+  <a class="nav-item" href="#" onclick="event.preventDefault();showWipToast('소견서');">
     <span class="nav-icon">📋</span> 소견서
     <span class="nav-badge blue">3</span>
   </a>
@@ -429,7 +429,7 @@
   </a>
 
   <div class="sidebar-divider"></div>
-  <a class="nav-item" href="#">
+  <a class="nav-item" href="#" onclick="event.preventDefault();showWipToast('내 계정');">
     <span class="nav-icon">👤</span> 내 계정
   </a>
   <div class="sidebar-footer">v2.4.1 · © 2026 HealthCare</div>
@@ -825,5 +825,21 @@
   </div>
 
 </main>
+
+<!-- 준비 중 메뉴 안내 토스트 -->
+<div id="wip-toast" style="position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(80px);background:#1A2332;color:#fff;border-radius:10px;padding:12px 22px;font-size:14px;font-weight:500;z-index:9999;transition:transform 0.3s;white-space:nowrap;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.2);"></div>
+
+<script>
+  /* 미구현 메뉴 클릭 시 토스트 안내 */
+  function showWipToast(menuName) {
+    const t = document.getElementById('wip-toast');
+    t.textContent = '🚧 ' + menuName + ' 화면은 준비 중입니다.';
+    t.style.transform = 'translateX(-50%) translateY(0)';
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function() {
+      t.style.transform = 'translateX(-50%) translateY(80px)';
+    }, 2500);
+  }
+</script>
 </body>
 </html>

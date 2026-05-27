@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>관리자 포털 - 운영자 관리</title>
+  <title>관리자 포털 - 운영 인력 관리</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -68,9 +68,9 @@
     .user-name  { font-size: 13px; font-weight: 600; color: #1A2332; }
     .user-role  { font-size: 11px; color: #546E7A; }
 
-    /* summary grid 4열 */
+    /* summary grid 3열 */
     .summary-grid-4 {
-      display: grid; grid-template-columns: repeat(4, 1fr);
+      display: grid; grid-template-columns: repeat(3, 1fr);
       gap: 16px; margin-bottom: 28px;
     }
 
@@ -238,6 +238,17 @@
     .badge-inactive { background: #F4F6F9; color: #546E7A; }
     .badge-pending  { background: #FEF6E9; color: #A16207; }
 
+    /* 변경 이력 배지 */
+    .change-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 20px;
+      font-size: 11px; font-weight: 700; white-space: nowrap;
+    }
+    .change-on      { background: #E8F5E9; color: #2E7D32; }
+    .change-off     { background: #FFEBEE; color: #C62828; }
+    .change-update  { background: #FFF3E0; color: #E65100; }
+    .change-create  { background: #E3F2FD; color: #0D47A1; }
+
     /* 역할 배지 */
     .role-badge {
       display: inline-block; padding: 3px 10px; border-radius: 20px;
@@ -355,7 +366,7 @@
       </div>
     </div>
     <div class="header-divider"></div>
-    <span class="header-title">운영자 관리</span>
+    <span class="header-title">운영 인력 관리</span>
     <div class="header-right">
       <div class="header-notif">
         🔔
@@ -378,8 +389,9 @@
     <a class="nav-item"  href="dashboard.html"><span class="nav-icon">📊</span> 대시보드</a>
     <a class="nav-item"  href="notice.html"><span class="nav-icon">📢</span> 공지사항</a>
     <a class="nav-item"  href="hospitals.html"><span class="nav-icon">🏥</span> 병원·기관 관리</a>
-    <a class="nav-item active"  href="operators.html"><span class="nav-icon">👨‍💼</span> 운영자 관리</a>
+    <a class="nav-item active"  href="operators.html"><span class="nav-icon">👨‍💼</span> 운영 인력 관리</a>
     <a class="nav-item"  href="accounts.html"><span class="nav-icon">👥</span> 계정 관리<span class="nav-badge yellow">5</span></a>
+    <a class="nav-item" href="family-groups.html"><span class="nav-icon">👨‍👩‍👧</span> 가족 그룹<span class="nav-badge">1</span></a>
     <a class="nav-item"  href="permissions.html"><span class="nav-icon">🔐</span> 권한 관리</a>
     <a class="nav-item" href="peer-averages.html"><span class="nav-icon">📈</span> 또래 평균 관리</a>
     <a class="nav-item"  href="settings.html"><span class="nav-icon">⚙️</span> 시스템 설정</a>
@@ -400,15 +412,15 @@
       <!-- 페이지 헤더 -->
       <div class="page-header">
         <div>
-          <div class="page-title">운영자 관리</div>
-          <div class="page-subtitle">운영자 계정을 생성·관리하고 업무 범위를 지정합니다. 관리자 전용 메뉴입니다.</div>
+          <div class="page-title">운영 인력 관리</div>
+          <div class="page-subtitle">병원·기관 소속 와치관리자·의료진 계정을 생성·관리하고 업무 범위를 지정합니다. 관리자 전용 메뉴입니다.</div>
         </div>
         <div class="page-actions"></div>
       </div>
 
       <!-- 안내 박스 -->
       <div class="info-box">
-        🔒 운영자는 소속 병원·기관의 데이터만 조회·관리할 수 있습니다. 계정 승인·권한 변경·병원 등록·시스템 설정은 관리자만 가능합니다.
+        🔒 운영 인력(와치관리자·의료진)은 소속 병원·기관의 데이터만 조회·관리할 수 있습니다. 와치관리자는 기기·매칭·대시보드·공지사항을, 의료진은 담당 시니어 건강 데이터를 모바일 앱에서 모니터링합니다. 계정 승인·권한 변경·병원 등록·시스템 설정은 관리자만 가능합니다.
       </div>
 
       <!-- 요약 카드 -->
@@ -417,11 +429,6 @@
           <div class="summary-card-header"><div class="summary-card-icon icon-blue">👥</div></div>
           <div class="summary-value" id="stat-total">0</div>
           <div class="summary-label">전체 계정</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-card-header"><div class="summary-card-icon" style="background:#E3F2FD;">👨‍💼</div></div>
-          <div class="summary-value" id="stat-op">0</div>
-          <div class="summary-label">운영자</div>
         </div>
         <div class="summary-card">
           <div class="summary-card-header"><div class="summary-card-icon" style="background:#F3E5F5;">⌚</div></div>
@@ -440,7 +447,7 @@
         <div class="card-header">
           <div>
             <div class="card-title">계정·역할 관리</div>
-            <div class="card-desc">운영자·와치관리자·의료진 계정을 등록하고 관리합니다.</div>
+            <div class="card-desc">와치관리자·의료진 계정을 등록하고 관리합니다.</div>
           </div>
           <button class="btn btn-primary btn-sm" onclick="openModal('modal-new')">➕ 계정 추가</button>
         </div>
@@ -453,7 +460,6 @@
           </div>
           <select class="filter-select" id="filter-role" onchange="renderTable()">
             <option value="">전체 역할</option>
-            <option value="op">운영자</option>
             <option value="watch">와치관리자</option>
             <option value="medical">의료진</option>
           </select>
@@ -499,7 +505,6 @@
             <tr>
               <th>기능</th>
               <th style="text-align:center;">관리자</th>
-              <th style="text-align:center;">운영자</th>
               <th style="text-align:center;">와치관리자</th>
               <th style="text-align:center;">의료진</th>
             </tr>
@@ -509,29 +514,24 @@
               <td style="text-align:center;color:#34C4A0;font-weight:700;">✔</td>
               <td style="text-align:center;color:#34C4A0;font-weight:700;">✔</td>
               <td style="text-align:center;color:#E53935;font-weight:700;">✘</td>
-              <td style="text-align:center;color:#E53935;font-weight:700;">✘</td>
             </tr>
             <tr><td>공지사항 작성·관리</td>
-              <td style="text-align:center;color:#34C4A0;font-weight:700;">✔</td>
               <td style="text-align:center;color:#34C4A0;font-weight:700;">✔</td>
               <td style="text-align:center;color:#34C4A0;font-weight:700;">✔</td>
               <td style="text-align:center;color:#E53935;font-weight:700;">✘</td>
             </tr>
             <tr><td>기기 관리 (와치)</td>
               <td style="text-align:center;color:#34C4A0;font-weight:700;">✔</td>
-              <td style="text-align:center;color:#E53935;font-weight:700;">✘</td>
               <td style="text-align:center;color:#34C4A0;font-weight:700;">✔</td>
               <td style="text-align:center;color:#E53935;font-weight:700;">✘</td>
             </tr>
             <tr><td>매칭 관리 (와치↔시니어)</td>
               <td style="text-align:center;color:#34C4A0;font-weight:700;">✔</td>
-              <td style="text-align:center;color:#E53935;font-weight:700;">✘</td>
               <td style="text-align:center;color:#34C4A0;font-weight:700;">✔</td>
               <td style="text-align:center;color:#E53935;font-weight:700;">✘</td>
             </tr>
             <tr><td>시니어 건강 모니터링 (앱)</td>
               <td style="text-align:center;color:#34C4A0;font-weight:700;">✔</td>
-              <td style="text-align:center;color:#E53935;font-weight:700;">✘</td>
               <td style="text-align:center;color:#E53935;font-weight:700;">✘</td>
               <td style="text-align:center;color:#34C4A0;font-weight:700;">✔</td>
             </tr>
@@ -539,16 +539,48 @@
               <td style="text-align:center;color:#34C4A0;font-weight:700;">✔</td>
               <td style="text-align:center;color:#E53935;font-weight:700;">✘</td>
               <td style="text-align:center;color:#E53935;font-weight:700;">✘</td>
-              <td style="text-align:center;color:#E53935;font-weight:700;">✘</td>
             </tr>
             <tr><td>병원·기관 등록·관리</td>
               <td style="text-align:center;color:#34C4A0;font-weight:700;">✔</td>
               <td style="text-align:center;color:#E53935;font-weight:700;">✘</td>
               <td style="text-align:center;color:#E53935;font-weight:700;">✘</td>
-              <td style="text-align:center;color:#E53935;font-weight:700;">✘</td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- 권한 변경 이력 카드 -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">권한 변경 이력</div>
+            <div class="card-desc">최근 30일간 운영 인력 계정·권한 변경 내역입니다.</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <select class="filter-select" id="history-filter-type" onchange="renderHistory()">
+              <option value="">전체 변경 유형</option>
+              <option value="scope">업무 범위</option>
+              <option value="status">활성 상태</option>
+              <option value="info">계정 정보</option>
+              <option value="create">신규 생성</option>
+            </select>
+            <button class="btn btn-outline btn-sm" onclick="exportHistory()">📥 CSV 내보내기</button>
+          </div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:160px;">변경 일시</th>
+              <th style="width:160px;">대상 계정</th>
+              <th>변경 항목</th>
+              <th style="width:160px;">변경 전</th>
+              <th style="width:160px;">변경 후</th>
+              <th style="width:100px;">처리자</th>
+            </tr>
+          </thead>
+          <tbody id="history-tbody"></tbody>
+        </table>
+        <div id="history-empty" style="display:none;padding:32px;text-align:center;color:#90A4AE;font-size:13px;">조건에 맞는 이력이 없습니다.</div>
       </div>
 
     </main>
@@ -566,7 +598,6 @@
           <label class="form-label">역할 *</label>
           <select class="form-select" id="new-role" onchange="onRoleChange()">
             <option value="">-- 역할 선택 --</option>
-            <option value="op">운영자</option>
             <option value="watch">와치관리자</option>
             <option value="medical">의료진</option>
           </select>
@@ -592,7 +623,7 @@
           </select>
         </div>
 
-        <!-- 운영자 전용: 업무 범위 -->
+        <!-- 와치관리자 전용: 업무 범위 -->
         <div class="form-group" id="scope-group" style="display:none;">
           <label class="form-label">업무 범위</label>
           <div style="display:flex;flex-direction:column;gap:8px;padding:12px 14px;border:1px solid #D1D9E6;border-radius:8px;background:#F8FAFF;">
@@ -600,13 +631,16 @@
               <input type="checkbox" id="scope-dash" checked /> 대시보드 모니터링
             </label>
             <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
-              <input type="checkbox" id="scope-acct" /> 계정 조회 (읽기 전용)
+              <input type="checkbox" id="scope-device" checked /> 기기 관리 · 매칭 관리
             </label>
             <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
               <input type="checkbox" id="scope-notice" checked /> 공지사항 작성·관리
             </label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+              <input type="checkbox" id="scope-acct" /> 계정 조회 (읽기 전용)
+            </label>
           </div>
-          <span class="form-hint">계정 승인·권한 변경·병원 관리·시스템 설정은 운영자에게 부여할 수 없습니다.</span>
+          <span class="form-hint">계정 승인·권한 변경·병원 관리·시스템 설정은 와치관리자에게 부여할 수 없습니다.</span>
         </div>
 
         <!-- 의료진 전용: 직종·부서 -->
@@ -659,9 +693,9 @@
   <script>
     /* ════ 데이터 ════ */
     let users = [
-      { id:1, name:'박운영', email:'park.unyeong@healthcare.com', hosp:'강남재활의원',     role:'op',      scope:'대시보드 · 공지사항',                  specialty:'', dept:'', created:'2025-11-15', lastLogin:'2026-04-25 15:44', status:'active' },
-      { id:2, name:'최서연', email:'choi.seoyeon@healthcare.com', hosp:'부산시립요양원',   role:'op',      scope:'대시보드 · 계정 조회 · 공지사항',       specialty:'', dept:'', created:'2026-01-08', lastLogin:'2026-04-24 10:05', status:'active' },
-      { id:3, name:'정재호', email:'jung.jaeho@healthcare.com',   hosp:'인천노인복지센터', role:'op',      scope:'대시보드 · 공지사항',                  specialty:'', dept:'', created:'2024-06-20', lastLogin:'2026-02-11 14:30', status:'inactive' },
+      { id:1, name:'박운영', email:'park.unyeong@healthcare.com', hosp:'강남재활의원',     role:'watch',   scope:'대시보드 · 공지사항',                  specialty:'', dept:'', created:'2025-11-15', lastLogin:'2026-04-25 15:44', status:'active' },
+      { id:2, name:'최서연', email:'choi.seoyeon@healthcare.com', hosp:'부산시립요양원',   role:'watch',   scope:'대시보드 · 계정 조회 · 공지사항',       specialty:'', dept:'', created:'2026-01-08', lastLogin:'2026-04-24 10:05', status:'active' },
+      { id:3, name:'정재호', email:'jung.jaeho@healthcare.com',   hosp:'인천노인복지센터', role:'watch',   scope:'대시보드 · 공지사항',                  specialty:'', dept:'', created:'2024-06-20', lastLogin:'2026-02-11 14:30', status:'inactive' },
       { id:4, name:'이민수', email:'lee.minsoo@healthcare.com',   hosp:'서울중앙병원',     role:'watch',   scope:'기기 관리 · 매칭 관리 · 공지사항',      specialty:'', dept:'', created:'2025-09-01', lastLogin:'2026-04-26 09:12', status:'active' },
       { id:5, name:'강지현', email:'kang.jihyeon@rehab.hospital', hosp:'강남재활의원',     role:'watch',   scope:'기기 관리 · 매칭 관리',                specialty:'', dept:'', created:'2026-02-10', lastLogin:'2026-05-09 11:30', status:'active' },
       { id:6, name:'김건강', email:'kim.health@sch.hospital',     hosp:'서울중앙병원',     role:'medical', scope:'모바일 앱',                             specialty:'내과 전문의',   dept:'내과 1팀',   created:'2025-10-12', lastLogin:'2026-05-09 08:45', status:'active' },
@@ -671,11 +705,25 @@
     ];
     let nextId = 10;
 
-    const ROLE_LABEL = { op:'운영자', watch:'와치관리자', medical:'의료진' };
-    const ROLE_CLASS = { op:'role-op', watch:'role-watch', medical:'role-medical' };
+    /* ════ 권한 변경 이력 ════ */
+    /* type: scope(업무범위) / status(활성상태) / info(계정정보) / create(신규생성) */
+    const history = [
+      { ts:'2026-05-09 11:30', userName:'강지현',   userRole:'watch',   field:'활성 상태',                 before:{label:'비활성',          klass:'change-off'},     after:{label:'활성',             klass:'change-on'},     actor:'김선숙', type:'status' },
+      { ts:'2026-05-08 16:42', userName:'박운영',   userRole:'watch',   field:'업무 범위 · 계정 조회',     before:{label:'OFF',             klass:'change-off'},     after:{label:'ON',               klass:'change-on'},     actor:'김선숙', type:'scope'  },
+      { ts:'2026-05-05 14:11', userName:'정복지',   userRole:'medical', field:'소속 부서',                 before:{label:'복지팀',          klass:'change-update'},  after:{label:'노인복지팀',       klass:'change-update'}, actor:'김선숙', type:'info'   },
+      { ts:'2026-05-02 09:23', userName:'정재호',   userRole:'watch',   field:'업무 범위 · 공지사항 관리', before:{label:'ON',              klass:'change-on'},      after:{label:'OFF',              klass:'change-off'},    actor:'김선숙', type:'scope'  },
+      { ts:'2026-04-28 17:05', userName:'정재호',   userRole:'watch',   field:'활성 상태',                 before:{label:'활성',            klass:'change-on'},      after:{label:'비활성',           klass:'change-off'},    actor:'김선숙', type:'status' },
+      { ts:'2026-04-22 10:48', userName:'김건강',   userRole:'medical', field:'직종',                       before:{label:'가정의학과 전문의', klass:'change-update'}, after:{label:'내과 전문의',      klass:'change-update'}, actor:'김선숙', type:'info'   },
+      { ts:'2026-04-15 13:30', userName:'박물리',   userRole:'medical', field:'소속 병원·기관',            before:{label:'서울중앙병원',    klass:'change-update'},  after:{label:'강남재활의원',     klass:'change-update'}, actor:'김선숙', type:'info'   },
+      { ts:'2026-04-10 11:22', userName:'최서연',   userRole:'watch',   field:'업무 범위 · 대시보드 모니터링', before:{label:'OFF',         klass:'change-off'},     after:{label:'ON',               klass:'change-on'},     actor:'김선숙', type:'scope'  },
+      { ts:'2026-04-05 09:00', userName:'강지현',   userRole:'watch',   field:'신규 계정 생성',            before:{label:'—',               klass:'change-update'},  after:{label:'활성 (초대 발송)', klass:'change-create'}, actor:'김선숙', type:'create' },
+      { ts:'2026-04-01 15:50', userName:'박운영',   userRole:'watch',   field:'업무 범위 · 기기·매칭 관리', before:{label:'OFF',            klass:'change-off'},     after:{label:'ON',               klass:'change-on'},     actor:'김선숙', type:'scope'  },
+    ];
+
+    const ROLE_LABEL = { watch:'와치관리자', medical:'의료진' };
+    const ROLE_CLASS = { watch:'role-watch', medical:'role-medical' };
     const ROLE_HINT  = {
-      op:      '병원·기관의 운영 포털에 접근합니다. 대시보드·공지사항 관리가 가능합니다.',
-      watch:   '와치 기기 관리 및 시니어 매칭 업무를 담당합니다. 운영자 포털에 접근합니다.',
+      watch:   '병원·기관의 운영 포털에 접근해 대시보드·공지사항을 관리하고, 와치 기기·시니어 매칭 업무를 담당합니다.',
       medical: '모바일 앱으로 담당 시니어의 건강 데이터를 모니터링합니다.',
     };
 
@@ -683,7 +731,7 @@
     function onRoleChange() {
       const role = document.getElementById('new-role').value;
       document.getElementById('role-hint').textContent  = ROLE_HINT[role] || '';
-      document.getElementById('scope-group').style.display   = role === 'op'      ? '' : 'none';
+      document.getElementById('scope-group').style.display   = role === 'watch'   ? '' : 'none';
       document.getElementById('medical-group').style.display = role === 'medical' ? 'flex' : 'none';
     }
 
@@ -726,9 +774,57 @@
 
       /* 통계 업데이트 */
       document.getElementById('stat-total').textContent   = users.length;
-      document.getElementById('stat-op').textContent      = users.filter(u => u.role === 'op').length;
       document.getElementById('stat-watch').textContent   = users.filter(u => u.role === 'watch').length;
       document.getElementById('stat-medical').textContent = users.filter(u => u.role === 'medical').length;
+    }
+
+    /* ════ 권한 변경 이력 렌더링 ════ */
+    function renderHistory() {
+      const ft = document.getElementById('history-filter-type').value;
+      const filtered = history.filter(h => !ft || h.type === ft);
+      const tbody = document.getElementById('history-tbody');
+      const empty = document.getElementById('history-empty');
+
+      tbody.innerHTML = '';
+      if (filtered.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      filtered.forEach(h => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="color:#546E7A; font-size:13px;">${h.ts}</td>
+          <td>
+            <div style="font-weight:600; font-size:13px;">${h.userName}</div>
+            <span class="role-badge ${ROLE_CLASS[h.userRole]}" style="margin-top:3px;display:inline-block;font-size:10px;padding:1px 7px;">${ROLE_LABEL[h.userRole]}</span>
+          </td>
+          <td style="font-size:13px; font-weight:500;">${h.field}</td>
+          <td><span class="change-badge ${h.before.klass}">${h.before.label}</span></td>
+          <td><span class="change-badge ${h.after.klass}">${h.after.label}</span></td>
+          <td style="font-size:13px; color:#1A2332;">${h.actor}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* ════ 이력 CSV 내보내기 ════ */
+    function exportHistory() {
+      const ft = document.getElementById('history-filter-type').value;
+      const filtered = history.filter(h => !ft || h.type === ft);
+      const rows = [['변경 일시','대상 계정','역할','변경 항목','변경 전','변경 후','처리자']];
+      filtered.forEach(h => {
+        rows.push([h.ts, h.userName, ROLE_LABEL[h.userRole], h.field, h.before.label, h.after.label, h.actor]);
+      });
+      const csv  = rows.map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n');
+      const blob = new Blob(['﻿' + csv], { type:'text/csv;charset=utf-8;' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url;
+      a.download = 'operator-history-' + new Date().toISOString().slice(0,10) + '.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('📥 권한 변경 이력이 다운로드되었습니다.');
     }
 
     /* ════ 수정 모달 ════ */
@@ -761,13 +857,14 @@
           <label class="form-label">소속 부서</label>
           <input class="form-input" type="text" value="${u.dept}" />
         </div>` : ''}
-        ${u.role === 'op' ? `
+        ${u.role === 'watch' ? `
         <div class="form-group">
           <label class="form-label">업무 범위</label>
           <div style="display:flex;flex-direction:column;gap:8px;padding:12px 14px;border:1px solid #D1D9E6;border-radius:8px;background:#F8FAFF;">
             <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;"><input type="checkbox" checked /> 대시보드 모니터링</label>
-            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;"><input type="checkbox" /> 계정 조회 (읽기 전용)</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;"><input type="checkbox" checked /> 기기 관리 · 매칭 관리</label>
             <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;"><input type="checkbox" checked /> 공지사항 작성·관리</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;"><input type="checkbox" /> 계정 조회 (읽기 전용)</label>
           </div>
         </div>` : ''}
       `;
@@ -799,8 +896,7 @@
 
       const specialty = role === 'medical' ? (document.getElementById('new-specialty').value) : '';
       const dept      = role === 'medical' ? (document.getElementById('new-dept').value.trim()) : '';
-      const scope = role === 'op' ? '대시보드 · 공지사항'
-                  : role === 'watch' ? '기기 관리 · 매칭 관리 · 공지사항'
+      const scope = role === 'watch' ? '대시보드 · 기기 관리 · 매칭 관리 · 공지사항'
                   : '모바일 앱';
 
       users.push({
@@ -832,6 +928,7 @@
 
     /* ════ 초기 렌더링 ════ */
     renderTable();
+    renderHistory();
   </script>
 </body>
 </html>

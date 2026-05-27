@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>M-04-D 복약 자세히 보기</title>
+  <!-- Google Fonts: Noto Sans KR (본문) + Roboto (숫자) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─────────────────────────────────────────
+       디자인 토큰
+    ───────────────────────────────────────── */
+    :root {
+      --color-primary:       #2B7FE0;
+      --color-primary-dark:  #1A5FB4;
+      --color-secondary:     #34C4A0;
+      --color-danger:        #E53935;
+      --color-warning:       #F5A623;
+      --color-bg:            #F4F6F9;
+      --color-surface:       #FFFFFF;
+      --color-border:        #D1D9E6;
+      --color-text:          #1A2332;
+      --color-text-sub:      #546E7A;
+      --color-text-disabled: #B0BEC5;
+      --color-ok:            #34C4A0;
+      --radius-card:         16px;
+      --shadow-card:         0 2px 12px rgba(0,0,0,0.08);
+      --btn-height:          56px;
+      --btn-radius:          12px;
+      --tab-bar-h:           64px;
+    }
+
+    /* ─────────────────────────────────────────
+       글로벌 리셋
+    ───────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: #C8D0DC; }
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+      color: var(--color-text);
+      background: var(--color-bg);
+      min-height: 100vh;
+      max-width: 390px;
+      margin: 0 auto;
+    }
+
+    /* ─────────────────────────────────────────
+       모바일 프레임
+    ───────────────────────────────────────── */
+    .mobile-frame {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ─────────────────────────────────────────
+       상단 헤더
+       기획 의도: 화면 제목 + 오늘 날짜를 고정 표시
+                 복약 맥락(날짜)을 항상 인지할 수 있게 함
+    ───────────────────────────────────────── */
+    .header {
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      padding: 14px 16px 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--color-text);
+    }
+    .header-date {
+      font-size: 13px;
+      color: var(--color-text-sub);
+      font-weight: 500;
+    }
+    .header-date strong {
+      color: var(--color-primary);
+      font-weight: 700;
+    }
+
+    /* ─────────────────────────────────────────
+       스크롤 콘텐츠
+    ───────────────────────────────────────── */
+    .scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: calc(var(--tab-bar-h) + 16px);
+    }
+
+    /* ─────────────────────────────────────────
+       공통 카드
+    ───────────────────────────────────────── */
+    .card {
+      background: var(--color-surface);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+      padding: 20px;
+      margin: 12px 16px;
+    }
+
+    /* ─────────────────────────────────────────
+       오늘 복약 현황 요약 카드
+       기획 의도: '2/3 완료' 수치와 진행 바로 오늘 복약 달성률을 한눈에 파악
+                 퍼센티지보다 "몇 개 중 몇 개"가 노인 사용자에게 더 직관적
+    ───────────────────────────────────────── */
+    .summary-card {
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      border-radius: var(--radius-card);
+      box-shadow: 0 4px 16px rgba(43,127,224,0.3);
+      padding: 20px;
+      margin: 16px 16px 8px;
+      color: #fff;
+    }
+    .summary-label {
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0.85;
+      margin-bottom: 8px;
+    }
+    .summary-count-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .summary-count {
+      font-family: 'Roboto', sans-serif;
+      font-size: 42px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .summary-total {
+      font-size: 18px;
+      font-weight: 400;
+      opacity: 0.75;
+    }
+    .summary-desc {
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0.9;
+      margin-bottom: 14px;
+    }
+
+    /* 진행 바 */
+    .progress-bar-track {
+      height: 8px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: #fff;
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    /* 다음 복약 알림 칩 */
+    .next-med-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+    .chip-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #FFD740;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:0.5; transform:scale(0.8); }
+    }
+
+    /* ─────────────────────────────────────────
+       섹션 헤더
+    ───────────────────────────────────────── */
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--color-text);
+      margin: 16px 16px 4px;
+    }
+
+    /* 헤더 편집 버튼 */
+    .btn-edit-mode {
+      height: 32px; padding: 0 14px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 20px; background: var(--color-surface);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 13px; font-weight: 600;
+      color: var(--color-text-sub); cursor: pointer;
+      transition: all 0.15s;
+    }
+    /* 간단보기 토글 (헤더 우측, 시니어 친화 큰 폰트 화면으로 전환) */
+    .btn-simple-toggle {
+      background: transparent;
+      color: var(--color-primary);
+      border: 2px solid var(--color-primary);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      text-decoration: none;
+      display: inline-block;
+      line-height: 1.4;
+      white-space: nowrap;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-simple-toggle:hover { background: var(--color-primary); color: #fff; }
+    .header-actions { display: flex; gap: 8px; align-items: center; }
+    .btn-edit-mode.active {
+      border-color: var(--color-primary);
+      background: #EBF3FD;
+      color: var(--color-primary);
+    }
+
+    /* 삭제 버튼 — 편집 모드에서만 표시 */
+    .del-btn {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--color-danger); border: none;
+      color: #fff; font-size: 18px; font-weight: 300; line-height: 1;
+      cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transform: scale(0); opacity: 0;
+      transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), opacity 0.15s;
+      pointer-events: none;
+    }
+    body.edit-mode .del-btn {
+      transform: scale(1); opacity: 1; pointer-events: auto;
+    }
+
+    /* 편집 모드일 때 아이템 살짝 흔들림 */
+    @keyframes wiggle {
+      0%,100% { transform: rotate(0deg); }
+      25%      { transform: rotate(-0.8deg); }
+      75%      { transform: rotate(0.8deg); }
+    }
+    body.edit-mode .med-item {
+      animation: wiggle 0.5s ease infinite;
+    }
+
+    /* 삭제 애니메이션 */
+    .med-item.removing {
+      animation: none !important;
+      opacity: 0;
+      transform: translateX(-30px) scaleY(0.6);
+      pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s;
+      max-height: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      overflow: hidden;
+    }
+
+    /* 삭제 확인 바텀 시트 */
+    .del-confirm-sheet {
+      position: fixed;
+      bottom: 0; left: 50%;
+      transform: translateX(-50%) translateY(100%);
+      width: 390px;
+      background: var(--color-surface);
+      border-radius: 20px 20px 0 0;
+      z-index: 402;
+      padding: 20px 20px 32px;
+      transition: transform 0.3s cubic-bezier(0.34,1.2,0.64,1);
+      text-align: center;
+    }
+    .del-confirm-sheet.open { transform: translateX(-50%) translateY(0); }
+    .del-confirm-icon { font-size: 36px; margin-bottom: 10px; }
+    .del-confirm-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+    .del-confirm-sub { font-size: 13px; color: var(--color-text-sub); margin-bottom: 20px; }
+    .del-confirm-actions { display: flex; gap: 10px; }
+    .btn-del-cancel {
+      flex: 1; height: 48px; border: 1.5px solid var(--color-border);
+      border-radius: 12px; background: var(--color-surface);
+      font-family: 'Noto Sans KR', sans-serif; font-size: 15px; font-weight: 600;
+      color: var(--color-text-sub); cursor: pointer;
+    }
+    .btn-del-confirm {
+      flex: 1; height: 48px; border: none; border-radius: 12px;
+      background: var(--color-danger);
+      font-family: 'Noto Sans KR', sans-serif; font-size: 15px; font-weight: 700;
+      color: #fff; cursor: pointer;
+    }
+
+    /* ─────────────────────────────────────────
+       복약 목록 카드
+       기획 의도: 시간순으로 나열, 완료/미완료를 아이콘과 배경으로 명확히 구분
+                 '복약 완료' 버튼은 미완료 항목에만 표시 (완료된 항목은 확인 아이콘)
+    ───────────────────────────────────────── */
+    .med-list {
+      margin: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .med-item {
+      background: var(--color-surface);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+      border-left: 4px solid transparent;
+      transition: all 0.2s;
+    }
+    .med-item.done {
+      border-left-color: var(--color-ok);
+      background: #F8FFFE;
+    }
+    .med-item.pending {
+      border-left-color: var(--color-border);
+    }
+
+    /* 시간 타임라인 마커 */
+    .med-time-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 52px;
+    }
+    .med-time {
+      font-family: 'Roboto', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-text-sub);
+      text-align: center;
+      line-height: 1.2;
+    }
+    .med-time .ampm {
+      font-size: 10px;
+      font-weight: 400;
+      display: block;
+    }
+
+    /* 복약 정보 */
+    .med-info { flex: 1; }
+    .med-category {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 2px;
+    }
+    .med-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 2px;
+    }
+    .med-dosage {
+      font-size: 12px;
+      color: var(--color-text-sub);
+    }
+    .med-done-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--color-ok);
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    /* 완료 체크 아이콘 */
+    .check-icon {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .check-icon.done    { background: var(--color-ok); }
+    .check-icon.pending { background: var(--color-border); }
+
+    /* 복약 완료 버튼 */
+    .btn-take {
+      display: block;
+      width: 100%;
+      height: 44px;
+      border-radius: var(--btn-radius);
+      border: none;
+      background: var(--color-primary);
+      color: #fff;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.15s;
+      letter-spacing: 0.2px;
+    }
+    .btn-take:active {
+      background: var(--color-primary-dark);
+      transform: scale(0.98);
+    }
+
+    /* ─────────────────────────────────────────
+       월간 달력 뷰
+       기획 의도: 이번 달 날짜별 복약 완료율을 색상 점으로 표시
+                 초록 = 완료, 빨강 = 미완료(누락), 테두리 = 오늘
+                 한 달 전체 패턴을 시각화해 지속성 동기부여
+    ───────────────────────────────────────── */
+    .calendar-card { margin-top: 4px; }
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .calendar-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--color-text);
+    }
+    .calendar-nav {
+      display: flex;
+      gap: 4px;
+    }
+    .calendar-nav button {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--color-border);
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-sub);
+    }
+
+    /* 요일 헤더 */
+    .cal-week-header {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      margin-bottom: 6px;
+    }
+    .cal-week-label {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-sub);
+      padding: 4px 0;
+    }
+    .cal-week-label:first-child { color: var(--color-danger); }
+    .cal-week-label:last-child  { color: var(--color-primary); }
+
+    /* 날짜 그리드 */
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+    }
+    .cal-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4px 2px;
+      border-radius: 10px;
+      position: relative;
+    }
+    .cal-cell.today {
+      border: 2px solid var(--color-primary);
+      background: #EBF3FD;
+    }
+    .cal-cell.empty { /* 빈 셀 */ }
+    .cal-date {
+      font-family: 'Roboto', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--color-text);
+      margin-bottom: 3px;
+      line-height: 1;
+    }
+    .cal-cell.today .cal-date { color: var(--color-primary); font-weight: 700; }
+    .cal-cell.faded .cal-date { color: var(--color-text-disabled); }
+
+    /* 복약 상태 점 */
+    .cal-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+    .cal-dot.ok      { background: var(--color-ok); }
+    .cal-dot.miss    { background: var(--color-danger); }
+    .cal-dot.partial { background: var(--color-warning); }
+    .cal-dot.future  { background: var(--color-border); }
+    .cal-dot.none    { background: transparent; }
+
+    /* 범례 */
+    .cal-legend {
+      display: flex;
+      gap: 14px;
+      margin-top: 14px;
+      justify-content: center;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--color-text-sub);
+      font-weight: 500;
+    }
+    .legend-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
+
+    /* ─────────────────────────────────────────
+       약 추가 버튼 (FAB 스타일)
+       기획 의도: Primary 색상 CTA로 신규 약 등록을 유도
+    ───────────────────────────────────────── */
+    .add-btn-wrap {
+      padding: 0 16px 8px;
+    }
+    .btn-add-med {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      height: var(--btn-height);
+      border-radius: var(--btn-radius);
+      border: 2px dashed var(--color-primary);
+      background: #EBF3FD;
+      color: var(--color-primary);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.2px;
+    }
+    .btn-add-med:active {
+      background: #D6E8FA;
+      transform: scale(0.98);
+    }
+    .btn-add-icon {
+      font-size: 20px;
+      font-weight: 300;
+      line-height: 1;
+    }
+
+    /* ─────────────────────────────────────────
+       약 추가 바텀 시트
+    ───────────────────────────────────────── */
+    .sheet-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 400;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
+
+    .add-sheet {
+      position: fixed;
+      bottom: 0; left: 50%;
+      transform: translateX(-50%) translateY(100%);
+      width: 390px;
+      background: var(--color-surface);
+      border-radius: 20px 20px 0 0;
+      z-index: 401;
+      transition: transform 0.35s cubic-bezier(0.34,1.2,0.64,1);
+      max-height: 88vh;
+      overflow-y: auto;
+    }
+    .add-sheet.open { transform: translateX(-50%) translateY(0); }
+
+    .sheet-handle {
+      width: 36px; height: 4px;
+      background: var(--color-border);
+      border-radius: 2px;
+      margin: 12px auto 0;
+    }
+    .sheet-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .sheet-title { font-size: 17px; font-weight: 700; }
+    .sheet-close {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: none; background: var(--color-bg);
+      font-size: 18px; color: var(--color-text-sub);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+
+    .sheet-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 16px; }
+
+    .field-label {
+      font-size: 12px; font-weight: 600;
+      color: var(--color-text-sub); margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .field-input {
+      width: 100%; height: 44px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 10px; padding: 0 12px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; color: var(--color-text);
+      background: var(--color-surface);
+      outline: none; transition: border-color 0.15s;
+    }
+    .field-input:focus { border-color: var(--color-primary); }
+    .field-input.error { border-color: var(--color-danger); background: #FFF5F5; }
+    .field-error {
+      font-size: 11px; font-weight: 600;
+      color: var(--color-danger);
+      margin-top: 5px;
+      display: none;
+    }
+    .field-error.show { display: block; }
+    .req { color: var(--color-danger); margin-left: 2px; }
+
+    .chip-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip-opt {
+      height: 34px; padding: 0 14px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 20px; background: var(--color-surface);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 13px; font-weight: 600;
+      color: var(--color-text-sub);
+      cursor: pointer; transition: all 0.12s;
+    }
+    .chip-opt.selected {
+      border-color: var(--color-primary);
+      background: #EBF3FD;
+      color: var(--color-primary);
+    }
+
+    .time-row { display: flex; gap: 8px; align-items: center; }
+    .time-ampm {
+      display: flex; border: 1.5px solid var(--color-border);
+      border-radius: 10px; overflow: hidden; flex-shrink: 0;
+    }
+    .time-ampm button {
+      width: 44px; height: 44px; border: none;
+      background: var(--color-surface);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 13px; font-weight: 600;
+      color: var(--color-text-sub); cursor: pointer;
+      transition: all 0.12s;
+    }
+    .time-ampm button.selected {
+      background: var(--color-primary); color: #fff;
+    }
+    .time-ampm button:first-child { border-right: 1px solid var(--color-border); }
+
+    .dosage-row { display: flex; gap: 8px; }
+    .dosage-row .field-input { flex: 1; }
+    .dosage-unit {
+      height: 44px; display: flex; align-items: center;
+      font-size: 13px; color: var(--color-text-sub); white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .sheet-footer {
+      padding: 12px 20px 24px;
+      display: flex; gap: 10px;
+      border-top: 1px solid var(--color-border);
+    }
+    .btn-sheet-cancel {
+      flex: 1; height: 48px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 12px; background: var(--color-surface);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 15px; font-weight: 600;
+      color: var(--color-text-sub); cursor: pointer;
+    }
+    .btn-sheet-add {
+      flex: 2; height: 48px;
+      border: none; border-radius: 12px;
+      background: var(--color-primary);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 15px; font-weight: 700;
+      color: #fff; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-sheet-add:active { background: var(--color-primary-dark); }
+
+    /* ─────────────────────────────────────────
+       하단 탭 바
+    ───────────────────────────────────────── */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 390px;
+      height: var(--tab-bar-h);
+      background: var(--color-surface);
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      z-index: 200;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+    }
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      height: 100%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--color-text-disabled);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      transition: color 0.15s;
+      text-decoration: none;
+    }
+    .tab-item svg { width: 24px; height: 24px; }
+    .tab-label { font-size: 11px; font-weight: 600; }
+    .tab-item .tab-icon-bar { font-size: 22px; line-height: 1; }
+    .tab-item.active { color: var(--color-primary); }
+
+    /* 복약 탭 뱃지 (완료 안된 수) */
+    .tab-badge {
+      position: relative;
+    }
+    .badge-count {
+      position: absolute;
+      top: -4px; right: -8px;
+      background: var(--color-danger);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid var(--color-surface);
+    }
+
+    /* 완료 토스트 (클릭 시 표시) */
+    .toast {
+      position: fixed;
+      bottom: calc(var(--tab-bar-h) + 16px);
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--color-text);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 24px;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      z-index: 300;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* 복약 미완료 알람 배너 */
+    .alarm-banner {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100%);
+      width: 390px;
+      background: #fff;
+      border-bottom: 3px solid var(--color-warning);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+      padding: 14px 16px 12px;
+      z-index: 500;
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .alarm-banner.show {
+      transform: translateX(-50%) translateY(0);
+    }
+    .alarm-banner-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .alarm-banner-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-warning);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .alarm-banner-close {
+      width: 24px; height: 24px;
+      border: none; background: var(--color-bg);
+      border-radius: 50%; cursor: pointer;
+      font-size: 14px; color: var(--color-text-sub);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .alarm-banner-body {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text);
+    }
+    .alarm-banner-sub {
+      font-size: 12px;
+      color: var(--color-text-sub);
+      margin-top: 2px;
+    }
+    .alarm-banner-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .alarm-btn-snooze {
+      flex: 1; height: 36px;
+      border: 1.5px solid var(--color-border);
+      background: #fff; border-radius: 8px;
+      font-size: 13px; font-weight: 600;
+      color: var(--color-text-sub); cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+    .alarm-btn-take {
+      flex: 1; height: 36px;
+      border: none;
+      background: var(--color-ok); border-radius: 8px;
+      font-size: 13px; font-weight: 600;
+      color: #fff; cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+  </style>
+</head>
+<body>
+<div class="mobile-frame">
+
+  <!-- ══════════════════════════════════════════
+       상단 헤더: 화면 제목 + 오늘 날짜
+  ══════════════════════════════════════════ -->
+  <header class="header">
+    <div class="header-row">
+      <h1 class="header-title">복약 관리</h1>
+      <div class="header-actions">
+        <button class="btn-edit-mode" id="btn-edit" onclick="toggleEditMode()">편집</button>
+        <!-- 기획 의도: 간단보기 모드로 돌아가는 토글 (시니어용 큰 글자 화면) -->
+        <a href="medication-simple.html" class="btn-simple-toggle">← 간단보기</a>
+      </div>
+    </div>
+    <div class="header-date" style="margin-top:2px;"><strong>2026년 4월 25일</strong> 토요일</div>
+  </header>
+
+  <div class="scroll-content">
+
+    <!-- ══════════════════════════════════════════
+         오늘 복약 현황 요약 카드
+         기획 의도: 파란 그라데이션으로 시각적 강조
+                   '2/3 완료' + 진행 바로 달성률 즉각 인지
+                   다음 복약 시각을 칩으로 알림
+    ══════════════════════════════════════════ -->
+    <div class="summary-card">
+      <div class="summary-label">오늘 복약 현황</div>
+      <div class="summary-count-row">
+        <span class="summary-count" id="done-count">2</span>
+        <span class="summary-total">/ 3 완료</span>
+      </div>
+      <div class="summary-desc">오늘 하루 복약 목표의 67% 달성했어요</div>
+
+      <!-- 진행 바 -->
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill" style="width: 66.7%;"></div>
+      </div>
+      <div class="progress-labels">
+        <span>0%</span>
+        <span id="progress-pct">67%</span>
+        <span>100%</span>
+      </div>
+
+      <!-- 다음 복약 알림 칩 -->
+      <div class="next-med-chip">
+        <span class="chip-dot"></span>
+        오후 8:00 로수바스타틴 복약 예정
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         복약 목록 (시간순)
+         기획 의도: 각 약을 카드로 분리, 왼쪽 색상 바로 완료 여부 즉각 구분
+                   완료 항목은 초록 체크 / 미완료 항목은 "복약 완료" 버튼 표시
+    ══════════════════════════════════════════ -->
+    <div class="section-title">오늘 복약 목록</div>
+
+    <div class="med-list">
+
+      <!-- ① 오전 8시 혈압약 — 완료 -->
+      <div class="med-item done" id="med-1">
+        <button class="del-btn" onclick="confirmDelete('1','암로디핀')" aria-label="삭제">−</button>
+        <div class="med-time-col">
+          <div class="med-time">
+            <span class="ampm">오전</span>
+            8:00
+          </div>
+        </div>
+        <div class="med-info">
+          <div class="med-category">혈압약</div>
+          <div class="med-name">암로디핀</div>
+          <div class="med-dosage">5mg · 1정 · 식전</div>
+          <div class="med-done-label">
+            <!-- 완료 시각 표시로 신뢰성 제공 -->
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <circle cx="6.5" cy="6.5" r="6.5" fill="#34C4A0"/>
+              <path d="M3.5 6.5L5.5 8.5L9 5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            오전 7:58 복약 완료
+          </div>
+        </div>
+        <div class="check-icon done" aria-label="복약 완료">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M4 9L7.5 12.5L14 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- ② 오후 1시 혈당약 — 완료 -->
+      <div class="med-item done" id="med-2">
+        <button class="del-btn" onclick="confirmDelete('2','메트포르민')" aria-label="삭제">−</button>
+        <div class="med-time-col">
+          <div class="med-time">
+            <span class="ampm">오후</span>
+            1:00
+          </div>
+        </div>
+        <div class="med-info">
+          <div class="med-category">혈당약</div>
+          <div class="med-name">메트포르민</div>
+          <div class="med-dosage">500mg · 1정 · 식후</div>
+          <div class="med-done-label">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <circle cx="6.5" cy="6.5" r="6.5" fill="#34C4A0"/>
+              <path d="M3.5 6.5L5.5 8.5L9 5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            오후 1:03 복약 완료
+          </div>
+        </div>
+        <div class="check-icon done" aria-label="복약 완료">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M4 9L7.5 12.5L14 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- ③ 오후 8시 고지혈증약 — 미완료 (복약 완료 버튼 표시) -->
+      <div class="med-item pending" id="med-3">
+        <button class="del-btn" onclick="confirmDelete('3','로수바스타틴')" aria-label="삭제">−</button>
+        <div class="med-time-col">
+          <div class="med-time" style="color:var(--color-warning); font-weight:700;">
+            <span class="ampm" style="color:var(--color-warning);">오후</span>
+            8:00
+          </div>
+        </div>
+        <div class="med-info">
+          <div class="med-category">고지혈증약</div>
+          <div class="med-name">로수바스타틴</div>
+          <div class="med-dosage">10mg · 1정 · 식후</div>
+          <!-- 미완료 상태 표시 -->
+          <div style="display:flex; align-items:center; gap:4px; margin-top:4px;">
+            <span style="font-size:11px; color:var(--color-warning); font-weight:600;">
+              ⏰ 오후 8시 복약 예정
+            </span>
+          </div>
+          <!-- 복약 완료 버튼: 미완료 항목에만 표시 -->
+          <button class="btn-take" id="take-btn-3" onclick="takeMed(3)"
+                  aria-label="로수바스타틴 복약 완료 처리">
+            복약 완료
+          </button>
+        </div>
+        <div class="check-icon pending" id="check-3" aria-label="복약 미완료">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="4" y="4" width="10" height="10" rx="2" stroke="#B0BEC5" stroke-width="1.8"/>
+          </svg>
+        </div>
+      </div>
+
+    </div><!-- /med-list -->
+
+    <!-- ══════════════════════════════════════════
+         월간 달력 뷰 (이번 달 복약 달력)
+         기획 의도: 이번 달 전체 달력에서 복약 완료(●초록) / 누락(●빨강) / 미래(●회색) 점으로
+                   한 달 복약 패턴을 직관적으로 파악
+                   오늘 날짜는 파란 테두리로 강조
+    ══════════════════════════════════════════ -->
+    <div class="section-title" style="margin-top:20px;">이번 달 복약 달력</div>
+
+    <div class="card calendar-card">
+      <div class="calendar-header">
+        <div class="calendar-title">2026년 4월</div>
+        <div class="calendar-nav">
+          <button aria-label="이전 달">‹</button>
+          <button aria-label="다음 달">›</button>
+        </div>
+      </div>
+
+      <!-- 요일 헤더 -->
+      <div class="cal-week-header">
+        <div class="cal-week-label">일</div>
+        <div class="cal-week-label">월</div>
+        <div class="cal-week-label">화</div>
+        <div class="cal-week-label">수</div>
+        <div class="cal-week-label">목</div>
+        <div class="cal-week-label">금</div>
+        <div class="cal-week-label">토</div>
+      </div>
+
+      <!-- 날짜 그리드 (JS로 렌더) -->
+      <div class="cal-grid" id="cal-grid"></div>
+
+      <!-- 범례 -->
+      <div class="cal-legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--color-ok);"></div>완료
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--color-danger);"></div>누락
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--color-warning);"></div>일부 완료
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--color-border);"></div>예정
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         약 추가 버튼
+         기획 의도: 점선 테두리 + Primary 색상으로 등록 유도
+    ══════════════════════════════════════════ -->
+    <div class="add-btn-wrap" style="margin-top:4px;">
+      <button class="btn-add-med" aria-label="새 약 추가" onclick="openAddSheet()">
+        <span class="btn-add-icon">+</span>
+        약 추가하기
+      </button>
+    </div>
+
+    <div style="height:8px;"></div>
+
+  </div><!-- /scroll-content -->
+
+  <!-- ══════════════════════════════════════════
+       하단 탭 바 (복약 탭 활성)
+  ══════════════════════════════════════════ -->
+  <nav class="tab-bar" aria-label="하단 메뉴">
+    <a href="home-simple.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+      <span class="tab-label">홈</span>
+    </a>
+    <a href="health-simple.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+      <span class="tab-label">건강</span>
+    </a>
+    <a href="medication-simple.html" class="tab-item active" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      <span class="tab-label">복약</span>
+    </a>
+    <a href="schedule-simple.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <span class="tab-label">일정</span>
+    </a>
+    <a href="settings.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+      </svg>
+      <span class="tab-label">설정</span>
+    </a>
+  </nav>
+
+</div><!-- /mobile-frame -->
+
+<!-- 삭제 확인 바텀 시트 -->
+<div class="sheet-backdrop" id="del-backdrop" onclick="cancelDelete()"></div>
+<div class="del-confirm-sheet" id="del-confirm-sheet">
+  <div class="del-confirm-icon">🗑️</div>
+  <div class="del-confirm-title" id="del-confirm-title">약 삭제</div>
+  <div class="del-confirm-sub" id="del-confirm-sub">이 약을 복약 목록에서 삭제하시겠습니까?</div>
+  <div class="del-confirm-actions">
+    <button class="btn-del-cancel" onclick="cancelDelete()">취소</button>
+    <button class="btn-del-confirm" onclick="executeDelete()">삭제</button>
+  </div>
+</div>
+
+<!-- 약 추가 바텀 시트 -->
+<div class="sheet-backdrop" id="add-sheet-backdrop" onclick="closeAddSheet()"></div>
+<div class="add-sheet" id="add-sheet" role="dialog" aria-modal="true" aria-label="약 추가">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title">💊 약 추가하기</span>
+    <button class="sheet-close" onclick="closeAddSheet()" aria-label="닫기">✕</button>
+  </div>
+  <div class="sheet-body">
+
+    <!-- 약 카테고리 (필수 — 기본값 선택됨) -->
+    <div>
+      <div class="field-label">약 종류<span class="req">*</span></div>
+      <div class="chip-group" id="cat-group">
+        <button class="chip-opt selected" onclick="selectChip('cat-group',this)">혈압약</button>
+        <button class="chip-opt" onclick="selectChip('cat-group',this)">혈당약</button>
+        <button class="chip-opt" onclick="selectChip('cat-group',this)">고지혈증약</button>
+        <button class="chip-opt" onclick="selectChip('cat-group',this)">관절약</button>
+        <button class="chip-opt" onclick="selectChip('cat-group',this)">기타</button>
+      </div>
+    </div>
+
+    <!-- 약 이름 (필수) -->
+    <div>
+      <div class="field-label">약 이름<span class="req">*</span></div>
+      <input class="field-input" id="inp-name" type="text" placeholder="예) 암로디핀" maxlength="30"
+             oninput="clearError('inp-name','err-name')">
+      <div class="field-error" id="err-name">약 이름을 입력해 주세요</div>
+    </div>
+
+    <!-- 용량 + 정수 (선택) -->
+    <div>
+      <div class="field-label">용량 <span style="font-size:11px;color:var(--color-text-sub);font-weight:400;">(선택)</span></div>
+      <div class="dosage-row">
+        <input class="field-input" id="inp-dose" type="number" placeholder="0" min="1" max="9999" style="text-align:right;">
+        <span class="dosage-unit">mg</span>
+        <input class="field-input" id="inp-count" type="number" placeholder="1" min="1" max="10" style="text-align:right; max-width:64px;">
+        <span class="dosage-unit">정</span>
+      </div>
+    </div>
+
+    <!-- 복용 시기 (필수 — 기본값 선택됨) -->
+    <div>
+      <div class="field-label">복용 시기<span class="req">*</span></div>
+      <div class="chip-group" id="timing-group">
+        <button class="chip-opt selected" onclick="selectChip('timing-group',this)">식후</button>
+        <button class="chip-opt" onclick="selectChip('timing-group',this)">식전</button>
+        <button class="chip-opt" onclick="selectChip('timing-group',this)">공복</button>
+        <button class="chip-opt" onclick="selectChip('timing-group',this)">상관없음</button>
+      </div>
+    </div>
+
+    <!-- 복용 시간 (필수) -->
+    <div>
+      <div class="field-label">복용 시간<span class="req">*</span></div>
+      <div class="time-row">
+        <div class="time-ampm" id="ampm-group">
+          <button class="selected" onclick="selectAmPm(this,'오전')">오전</button>
+          <button onclick="selectAmPm(this,'오후')">오후</button>
+        </div>
+        <input class="field-input" id="inp-hour" type="number" placeholder="8" min="1" max="12"
+               style="text-align:center; max-width:72px;"
+               oninput="clearError('inp-hour','err-time')">
+        <span class="dosage-unit" style="font-size:16px; font-weight:700;">:</span>
+        <input class="field-input" id="inp-min" type="number" placeholder="00" min="0" max="59"
+               style="text-align:center; max-width:72px;"
+               oninput="clearError('inp-min','err-time')">
+      </div>
+      <div class="field-error" id="err-time">복용 시간을 입력해 주세요 (1–12시)</div>
+    </div>
+
+  </div><!-- /sheet-body -->
+  <div class="sheet-footer">
+    <button class="btn-sheet-cancel" onclick="closeAddSheet()">취소</button>
+    <button class="btn-sheet-add" onclick="submitAddMed()">추가하기</button>
+  </div>
+</div>
+
+<!-- 복약 미완료 알람 배너 -->
+<div class="alarm-banner" id="alarm-banner" role="alert" aria-live="assertive">
+  <div class="alarm-banner-header">
+    <div class="alarm-banner-title">
+      <span>⏰</span> 복약 미완료 알림
+    </div>
+    <button class="alarm-banner-close" onclick="snoozeAlarm()" aria-label="닫기">✕</button>
+  </div>
+  <div class="alarm-banner-body" id="alarm-banner-body">로수바스타틴 10mg</div>
+  <div class="alarm-banner-sub" id="alarm-banner-sub">오후 8:00 복약 예정 · 아직 완료되지 않았습니다</div>
+  <div class="alarm-banner-actions">
+    <button class="alarm-btn-snooze" onclick="snoozeAlarm()">10분 후 다시 알림</button>
+    <button class="alarm-btn-take" onclick="alarmTakeMed()">복약 완료</button>
+  </div>
+</div>
+
+<!-- 완료 토스트 메시지 -->
+<div class="toast" id="toast">✅ 복약 완료 처리되었습니다</div>
+
+<!-- ══════════════════════════════════════════
+     스크립트: 복약 완료 처리 + 달력 렌더
+  ══════════════════════════════════════════ -->
+<script>
+  // ─── 복약 완료 버튼 클릭 처리 ──────────────
+  // 기획 의도: 버튼 클릭 → 즉각 완료 상태로 UI 전환 + 진행률 업데이트
+  function takeMed(idx) {
+    const item   = document.getElementById('med-' + idx);
+    const btn    = document.getElementById('take-btn-' + idx);
+    const check  = document.getElementById('check-' + idx);
+
+    // 알람 스케줄러에 완료 등록
+    if (typeof completedMeds !== 'undefined') completedMeds.add(idx);
+
+    // 완료 상태로 전환
+    item.classList.remove('pending');
+    item.classList.add('done');
+    item.style.borderLeftColor = 'var(--color-ok)';
+
+    // 완료 아이콘으로 변경
+    check.className = 'check-icon done';
+    check.innerHTML =
+      '<svg width="18" height="18" viewBox="0 0 18 18" fill="none">' +
+      '<path d="M4 9L7.5 12.5L14 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '</svg>';
+
+    // 버튼 제거 및 완료 텍스트 삽입
+    const now = new Date();
+    const hh  = now.getHours();
+    const mm  = String(now.getMinutes()).padStart(2, '0');
+    const ampm = hh < 12 ? '오전' : '오후';
+    const h12  = hh % 12 || 12;
+    btn.remove();
+
+    // 예정 칩 제거 후 완료 레이블 삽입
+    const info = item.querySelector('.med-info');
+    const oldChip = info.querySelector('div[style]');
+    if (oldChip) oldChip.remove();
+    const doneLabel = document.createElement('div');
+    doneLabel.className = 'med-done-label';
+    doneLabel.innerHTML =
+      '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="6.5" fill="#34C4A0"/><path d="M3.5 6.5L5.5 8.5L9 5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+      ampm + ' ' + h12 + ':' + mm + ' 복약 완료';
+    info.appendChild(doneLabel);
+
+    // 진행률 업데이트 (3/3 완료)
+    document.getElementById('done-count').textContent  = '3';
+    document.getElementById('progress-fill').style.width = '100%';
+    document.getElementById('progress-pct').textContent  = '100%';
+
+    // 탭 뱃지 제거
+    const badge = document.getElementById('tab-badge');
+    if (badge) badge.remove();
+
+    // 다음 복약 칩 업데이트
+    const chip = document.querySelector('.next-med-chip');
+    if (chip) {
+      chip.innerHTML = '<span style="font-size:14px;">🎉</span> 오늘 복약을 모두 완료했어요!';
+      chip.style.background = 'rgba(52,196,160,0.2)';
+      chip.style.borderColor = 'rgba(52,196,160,0.5)';
+    }
+
+    // 요약 문구 업데이트
+    document.querySelector('.summary-desc').textContent = '오늘 하루 복약 목표를 모두 달성했어요 🎉';
+
+    // 토스트 표시
+    showToast();
+
+    // 달력 오늘 점 업데이트
+    const todayCell = document.querySelector('.cal-cell.today .cal-dot');
+    if (todayCell) {
+      todayCell.className = 'cal-dot ok';
+    }
+  }
+
+  function showToast() {
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // ─── 달력 렌더링 ────────────────────────────
+  // 기획 의도: 이번 달 달력을 동적 생성, 날짜별 복약 상태 점으로 표시
+  function renderCalendar() {
+    const grid  = document.getElementById('cal-grid');
+    const today = 25;  // 오늘 = 25일 (2026-04-25)
+    const year  = 2026;
+    const month = 3;   // 0-indexed (4월)
+
+    // 4월 1일 시작 요일: 수요일 = 3 (0=일)
+    const firstDay  = new Date(year, month, 1).getDay();  // 3
+    const daysInMonth = 30; // 4월 = 30일
+
+    // 더미 복약 상태 데이터
+    // ok=완전완료, miss=누락, partial=일부완료, future=예정
+    const STATUS = {};
+    // 1~24일 랜덤(현실감 있게) 배정
+    const pattern = [
+      'ok','ok','ok','miss','ok','ok','partial',  // 1-7
+      'ok','ok','miss','ok','ok','ok','ok',        // 8-14
+      'partial','ok','ok','ok','miss','ok','ok',   // 15-21
+      'ok','ok','ok'                               // 22-24
+    ];
+    for (let i = 1; i <= 24; i++) {
+      STATUS[i] = pattern[i - 1] || 'ok';
+    }
+    STATUS[25] = 'partial'; // 오늘: 2/3 완료 (미완료→클릭 후 ok로 변경)
+    for (let i = 26; i <= 30; i++) {
+      STATUS[i] = 'future';
+    }
+
+    grid.innerHTML = '';
+
+    // 빈 셀 (첫째 날 이전)
+    for (let i = 0; i < firstDay; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'cal-cell empty';
+      grid.appendChild(empty);
+    }
+
+    // 날짜 셀
+    for (let d = 1; d <= daysInMonth; d++) {
+      const cell = document.createElement('div');
+      cell.className = 'cal-cell' + (d === today ? ' today' : '');
+
+      const st = STATUS[d] || 'future';
+      cell.innerHTML =
+        '<span class="cal-date">' + d + '</span>' +
+        '<span class="cal-dot ' + st + '" id="dot-' + d + '"></span>';
+
+      grid.appendChild(cell);
+    }
+  }
+
+  // ─── 편집 모드 / 복약 삭제 ──────────────────
+  let isEditMode = false;
+  let pendingDeleteIdx = null;
+
+  function toggleEditMode() {
+    isEditMode = !isEditMode;
+    document.body.classList.toggle('edit-mode', isEditMode);
+    const btn = document.getElementById('btn-edit');
+    btn.textContent = isEditMode ? '완료' : '편집';
+    btn.classList.toggle('active', isEditMode);
+  }
+
+  function confirmDelete(idx, name) {
+    pendingDeleteIdx = idx;
+    document.getElementById('del-confirm-title').textContent = name + ' 삭제';
+    document.getElementById('del-confirm-sub').textContent =
+      '"' + name + '" 복약 항목을 목록에서 삭제하시겠습니까?';
+    document.getElementById('del-confirm-sheet').classList.add('open');
+    document.getElementById('del-backdrop').classList.add('open');
+  }
+
+  function cancelDelete() {
+    pendingDeleteIdx = null;
+    document.getElementById('del-confirm-sheet').classList.remove('open');
+    document.getElementById('del-backdrop').classList.remove('open');
+  }
+
+  function executeDelete() {
+    const idx = pendingDeleteIdx;
+    cancelDelete();
+    if (!idx) return;
+
+    const item = document.getElementById('med-' + idx);
+    if (!item) return;
+
+    // 슬라이드 아웃 애니메이션
+    item.style.transition = 'opacity 0.25s, transform 0.25s, max-height 0.35s 0.15s, padding 0.35s 0.15s, margin 0.35s 0.15s';
+    item.style.opacity = '0';
+    item.style.transform = 'translateX(-30px)';
+    item.style.overflow = 'hidden';
+    const h = item.offsetHeight;
+    item.style.maxHeight = h + 'px';
+    requestAnimationFrame(() => {
+      item.style.maxHeight = '0';
+      item.style.padding = '0';
+      item.style.margin = '0';
+    });
+    setTimeout(() => item.remove(), 500);
+
+    // 총 복약 수 조정
+    totalMedCount = Math.max(0, totalMedCount - 1);
+    const totalEl = document.querySelector('.summary-total');
+    if (totalEl) totalEl.textContent = '/ ' + totalMedCount + ' 완료';
+
+    // 알람 스케줄러에서 제거
+    const pi = PENDING_MEDS.findIndex(m => String(m.idx) === String(idx));
+    if (pi !== -1) PENDING_MEDS.splice(pi, 1);
+
+    // 삭제 토스트
+    const t = document.getElementById('toast');
+    t.textContent = '🗑️ 복약 항목이 삭제되었습니다';
+    t.classList.add('show');
+    setTimeout(() => { t.classList.remove('show'); t.textContent = '✅ 복약 완료 처리되었습니다'; }, 2500);
+  }
+
+  // ─── 약 추가 바텀 시트 ──────────────────────
+  let selectedAmPm = '오전';
+  let totalMedCount = 3;  // 현재 등록된 약 수
+
+  function openAddSheet() {
+    document.getElementById('add-sheet').classList.add('open');
+    document.getElementById('add-sheet-backdrop').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    // 입력 초기화
+    document.getElementById('inp-name').value = '';
+    document.getElementById('inp-dose').value = '';
+    document.getElementById('inp-count').value = '1';
+    document.getElementById('inp-hour').value = '';
+    document.getElementById('inp-min').value = '00';
+    // 에러 상태 초기화
+    ['inp-name','inp-hour','inp-min'].forEach(id => document.getElementById(id).classList.remove('error'));
+    ['err-name','err-time'].forEach(id => document.getElementById(id).classList.remove('show'));
+    // 칩 초기화
+    resetChip('cat-group', 0);
+    resetChip('timing-group', 0);
+    resetAmPm('오전');
+    setTimeout(() => document.getElementById('inp-name').focus(), 350);
+  }
+
+  function closeAddSheet() {
+    document.getElementById('add-sheet').classList.remove('open');
+    document.getElementById('add-sheet-backdrop').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function selectChip(groupId, el) {
+    document.querySelectorAll('#' + groupId + ' .chip-opt')
+      .forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function resetChip(groupId, idx) {
+    const btns = document.querySelectorAll('#' + groupId + ' .chip-opt');
+    btns.forEach(b => b.classList.remove('selected'));
+    if (btns[idx]) btns[idx].classList.add('selected');
+  }
+
+  function selectAmPm(el, val) {
+    selectedAmPm = val;
+    document.querySelectorAll('#ampm-group button')
+      .forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function resetAmPm(val) {
+    selectedAmPm = val;
+    const btns = document.querySelectorAll('#ampm-group button');
+    btns.forEach(b => b.classList.remove('selected'));
+    btns[0].classList.add('selected');
+  }
+
+  function clearError(inputId, errId) {
+    document.getElementById(inputId).classList.remove('error');
+    document.getElementById(errId).classList.remove('show');
+  }
+
+  function submitAddMed() {
+    const name  = document.getElementById('inp-name').value.trim();
+    const dose  = document.getElementById('inp-dose').value.trim();
+    const count = document.getElementById('inp-count').value || '1';
+    const hour  = document.getElementById('inp-hour').value.trim();
+    const min   = String(document.getElementById('inp-min').value || '0').padStart(2, '0');
+
+    // 필수 입력 전체 검사 (용량 제외)
+    let hasError = false;
+
+    if (!name) {
+      document.getElementById('inp-name').classList.add('error');
+      document.getElementById('err-name').classList.add('show');
+      hasError = true;
+    }
+
+    const hourNum = parseInt(hour);
+    if (!hour || isNaN(hourNum) || hourNum < 1 || hourNum > 12) {
+      document.getElementById('inp-hour').classList.add('error');
+      document.getElementById('inp-min').classList.add('error');
+      document.getElementById('err-time').classList.add('show');
+      hasError = true;
+    }
+
+    if (hasError) {
+      // 첫 번째 에러 필드로 스크롤
+      const firstErr = document.querySelector('.field-input.error');
+      if (firstErr) firstErr.focus();
+      return;
+    }
+
+    const cat    = document.querySelector('#cat-group .chip-opt.selected')?.textContent || '기타';
+    const timing = document.querySelector('#timing-group .chip-opt.selected')?.textContent || '식후';
+    const dosage = (dose ? dose + 'mg · ' : '') + count + '정 · ' + timing;
+    const timeStr = selectedAmPm + ' ' + hour + ':' + min;
+
+    totalMedCount++;
+    const newIdx = 'new-' + totalMedCount;
+
+    // 새 복약 항목 생성
+    const item = document.createElement('div');
+    item.className = 'med-item pending';
+    item.id = 'med-' + newIdx;
+    item.innerHTML = `
+      <button class="del-btn" onclick="confirmDelete('${newIdx}','${name}')" aria-label="삭제">−</button>
+      <div class="med-time-col">
+        <div class="med-time" style="color:var(--color-warning);font-weight:700;">
+          <span class="ampm" style="color:var(--color-warning);">${selectedAmPm}</span>
+          ${hour}:${min}
+        </div>
+      </div>
+      <div class="med-info">
+        <div class="med-category">${cat}</div>
+        <div class="med-name">${name}</div>
+        <div class="med-dosage">${dosage}</div>
+        <div style="display:flex;align-items:center;gap:4px;margin-top:4px;">
+          <span style="font-size:11px;color:var(--color-warning);font-weight:600;">⏰ ${timeStr} 복약 예정</span>
+        </div>
+        <button class="btn-take" id="take-btn-${newIdx}" onclick="takeMedDynamic('${newIdx}')"
+                aria-label="${name} 복약 완료 처리">복약 완료</button>
+      </div>
+      <div class="check-icon pending" id="check-${newIdx}" aria-label="복약 미완료">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <rect x="4" y="4" width="10" height="10" rx="2" stroke="#B0BEC5" stroke-width="1.8"/>
+        </svg>
+      </div>`;
+
+    document.querySelector('.med-list').appendChild(item);
+
+    // 총 복약 수 업데이트
+    const totalEl = document.querySelector('.summary-total');
+    if (totalEl) totalEl.textContent = '/ ' + totalMedCount + ' 완료';
+
+    closeAddSheet();
+
+    // 알람 스케줄러에 새 항목 등록
+    PENDING_MEDS.push({ idx: newIdx, name: name + (dose ? ' ' + dose + 'mg' : ''), time: timeStr });
+
+    // 추가 토스트
+    const t = document.getElementById('toast');
+    t.textContent = '💊 ' + name + ' 복약이 추가되었습니다';
+    t.classList.add('show');
+    setTimeout(() => { t.classList.remove('show'); t.textContent = '✅ 복약 완료 처리되었습니다'; }, 2500);
+  }
+
+  // 동적 추가된 항목의 복약 완료 처리
+  function takeMedDynamic(idx) {
+    const item  = document.getElementById('med-' + idx);
+    const btn   = document.getElementById('take-btn-' + idx);
+    const check = document.getElementById('check-' + idx);
+    if (!item) return;
+
+    if (typeof completedMeds !== 'undefined') completedMeds.add(idx);
+
+    item.classList.remove('pending');
+    item.classList.add('done');
+    item.style.borderLeftColor = 'var(--color-ok)';
+
+    check.className = 'check-icon done';
+    check.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 9L7.5 12.5L14 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+    const now = new Date();
+    const hh  = now.getHours(), mm = String(now.getMinutes()).padStart(2,'0');
+    const ampm = hh < 12 ? '오전' : '오후', h12 = hh % 12 || 12;
+    btn.remove();
+
+    const doneLabel = document.createElement('div');
+    doneLabel.className = 'med-done-label';
+    doneLabel.innerHTML =
+      '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="6.5" fill="#34C4A0"/><path d="M3.5 6.5L5.5 8.5L9 5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+      ampm + ' ' + h12 + ':' + mm + ' 복약 완료';
+    item.querySelector('.med-info').appendChild(doneLabel);
+    showToast();
+  }
+
+  // ─── 초기 실행 ──────────────────────────────
+  renderCalendar();
+
+  // ─── 10분 간격 복약 미완료 알람 ─────────────
+  // 미완료 항목 정의: { idx, name, time }
+  const PENDING_MEDS = [
+    { idx: 3, name: '로수바스타틴 10mg', time: '오후 8:00' }
+  ];
+  // 완료 처리된 idx 집합
+  const completedMeds = new Set();
+  let alarmTimer = null;
+  let currentAlarmIdx = null;
+
+  // 알람 배너 표시
+  function showAlarm(med) {
+    currentAlarmIdx = med.idx;
+    document.getElementById('alarm-banner-body').textContent = med.name;
+    document.getElementById('alarm-banner-sub').textContent =
+      med.time + ' 복약 예정 · 아직 완료되지 않았습니다';
+    document.getElementById('alarm-banner').classList.add('show');
+
+    // Web Notifications API (사용자 허가 시)
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('💊 복약 미완료 알림', {
+        body: med.name + ' ' + med.time + ' 복약을 아직 하지 않았습니다.',
+        icon: ''
+      });
+    }
+  }
+
+  // 알람 배너 닫기 (10분 후 재알림)
+  function snoozeAlarm() {
+    document.getElementById('alarm-banner').classList.remove('show');
+  }
+
+  // 알람 배너에서 바로 복약 완료 처리
+  function alarmTakeMed() {
+    document.getElementById('alarm-banner').classList.remove('show');
+    if (currentAlarmIdx !== null && document.getElementById('take-btn-' + currentAlarmIdx)) {
+      takeMed(currentAlarmIdx);
+    }
+  }
+
+  // takeMed 호출 시 해당 idx를 완료 처리
+  const _origTakeMed = takeMed;
+  // takeMed는 이미 위에 정의되어 있으므로, 완료 집합에 추가하는 래퍼
+  function markCompleted(idx) { completedMeds.add(idx); }
+
+  // 10분마다 미완료 항목 알람
+  function startAlarmScheduler() {
+    // Notification 권한 요청
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    const INTERVAL = 10 * 60 * 1000; // 10분
+
+    function checkAndAlarm() {
+      const pending = PENDING_MEDS.filter(m =>
+        !completedMeds.has(m.idx) &&
+        document.getElementById('med-' + m.idx) &&
+        document.getElementById('med-' + m.idx).classList.contains('pending')
+      );
+      if (pending.length > 0) {
+        showAlarm(pending[0]);
+      }
+    }
+
+    // 최초 3초 후 1회 시뮬레이션 (데모용 — 실제는 10분 후)
+    setTimeout(checkAndAlarm, 3000);
+    // 이후 10분 간격
+    alarmTimer = setInterval(checkAndAlarm, INTERVAL);
+  }
+
+  startAlarmScheduler();
+</script>
+</body>
+</html>

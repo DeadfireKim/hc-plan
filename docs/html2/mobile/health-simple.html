@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M-03-S 건강 간단보기 | 헬스케어 앱</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ===== 디자인 토큰 (home-simple과 동일) ===== */
+    :root {
+      --primary:        #2B7FE0;
+      --primary-dark:   #1A5FB4;
+      --secondary:      #34C4A0;
+      --danger:         #E53935;
+      --warning:        #F5A623;
+      --purple:         #9C27B0;
+      --bg:             #F4F6F9;
+      --surface:        #FFFFFF;
+      --border:         #D1D9E6;
+      --text-primary:   #1A2332;
+      --text-secondary: #546E7A;
+      --text-disabled:  #B0BEC5;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: #C8D0DC; }
+
+    /* 기획 의도: 시니어 가독성 — body 18px (home-simple과 동일) */
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 18px;
+      color: var(--text-primary);
+      background: var(--bg);
+      max-width: 390px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding-bottom: 80px;
+      position: relative;
+    }
+
+    /* ===== 앱 헤더 ===== */
+    .app-header {
+      background: var(--surface);
+      padding: 18px 16px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .btn-toggle {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      text-decoration: none;
+      display: inline-block;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+    .btn-toggle:hover { background: var(--primary-dark); }
+
+    /* ===== 스크롤 영역 ===== */
+    .scroll-area {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ===== 그룹 헤더 (측정 주기별 섹션 구분) ===== */
+    /* 기획 의도: 실시간/10분/1일 그룹을 명확히 시각 구분 */
+    .group-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 4px;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .group-title .freq-badge { margin-left: auto; }
+
+    /* ===== 측정 주기 배지 ===== */
+    /* 기획 의도: 시니어가 "이 수치가 언제 갱신되나"를 한 눈에
+       빨강 점멸=실시간, 파랑=10분 주기, 초록=1일 1회 */
+    .freq-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .freq-badge.realtime { background: rgba(229,57,53,0.12);  color: var(--danger); }
+    .freq-badge.interval { background: rgba(43,127,224,0.12); color: var(--primary); }
+    .freq-badge.daily    { background: rgba(52,196,160,0.15); color: var(--secondary); }
+    .freq-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+    .freq-badge.realtime .freq-dot {
+      animation: pulse-dot 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1;   transform: scale(1); }
+      50%      { opacity: 0.3; transform: scale(0.6); }
+    }
+
+    /* ===== 공통 카드 ===== */
+    .card {
+      background: var(--surface);
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      padding: 24px 20px;
+    }
+
+    /* ===== 건강 지표 카드 ===== */
+    /* 기획 의도: 수치 48px Display 폰트로 어르신 가독성 최우선 */
+    .metric-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .metric-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 30px;
+    }
+    .metric-icon.heart  { background: #FFEAEA; }
+    .metric-icon.steps  { background: #E8FAF5; }
+    .metric-icon.spo2   { background: #E8F5E9; }
+    .metric-icon.temp   { background: #FFF3E0; }
+    .metric-icon.blood  { background: #E8F4FD; }
+    .metric-icon.body   { background: #F3E5F5; }
+    .metric-icon.sleep  { background: #EDE7F6; }
+
+    .metric-body { flex: 1; min-width: 0; }
+    .metric-label {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+    .metric-value-row {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+    .metric-value {
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .metric-value.compound { font-size: 40px; }
+    .metric-unit {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-left: 6px;
+    }
+    .metric-status {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .status-normal  { background: rgba(52, 196, 160, 0.15); color: var(--secondary); }
+    .status-caution { background: rgba(245, 166, 35, 0.15); color: var(--warning); }
+    .status-danger  { background: rgba(229,  57, 53, 0.15); color: var(--danger); }
+
+    /* 카드 하단 메타 영역 (측정 시각 + 주기 배지) */
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--bg);
+    }
+    .card-meta-time {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* 걸음수 진행 바 */
+    .progress-bar-wrap {
+      margin-top: 14px;
+      background: var(--bg);
+      border-radius: 8px;
+      height: 14px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 8px;
+      background: linear-gradient(90deg, var(--secondary), #2DD4BF);
+      transition: width 0.6s ease;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* 체성분 보조 지표 (체지방·근육량) */
+    .body-extra {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .body-extra-item {
+      flex: 1;
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 10px 12px;
+      text-align: center;
+    }
+    .body-extra-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 2px;
+    }
+    .body-extra-value {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    /* ===== 하단 탭바 ===== */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 390px;
+      height: 64px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: stretch;
+      z-index: 300;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+    }
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      cursor: pointer;
+      color: var(--text-disabled);
+      text-decoration: none;
+    }
+    .tab-item.active { color: var(--primary); }
+    .tab-item svg { width: 24px; height: 24px; }
+    .tab-label {
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 375px) {
+      .metric-value { font-size: 40px; }
+      .metric-value.compound { font-size: 34px; }
+      .tab-bar { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =============================================
+       앱 헤더
+       기획 의도: 화면 제목 + "자세히 보기" 토글 → M-03-D 전환
+       ============================================= -->
+  <header class="app-header">
+    <h1 class="header-title">건강 데이터</h1>
+    <a href="health-detail.html" class="btn-toggle">자세히 보기 →</a>
+  </header>
+
+  <main class="scroll-area">
+
+    <!-- =====================================================
+         그룹 1) 실시간 측정 — 심박수, 걸음수
+         기획 의도: 워치 센서로 상시 수집되는 지표.
+         점멸 도트(애니메이션)로 "지금 측정 중" 신호 강조.
+         ===================================================== -->
+    <div class="group-title">
+      🔴 실시간 측정
+      <span class="freq-badge realtime"><span class="freq-dot"></span>실시간</span>
+    </div>
+
+    <!-- 심박수 -->
+    <section class="card" aria-label="심박수">
+      <div class="metric-card">
+        <div class="metric-icon heart">❤️</div>
+        <div class="metric-body">
+          <div class="metric-label">심박수</div>
+          <div class="metric-value-row">
+            <span class="metric-value">74</span>
+            <span class="metric-unit">bpm</span>
+          </div>
+          <span class="metric-status status-normal">✓ 정상</span>
+        </div>
+      </div>
+      <div class="card-meta">
+        <span class="card-meta-time">지금 측정 중</span>
+        <span class="freq-badge realtime"><span class="freq-dot"></span>실시간</span>
+      </div>
+    </section>
+
+    <!-- 걸음수 -->
+    <section class="card" aria-label="오늘 걸음수">
+      <div class="metric-card">
+        <div class="metric-icon steps">🚶</div>
+        <div class="metric-body">
+          <div class="metric-label">오늘 걸음수</div>
+          <div class="metric-value-row">
+            <span class="metric-value">7,842</span>
+            <span class="metric-unit">보</span>
+          </div>
+          <span class="metric-status status-normal">✓ 목표 달성</span>
+        </div>
+      </div>
+      <!-- 진행 바: 목표 5,000보 -->
+      <div class="progress-bar-wrap" role="progressbar" aria-valuenow="5000" aria-valuemin="0" aria-valuemax="5000">
+        <div class="progress-bar-fill" style="width:100%;"></div>
+      </div>
+      <div class="progress-label">
+        <span>목표 5,000보</span>
+        <span style="font-weight:700;color:var(--secondary);">100% 달성</span>
+      </div>
+      <div class="card-meta">
+        <span class="card-meta-time">지금 측정 중</span>
+        <span class="freq-badge realtime"><span class="freq-dot"></span>실시간</span>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         그룹 2) 10분 단위 측정 — 산소포화도, 체온
+         기획 의도: 워치가 10분마다 자동 측정. 다음 측정 예정 시각 안내.
+         ===================================================== -->
+    <div class="group-title" style="margin-top:8px;">
+      ⏱ 10분 단위 측정
+      <span class="freq-badge interval"><span class="freq-dot"></span>10분마다</span>
+    </div>
+
+    <!-- 혈중산소 -->
+    <section class="card" aria-label="혈중산소">
+      <div class="metric-card">
+        <div class="metric-icon spo2">💨</div>
+        <div class="metric-body">
+          <div class="metric-label">혈중산소 (SpO₂)</div>
+          <div class="metric-value-row">
+            <span class="metric-value">98</span>
+            <span class="metric-unit">%</span>
+          </div>
+          <span class="metric-status status-normal">✓ 정상</span>
+        </div>
+      </div>
+      <div class="card-meta">
+        <span class="card-meta-time">3분 전 측정 · 다음 7분 후</span>
+        <span class="freq-badge interval"><span class="freq-dot"></span>10분</span>
+      </div>
+    </section>
+
+    <!-- 체온 (신규) -->
+    <section class="card" aria-label="체온">
+      <div class="metric-card">
+        <div class="metric-icon temp">🌡️</div>
+        <div class="metric-body">
+          <div class="metric-label">체온</div>
+          <div class="metric-value-row">
+            <span class="metric-value">36.5</span>
+            <span class="metric-unit">°C</span>
+          </div>
+          <span class="metric-status status-normal">✓ 정상</span>
+        </div>
+      </div>
+      <div class="card-meta">
+        <span class="card-meta-time">3분 전 측정 · 다음 7분 후</span>
+        <span class="freq-badge interval"><span class="freq-dot"></span>10분</span>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         그룹 3) 1일 1회 측정 — 혈압, 체성분, 수면
+         기획 의도: 가정용 측정기·체중계로 하루 1번 기록.
+         측정 안 한 날엔 "오늘 측정 필요" 표시.
+         ===================================================== -->
+    <div class="group-title" style="margin-top:8px;">
+      📅 1일 1회 측정
+      <span class="freq-badge daily"><span class="freq-dot"></span>1일 1회</span>
+    </div>
+
+    <!-- 혈압 -->
+    <section class="card" aria-label="혈압">
+      <div class="metric-card">
+        <div class="metric-icon blood">🩺</div>
+        <div class="metric-body">
+          <div class="metric-label">혈압</div>
+          <div class="metric-value-row">
+            <span class="metric-value compound">128<span style="font-size:26px;font-weight:500;color:var(--text-secondary);">/</span>82</span>
+            <span class="metric-unit">mmHg</span>
+          </div>
+          <span class="metric-status status-caution">⚠ 주의</span>
+        </div>
+      </div>
+      <div class="card-meta">
+        <span class="card-meta-time">오늘 오전 8:00 측정</span>
+        <span class="freq-badge daily"><span class="freq-dot"></span>1일</span>
+      </div>
+    </section>
+
+    <!-- 체성분 (신규: 체중 + 체지방률 + 골격근량) -->
+    <section class="card" aria-label="체성분">
+      <div class="metric-card">
+        <div class="metric-icon body">⚖️</div>
+        <div class="metric-body">
+          <div class="metric-label">체성분 · 체중</div>
+          <div class="metric-value-row">
+            <span class="metric-value">67.5</span>
+            <span class="metric-unit">kg</span>
+          </div>
+          <span class="metric-status status-normal">✓ 정상</span>
+        </div>
+      </div>
+      <!-- 체지방률 · 골격근량 보조 표시 -->
+      <div class="body-extra">
+        <div class="body-extra-item">
+          <div class="body-extra-label">체지방률</div>
+          <div class="body-extra-value">25.4 <span style="font-size:13px;font-weight:500;color:var(--text-secondary);">%</span></div>
+        </div>
+        <div class="body-extra-item">
+          <div class="body-extra-label">골격근량</div>
+          <div class="body-extra-value">24.1 <span style="font-size:13px;font-weight:500;color:var(--text-secondary);">kg</span></div>
+        </div>
+      </div>
+      <div class="card-meta">
+        <span class="card-meta-time">오늘 오전 7:30 측정</span>
+        <span class="freq-badge daily"><span class="freq-dot"></span>1일</span>
+      </div>
+    </section>
+
+    <!-- 수면 (하루 한 번 집계) -->
+    <section class="card" aria-label="수면">
+      <div class="metric-card">
+        <div class="metric-icon sleep">🌙</div>
+        <div class="metric-body">
+          <div class="metric-label">어젯밤 수면</div>
+          <div class="metric-value-row">
+            <span class="metric-value">7.2</span>
+            <span class="metric-unit">시간</span>
+          </div>
+          <span class="metric-status status-normal">✓ 양호</span>
+        </div>
+      </div>
+      <div class="card-meta">
+        <span class="card-meta-time">오늘 오전 7:20 기상 · 목표 7시간</span>
+        <span class="freq-badge daily"><span class="freq-dot"></span>1일</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =============================================
+       하단 탭바 (건강 탭 활성)
+       ============================================= -->
+  <nav class="tab-bar" aria-label="하단 메뉴">
+    <a href="home-simple.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+      <span class="tab-label">홈</span>
+    </a>
+    <a href="health-simple.html" class="tab-item active" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+      <span class="tab-label">건강</span>
+    </a>
+    <a href="medication-simple.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      <span class="tab-label">복약</span>
+    </a>
+    <a href="schedule-simple.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <span class="tab-label">일정</span>
+    </a>
+    <a href="settings.html" class="tab-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+      </svg>
+      <span class="tab-label">설정</span>
+    </a>
+  </nav>
+
+</body>
+</html>

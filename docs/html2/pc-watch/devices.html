@@ -515,8 +515,13 @@
 
   <!-- ── 메인 콘텐츠 ── -->
   <main>
-    <div class="page-title">기기 목록</div>
-    <div class="page-subtitle">한마음내과의원 소속 48개 기기</div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:16px;">
+      <div>
+        <div class="page-title" style="margin-bottom:4px;">기기 목록</div>
+        <div class="page-subtitle" style="margin-bottom:0;" id="page-subtitle">한마음내과의원 소속 <span id="page-device-count">48</span>개 기기</div>
+      </div>
+      <button onclick="openRegisterModal()" style="height:40px;padding:0 18px;border-radius:8px;border:none;background:#2B7FE0;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">+ 기기 등록</button>
+    </div>
 
     <!-- 요약 카드 4개 -->
     <div class="summary-grid">
@@ -650,6 +655,63 @@
     <div style="padding:16px 28px 24px;border-top:1px solid #F0F2F5;display:flex;justify-content:flex-end;gap:10px;">
       <button onclick="closeActionModal()" style="height:40px;padding:0 20px;border-radius:8px;border:1px solid #D1D9E6;background:#fff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer;color:#546E7A;">취소</button>
       <button onclick="submitAction()" style="height:40px;padding:0 24px;border-radius:8px;border:none;background:#E53935;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">조치 등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 새 기기 등록 모달 ── -->
+<div id="modal-register" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:500;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:20px;width:520px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+    <div style="padding:22px 28px 18px;border-bottom:1px solid #F0F2F5;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:17px;font-weight:700;color:#1A2332;">새 기기 등록</div>
+        <div style="font-size:12px;color:#546E7A;margin-top:3px;">기기번호와 시니어를 매칭해 한 번에 등록합니다.</div>
+      </div>
+      <button onclick="closeRegisterModal()" style="width:32px;height:32px;border-radius:50%;background:#F4F6F9;border:none;cursor:pointer;font-size:16px;color:#546E7A;">✕</button>
+    </div>
+    <div style="padding:24px 28px;display:flex;flex-direction:column;gap:14px;">
+      <div>
+        <label style="font-size:13px;font-weight:600;color:#546E7A;display:block;margin-bottom:6px;">기기 번호 *</label>
+        <input id="reg-id" type="text" placeholder="예: W-049" style="width:100%;height:40px;padding:0 12px;border:1px solid #D1D9E6;border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:14px;color:#1A2332;outline:none;" />
+        <div style="font-size:11px;color:#90A4AE;margin-top:4px;">자동 채워집니다 (수정 가능)</div>
+      </div>
+      <div>
+        <label style="font-size:13px;font-weight:600;color:#546E7A;display:block;margin-bottom:6px;">시니어 *</label>
+        <select id="reg-senior" style="width:100%;height:40px;padding:0 12px;border:1px solid #D1D9E6;border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:14px;color:#1A2332;outline:none;background:#fff;">
+          <option value="">-- 미배정 상태로 등록 --</option>
+          <option>이영자 (81세 여 · 서울 송파구)</option>
+          <option>한복선 (77세 여 · 경기 안양시)</option>
+          <option>조정민 (84세 남 · 부산 사하구)</option>
+          <option>윤희자 (79세 여 · 대전 서구)</option>
+          <option>배기철 (83세 남 · 광주 북구)</option>
+        </select>
+        <div style="font-size:11px;color:#90A4AE;margin-top:4px;">앱 가입 후 기기가 없는 시니어 5명. 빈칸으로 두면 "미배정" 상태로 등록</div>
+      </div>
+      <div>
+        <label style="font-size:13px;font-weight:600;color:#546E7A;display:block;margin-bottom:6px;">담당 의료진 *</label>
+        <select id="reg-staff" style="width:100%;height:40px;padding:0 12px;border:1px solid #D1D9E6;border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:14px;color:#1A2332;outline:none;background:#fff;">
+          <option value="">-- 담당 의료진 선택 --</option>
+          <option>김성민 의사</option>
+          <option>이수진 간호사</option>
+          <option>박준형 의사</option>
+          <option>최영진 의사</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:13px;font-weight:600;color:#546E7A;display:block;margin-bottom:6px;">초기 상태</label>
+        <select id="reg-status" style="width:100%;height:40px;padding:0 12px;border:1px solid #D1D9E6;border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:14px;color:#1A2332;outline:none;background:#fff;">
+          <option value="정상">정상 (페어링 완료, 데이터 수집 시작)</option>
+          <option value="미배정">미배정 (기기만 등록, 시니어 매칭 대기)</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:13px;font-weight:600;color:#546E7A;display:block;margin-bottom:6px;">메모 (선택)</label>
+        <textarea id="reg-memo" rows="2" placeholder="배포 위치·일정 등 메모" style="width:100%;padding:10px 12px;border:1px solid #D1D9E6;border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:13px;resize:none;outline:none;"></textarea>
+      </div>
+    </div>
+    <div style="padding:16px 28px 24px;border-top:1px solid #F0F2F5;display:flex;justify-content:flex-end;gap:10px;">
+      <button onclick="closeRegisterModal()" style="height:40px;padding:0 20px;border-radius:8px;border:1px solid #D1D9E6;background:#fff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer;color:#546E7A;">취소</button>
+      <button onclick="submitRegister()" style="height:40px;padding:0 24px;border-radius:8px;border:none;background:#2B7FE0;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">기기 등록</button>
     </div>
   </div>
 </div>
@@ -799,6 +861,59 @@
 
   document.getElementById('modal-action').addEventListener('click', e => {
     if (e.target === e.currentTarget) closeActionModal();
+  });
+
+  /* ── 새 기기 등록 모달 ── */
+  function openRegisterModal() {
+    /* 다음 기기번호 자동 생성: W-XXX 형식의 max + 1 */
+    const max  = Math.max(...DEVICES.map(d => parseInt(d.id.replace('W-',''), 10) || 0));
+    const next = String(max + 1).padStart(3, '0');
+    document.getElementById('reg-id').value     = 'W-' + next;
+    document.getElementById('reg-senior').value = '';
+    document.getElementById('reg-staff').value  = '';
+    document.getElementById('reg-status').value = '정상';
+    document.getElementById('reg-memo').value   = '';
+    document.getElementById('modal-register').style.display = 'flex';
+  }
+
+  function closeRegisterModal() {
+    document.getElementById('modal-register').style.display = 'none';
+  }
+
+  function submitRegister() {
+    const id     = document.getElementById('reg-id').value.trim();
+    const senior = document.getElementById('reg-senior').value;
+    const staff  = document.getElementById('reg-staff').value;
+    const status = document.getElementById('reg-status').value;
+
+    if (!id || !staff) { alert('기기 번호와 담당 의료진은 필수입니다.'); return; }
+    if (DEVICES.some(d => d.id === id)) { alert('이미 존재하는 기기 번호입니다: ' + id); return; }
+
+    /* 시니어 옵션 형식 "이영자 (81세 여 · 서울 송파구)" → 이름만 추출 */
+    const seniorName   = senior ? senior.split(' ')[0] : '미배정';
+    const actualStatus = senior ? status : '미배정';
+
+    DEVICES.unshift({
+      id: id, name: seniorName, status: actualStatus,
+      battery: 100, sync: '방금 등록', staff: staff
+    });
+
+    /* 통계 카드 increment: [0]전체 / [1]정상 / [2]연결오류 / [3]오늘 배포 */
+    const sv = document.querySelectorAll('.summary-card-value');
+    if (sv[0]) sv[0].textContent = DEVICES.length;
+    if (actualStatus === '정상' && sv[1]) sv[1].textContent = (parseInt(sv[1].textContent, 10) || 0) + 1;
+    if (sv[3]) sv[3].textContent = (parseInt(sv[3].textContent, 10) || 0) + 1;
+
+    const pageCount = document.getElementById('page-device-count');
+    if (pageCount) pageCount.textContent = DEVICES.length;
+
+    filterTable();
+    closeRegisterModal();
+    showToast('✅ 기기 ' + id + ' 등록 완료 (시니어: ' + seniorName + ')');
+  }
+
+  document.getElementById('modal-register').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeRegisterModal();
   });
 </script>
 </body>

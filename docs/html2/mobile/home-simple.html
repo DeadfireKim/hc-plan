@@ -231,6 +231,47 @@
       color: var(--secondary);
     }
 
+    /* ===== 측정 주기 배지 (실시간/10분/1일) ===== */
+    /* 기획 의도: 시니어가 "이 수치 언제 갱신됐는지" 한 눈에 파악 */
+    .freq-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: 11px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .freq-badge.realtime { background: rgba(229,57,53,0.12);  color: var(--danger); }
+    .freq-badge.interval { background: rgba(43,127,224,0.12); color: var(--primary); }
+    .freq-badge.daily    { background: rgba(52,196,160,0.15); color: var(--secondary); }
+    .freq-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+    .freq-badge.realtime .freq-dot {
+      animation: freq-pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes freq-pulse {
+      0%, 100% { opacity: 1;   transform: scale(1); }
+      50%      { opacity: 0.3; transform: scale(0.6); }
+    }
+    /* 카드 하단 메타: 측정 시각 + 주기 배지 한 줄 */
+    .card-freq-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--bg);
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
     /* ===== SOS 버튼 ===== */
     /* 기획 의도: 응급 시 즉시 접근, 화면 우측 하단 고정, 탭바 위에 위치 */
     .sos-btn {
@@ -495,6 +536,11 @@
           <div class="compare-sub" id="cmp-heart-sub">또래 평균 71bpm · 차이 +1bpm</div>
         </div>
       </div>
+      <!-- 수집 주기: 워치 센서 실시간 측정 -->
+      <div class="card-freq-meta">
+        <span>지금 측정 중</span>
+        <span class="freq-badge realtime"><span class="freq-dot"></span>실시간</span>
+      </div>
     </section>
 
     <!-- ────────────────────────────────────────
@@ -519,6 +565,11 @@
           <div class="compare-dir down" id="cmp-bp-dir">또래보다 낮음 ↓</div>
           <div class="compare-sub" id="cmp-bp-sub">또래 평균 130/80mmHg · 차이 -12mmHg</div>
         </div>
+      </div>
+      <!-- 수집 주기: 가정용 혈압계로 하루 1회 -->
+      <div class="card-freq-meta">
+        <span>오늘 오전 8:00 측정</span>
+        <span class="freq-badge daily"><span class="freq-dot"></span>1일 1회</span>
       </div>
     </section>
 
@@ -556,6 +607,11 @@
           <span class="progress-pct">64.8% 달성</span>
           <span>5,000보</span>
         </div>
+      </div>
+      <!-- 수집 주기: 워치가 걸음 실시간 누적 -->
+      <div class="card-freq-meta">
+        <span>지금 측정 중</span>
+        <span class="freq-badge realtime"><span class="freq-dot"></span>실시간</span>
       </div>
     </section>
 
@@ -637,14 +693,14 @@
       <span class="tab-label">홈</span>
     </a>
     <!-- 건강 -->
-    <a href="health-data.html" class="tab-item">
+    <a href="health-simple.html" class="tab-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
       </svg>
       <span class="tab-label">건강</span>
     </a>
     <!-- 복약 -->
-    <a href="medication.html" class="tab-item">
+    <a href="medication-simple.html" class="tab-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
         <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
@@ -652,7 +708,7 @@
       <span class="tab-label">복약</span>
     </a>
     <!-- 일정 -->
-    <a href="schedule.html" class="tab-item">
+    <a href="schedule-simple.html" class="tab-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
         <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>

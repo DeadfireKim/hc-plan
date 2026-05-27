@@ -404,15 +404,338 @@
     .gender-option input[type="radio"] { accent-color: #2B7FE0; cursor: pointer; width: 15px; height: 15px; }
 
     /* 권한 범위 설정 */
-    .perm-list { display: flex; flex-direction: column; gap: 10px; }
+    .perm-list { display: flex; flex-direction: column; gap: 18px; }
+
+    /* 권한 그룹 — 카테고리별 묶음 */
+    /* 기획 의도: 18개 권한을 5개 카테고리(건강측정/일정·복약/알림/개인정보/보고서)로 분류,
+       관리자가 역할별 권한 부여를 빠르게 수행하도록 그룹 전체 토글 제공 */
+    .perm-group {
+      background: #F8FAFF;
+      border: 1px solid #EBF3FF;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .perm-group-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px;
+      background: #EBF3FF;
+      border-bottom: 1px solid #DCE7F5;
+    }
+    .perm-group-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 700; color: #1A4F9C;
+    }
+    .perm-group-icon { font-size: 15px; }
+    .perm-group-count {
+      font-size: 11px; font-weight: 600;
+      color: #5B7CA8;
+      background: #fff;
+      padding: 2px 8px; border-radius: 10px;
+    }
+    /* 그룹 일괄 토글 */
+    .perm-bulk {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 600; color: #546E7A;
+    }
+    .perm-bulk button {
+      height: 24px; padding: 0 10px;
+      border: 1px solid #C5D5EB; background: #fff;
+      border-radius: 6px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 11px; font-weight: 600; color: #1A4F9C;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .perm-bulk button:hover { background: #2B7FE0; color: #fff; border-color: #2B7FE0; }
+
+    .perm-group-body {
+      display: flex; flex-direction: column;
+    }
     .perm-item {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 16px; border-radius: 10px;
-      background: #F8FAFF; border: 1px solid #EBF3FF;
+      padding: 12px 16px;
+      background: transparent;
+      border-radius: 0;
+      border: none;
+      border-top: 1px solid #EBF3FF;
     }
-    .perm-info { display: flex; flex-direction: column; gap: 2px; }
-    .perm-name { font-size: 13px; font-weight: 600; color: #1A2332; }
+    .perm-item:first-child { border-top: none; }
+    .perm-info { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+    .perm-name {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 600; color: #1A2332;
+    }
     .perm-desc { font-size: 11px; color: #546E7A; }
+
+    /* 프라이버시 민감 항목 경고 마크 */
+    /* 기획 의도: 사용패턴/통신·고립 위험 등 노인 사용자 사생활에 민감한 항목은
+       관리자가 켜기 전에 한 번 더 생각하도록 시각적 경고 */
+    .perm-warn {
+      display: inline-flex; align-items: center;
+      font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: 9px;
+      background: #FFF3E0; color: #E65100;
+      border: 1px solid #FFD8A6;
+      white-space: nowrap;
+    }
+
+    /* 측정 주기 미니 점 (실시간/10분/1일) — health UI와 동일 색상 */
+    .perm-freq {
+      display: inline-block;
+      width: 6px; height: 6px; border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .perm-freq.realtime { background: #E53935; }
+    .perm-freq.interval { background: #2B7FE0; }
+    .perm-freq.daily    { background: #34C4A0; }
+
+    /* ─────────────────────────────────────────
+       워치 기기 상태 (Device Health)
+       기획 의도: 시니어 케어 서비스의 핵심 자산인 워치의 운영 상태를
+       admin이 한 화면에서 즉시 파악. 배터리 부족·동기화 끊김·낮은 착용률
+       등 데이터 수집을 방해하는 요인을 조기에 감지한다.
+    ───────────────────────────────────────── */
+    /* 상단 요약 바: 연결 상태·모델·마지막 동기화 */
+    .dev-summary {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, #F8FAFF, #EBF3FF);
+      border: 1px solid #C5D5EB;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+    .dev-summary-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      background: #fff; border: 1px solid #C5D5EB;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .dev-summary-info { flex: 1; min-width: 0; }
+    .dev-summary-model {
+      font-size: 15px; font-weight: 700; color: #1A2332;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .dev-summary-meta {
+      font-size: 11px; color: #546E7A;
+      margin-top: 3px;
+      font-family: 'Roboto', 'Noto Sans KR', sans-serif;
+    }
+    /* 연결 상태 점·배지 */
+    .dev-status {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 700;
+      padding: 3px 9px; border-radius: 10px;
+    }
+    .dev-status.online  { background: #E8F5E9; color: #2E7D32; }
+    .dev-status.offline { background: #FFEBEE; color: #C62828; }
+    .dev-status.idle    { background: #FFF8E1; color: #B45309; }
+    .dev-status-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: currentColor;
+    }
+    .dev-status.online .dev-status-dot { animation: dev-pulse 1.8s ease-in-out infinite; }
+    @keyframes dev-pulse {
+      0%, 100% { opacity: 1;   transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.6); }
+    }
+
+    /* 카드 그리드: 배터리 / 동기화 / 펌웨어 / 착용률 */
+    .dev-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .dev-card {
+      background: #F8FAFF;
+      border: 1px solid #EBF3FF;
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .dev-card-label {
+      font-size: 11px; font-weight: 600; color: #546E7A;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .dev-card-value {
+      font-size: 22px; font-weight: 800; color: #1A2332;
+      line-height: 1;
+      font-family: 'Roboto', 'Noto Sans KR', sans-serif;
+    }
+    .dev-card-value .unit {
+      font-size: 12px; color: #546E7A; font-weight: 500; margin-left: 3px;
+    }
+    .dev-card-sub {
+      font-size: 11px; color: #546E7A;
+      margin-top: 2px;
+    }
+    /* 배터리 막대 */
+    .dev-battery-bar {
+      height: 6px; background: #E0E6EE; border-radius: 3px;
+      overflow: hidden; margin-top: 4px;
+    }
+    .dev-battery-fill {
+      height: 100%; border-radius: 3px;
+      transition: width 0.4s;
+    }
+    .dev-battery-fill.good { background: linear-gradient(90deg, #34C4A0, #2DD4BF); }
+    .dev-battery-fill.warn { background: linear-gradient(90deg, #F5A623, #FFCA28); }
+    .dev-battery-fill.low  { background: linear-gradient(90deg, #E53935, #FF6F00); animation: dev-pulse 1.4s ease-in-out infinite; }
+    /* 펌웨어 업데이트 배지 */
+    .dev-fw-badge {
+      display: inline-flex; align-items: center;
+      font-size: 9px; font-weight: 700;
+      padding: 2px 6px; border-radius: 6px;
+      background: #FFF3E0; color: #E65100;
+      margin-left: 4px;
+    }
+    .dev-fw-badge.uptodate { background: #E8F5E9; color: #2E7D32; }
+
+    /* 8지표 수집 상태 리스트 */
+    .dev-metric-list {
+      background: #F8FAFF;
+      border: 1px solid #EBF3FF;
+      border-radius: 10px;
+      padding: 4px 14px;
+    }
+    .dev-metric-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #EBF3FF;
+    }
+    .dev-metric-row:last-child { border-bottom: none; }
+    .dev-metric-name {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600; color: #1A2332;
+      flex: 1;
+    }
+    .dev-metric-last {
+      font-size: 11px; color: #546E7A;
+      font-family: 'Roboto', 'Noto Sans KR', sans-serif;
+      white-space: nowrap;
+    }
+    .dev-metric-health {
+      font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: 8px;
+      white-space: nowrap;
+    }
+    .dev-metric-health.ok    { background: #E8F5E9; color: #2E7D32; }
+    .dev-metric-health.late  { background: #FFF8E1; color: #B45309; }
+    .dev-metric-health.fail  { background: #FFEBEE; color: #C62828; }
+
+    /* 액션 버튼 그룹 (재페어링, 동기화 강제, 펌웨어 업데이트) */
+    .dev-actions {
+      display: flex; gap: 8px; margin-top: 12px;
+    }
+    .dev-action-btn {
+      flex: 1;
+      height: 36px; padding: 0 12px;
+      border: 1px solid #C5D5EB; background: #fff;
+      border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 12px; font-weight: 600; color: #1A4F9C;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .dev-action-btn:hover { background: #EBF3FF; border-color: #2B7FE0; }
+    .dev-action-btn.primary {
+      background: #2B7FE0; color: #fff; border-color: #2B7FE0;
+    }
+    .dev-action-btn.primary:hover { background: #1A5FB4; border-color: #1A5FB4; }
+
+    /* ─────────────────────────────────────────
+       비상 연락망 (Emergency Contacts)
+       기획 의도: 모바일 emergency.html과 동일한 데이터 모델로
+       admin 측에서 시니어의 비상 연락망을 등록·우선순위·호출 방식 관리.
+       119는 시스템 고정 (수정 불가, 항상 마지막)
+    ───────────────────────────────────────── */
+    .ec-list { display: flex; flex-direction: column; gap: 8px; }
+    .ec-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px;
+      background: #F8FAFF; border: 1px solid #EBF3FF;
+      border-radius: 10px;
+    }
+    .ec-item.system {
+      background: #FFF5F5; border-color: #FFCDD2;
+    }
+    .ec-priority {
+      width: 28px; height: 28px; flex-shrink: 0;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: #2B7FE0; color: #fff;
+      font-size: 13px; font-weight: 700;
+      font-family: 'Roboto', 'Noto Sans KR', sans-serif;
+    }
+    .ec-item.system .ec-priority { background: #E53935; }
+    .ec-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .ec-name-row {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 14px; font-weight: 600; color: #1A2332;
+    }
+    .ec-relation {
+      font-size: 11px; font-weight: 600;
+      background: #EBF3FF; color: #1A4F9C;
+      padding: 1px 7px; border-radius: 8px;
+    }
+    .ec-item.system .ec-relation { background: #FFEBEE; color: #C62828; }
+    .ec-phone {
+      font-size: 12px; color: #546E7A;
+      font-family: 'Roboto', 'Noto Sans KR', sans-serif;
+    }
+    /* 호출 방식 아이콘 (전화/SMS/푸시) */
+    .ec-channels { display: flex; gap: 4px; }
+    .ec-channel {
+      font-size: 10px; font-weight: 700;
+      padding: 2px 6px; border-radius: 6px;
+      background: #E8F5E9; color: #2E7D32;
+    }
+    .ec-channel.sms  { background: #FFF8E1; color: #B45309; }
+    .ec-channel.push { background: #F3E5F5; color: #7B1FA2; }
+    /* SOS 자동 호출 대상 표시 */
+    .ec-sos-flag {
+      font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: 8px;
+      background: #E53935; color: #fff;
+      white-space: nowrap;
+    }
+    /* 액션 버튼 그룹 */
+    .ec-actions { display: flex; gap: 4px; flex-shrink: 0; }
+    .ec-action-btn {
+      width: 26px; height: 26px;
+      border: 1px solid #D1D9E6; background: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: #546E7A;
+      transition: all 0.15s;
+    }
+    .ec-action-btn:hover { background: #EBF3FF; color: #2B7FE0; border-color: #2B7FE0; }
+    .ec-action-btn:disabled {
+      opacity: 0.35; cursor: not-allowed;
+    }
+    .ec-action-btn:disabled:hover { background: #fff; color: #546E7A; border-color: #D1D9E6; }
+    .ec-action-btn.danger:hover { background: #FDECEA; color: #E53935; border-color: #E53935; }
+    /* 연락처 추가 버튼 */
+    .ec-add-btn {
+      width: 100%; padding: 10px;
+      border: 2px dashed #C5D5EB; background: transparent;
+      border-radius: 10px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 13px; font-weight: 600; color: #1A4F9C;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .ec-add-btn:hover { background: #EBF3FF; border-color: #2B7FE0; }
+    /* SOS 정책 안내 박스 */
+    .ec-policy {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px;
+      background: #FFF3E0; border: 1px solid #FFD8A6;
+      border-radius: 8px;
+      font-size: 11px; color: #B45309;
+      margin-bottom: 10px;
+    }
 
     /* 토글 스위치 */
     .toggle-wrap { display: flex; align-items: center; gap: 8px; }
@@ -568,8 +891,9 @@
     <a class="nav-item"  href="dashboard.html"><span class="nav-icon">📊</span> 대시보드</a>
     <a class="nav-item"  href="notice.html"><span class="nav-icon">📢</span> 공지사항</a>
     <a class="nav-item"  href="hospitals.html"><span class="nav-icon">🏥</span> 병원·기관 관리</a>
-    <a class="nav-item"  href="operators.html"><span class="nav-icon">👨‍💼</span> 운영자 관리</a>
+    <a class="nav-item"  href="operators.html"><span class="nav-icon">👨‍💼</span> 운영 인력 관리</a>
     <a class="nav-item active"  href="accounts.html"><span class="nav-icon">👥</span> 계정 관리<span class="nav-badge yellow">5</span></a>
+    <a class="nav-item" href="family-groups.html"><span class="nav-icon">👨‍👩‍👧</span> 가족 그룹<span class="nav-badge">1</span></a>
     <a class="nav-item"  href="permissions.html"><span class="nav-icon">🔐</span> 권한 관리</a>
     <a class="nav-item" href="peer-averages.html"><span class="nav-icon">📈</span> 또래 평균 관리</a>
     <a class="nav-item"  href="settings.html"><span class="nav-icon">⚙️</span> 시스템 설정</a>
@@ -606,7 +930,7 @@
         <div class="tab-group">
           <div class="tab-item active">전체 <span class="tab-count">203</span></div>
           <div class="tab-item">시니어 <span class="tab-count">87</span></div>
-          <div class="tab-item">자녀 <span class="tab-count">74</span></div>
+          <div class="tab-item">보호자 <span class="tab-count">74</span></div>
           <div class="tab-item">의료진 <span class="tab-count">29</span></div>
           <div class="tab-item">와치관리자 <span class="tab-count">13</span></div>
         </div>
@@ -702,14 +1026,14 @@
                 </div>
               </div>
             </td>
-            <td><span class="role-badge role-child">자녀</span></td>
+            <td><span class="role-badge role-child">보호자</span></td>
             <td style="color:#546E7A;font-size:12px;">lee.minjun@naver.com</td>
             <td style="font-size:12px;color:#546E7A;">010-3456-7890</td>
             <td style="font-size:12px;color:#546E7A;">2025-01-15</td>
             <td><span class="status-badge status-active"><span class="status-dot"></span>활성</span></td>
             <td>
               <div class="action-buttons" style="justify-content:center;">
-                <button class="action-btn action-detail" onclick="openModal('이민준','자녀','child')">상세</button>
+                <button class="action-btn action-detail" onclick="openModal('이민준','보호자','child')">상세</button>
                 <button class="action-btn action-deact">비활성화</button>
               </div>
             </td>
@@ -828,7 +1152,7 @@
                 </div>
               </div>
             </td>
-            <td><span class="role-badge role-child">자녀</span></td>
+            <td><span class="role-badge role-child">보호자</span></td>
             <td style="color:#546E7A;font-size:12px;">kang.dg@gmail.com</td>
             <td style="font-size:12px;color:#546E7A;">010-4455-6677</td>
             <td style="font-size:12px;color:#546E7A;">2025-01-28</td>
@@ -853,7 +1177,7 @@
                 </div>
               </div>
             </td>
-            <td><span class="role-badge role-child">자녀</span></td>
+            <td><span class="role-badge role-child">보호자</span></td>
             <td style="color:#546E7A;font-size:12px;">oh.mr@naver.com</td>
             <td style="font-size:12px;color:#546E7A;">010-7788-9900</td>
             <td style="font-size:12px;color:#546E7A;">2025-04-03</td>
@@ -978,7 +1302,7 @@
                 </div>
               </div>
             </td>
-            <td><span class="role-badge role-child">자녀</span></td>
+            <td><span class="role-badge role-child">보호자</span></td>
             <td style="color:#546E7A;font-size:12px;">song.kr@naver.com</td>
             <td style="font-size:12px;color:#546E7A;">010-7700-8811</td>
             <td style="font-size:12px;color:#546E7A;">2025-02-28</td>
@@ -1003,7 +1327,7 @@
                 </div>
               </div>
             </td>
-            <td><span class="role-badge role-child">자녀</span></td>
+            <td><span class="role-badge role-child">보호자</span></td>
             <td style="color:#546E7A;font-size:12px;">kim.dh@kakao.com</td>
             <td style="font-size:12px;color:#546E7A;">010-9900-1122</td>
             <td style="font-size:12px;color:#546E7A;">2025-04-10</td>
@@ -1083,9 +1407,10 @@
             <div class="info-label">주소</div>
             <div class="info-value">서울 강남구 역삼로 211</div>
           </div>
+          <!-- 연결 기기 상세는 아래 "워치 기기 상태" 섹션에서 별도 표시 -->
           <div class="info-item">
             <div class="info-label">연결 기기</div>
-            <div class="info-value">Galaxy Watch HC-01 <span style="color:#34C4A0;font-size:12px;">● 연결됨</span></div>
+            <div class="info-value">Galaxy Watch HC-01 <span style="color:#34C4A0;font-size:12px;">● 온라인</span> <a href="#" onclick="document.querySelector('.modal-section:has(.dev-summary)')?.scrollIntoView({behavior:'smooth'});return false;" style="font-size:11px;color:#2B7FE0;margin-left:4px;text-decoration:none;">자세히 ↓</a></div>
           </div>
         </div>
       </div>
@@ -1131,6 +1456,124 @@
         </div>
       </div>
 
+      <!-- 워치 기기 상태 -->
+      <!-- 기획 의도: 시니어 케어 서비스의 핵심 자산인 워치의 운영 상태.
+           배터리·동기화·펌웨어·착용률 + 8지표 수집 상태를 한 섹션에 정리해
+           "데이터가 안 들어오는 이유"를 admin이 즉시 진단할 수 있게 함. -->
+      <div class="modal-section">
+        <div class="modal-section-title">워치 기기 상태</div>
+
+        <!-- 상단 요약: 모델·시리얼·페어링 일시·연결 상태 -->
+        <div class="dev-summary">
+          <div class="dev-summary-icon">⌚</div>
+          <div class="dev-summary-info">
+            <div class="dev-summary-model">
+              Galaxy Watch HC-01
+              <span class="dev-status online">
+                <span class="dev-status-dot"></span>온라인
+              </span>
+            </div>
+            <div class="dev-summary-meta">
+              S/N: HCW-2025-A0312 · 페어링: 2025-01-15 14:22
+            </div>
+          </div>
+        </div>
+
+        <!-- 핵심 카드 그리드: 배터리 / 마지막 동기화 / 펌웨어 / 착용률 -->
+        <div class="dev-grid">
+
+          <!-- 배터리 -->
+          <div class="dev-card">
+            <div class="dev-card-label">🔋 배터리</div>
+            <div class="dev-card-value">68<span class="unit">%</span></div>
+            <div class="dev-battery-bar">
+              <div class="dev-battery-fill good" style="width:68%;"></div>
+            </div>
+            <div class="dev-card-sub">충전 안 함 · 약 14시간 사용 가능</div>
+          </div>
+
+          <!-- 마지막 동기화 -->
+          <div class="dev-card">
+            <div class="dev-card-label">🔄 마지막 동기화</div>
+            <div class="dev-card-value">3<span class="unit">분 전</span></div>
+            <div class="dev-card-sub">2026-04-25 10:21 · 정상 수신 중</div>
+          </div>
+
+          <!-- 펌웨어 -->
+          <div class="dev-card">
+            <div class="dev-card-label">⚙️ 펌웨어</div>
+            <div class="dev-card-value" style="font-size:18px;">
+              v2.3.1
+              <span class="dev-fw-badge">⬆ 업데이트</span>
+            </div>
+            <div class="dev-card-sub">최신: v2.4.0 (보안 패치 포함)</div>
+          </div>
+
+          <!-- 착용률 (시니어가 워치를 실제로 차고 있는 시간 비율) -->
+          <!-- 기획 의도: 데이터 신뢰성 핵심 지표. 70% 미만이면 데이터 공백 발생 가능 -->
+          <div class="dev-card">
+            <div class="dev-card-label">⏱ 어제 착용률</div>
+            <div class="dev-card-value">82<span class="unit">%</span></div>
+            <div class="dev-card-sub">19시간 41분 / 24시간 · 양호</div>
+          </div>
+
+        </div>
+
+        <!-- 8지표 수집 상태 (모바일 health 화면과 동일 순서·주기) -->
+        <!-- 기획 의도: 각 지표가 마지막으로 측정된 시각과 정상 수집 여부를
+             모바일 health-detail 측정 주기 정책과 동일한 색상 점으로 표시.
+             예) 심박수가 5분간 안 들어오면 "지연" 표시. -->
+        <div class="dev-metric-list">
+          <div class="dev-metric-row">
+            <div class="dev-metric-name"><span class="perm-freq realtime"></span>심박수</div>
+            <span class="dev-metric-last">방금 전</span>
+            <span class="dev-metric-health ok">정상</span>
+          </div>
+          <div class="dev-metric-row">
+            <div class="dev-metric-name"><span class="perm-freq realtime"></span>걸음수·활동량</div>
+            <span class="dev-metric-last">방금 전</span>
+            <span class="dev-metric-health ok">정상</span>
+          </div>
+          <div class="dev-metric-row">
+            <div class="dev-metric-name"><span class="perm-freq interval"></span>혈중산소 (SpO₂)</div>
+            <span class="dev-metric-last">3분 전</span>
+            <span class="dev-metric-health ok">정상</span>
+          </div>
+          <div class="dev-metric-row">
+            <div class="dev-metric-name"><span class="perm-freq interval"></span>체온</div>
+            <span class="dev-metric-last">18분 전</span>
+            <span class="dev-metric-health late">지연</span>
+          </div>
+          <div class="dev-metric-row">
+            <div class="dev-metric-name"><span class="perm-freq daily"></span>혈압</div>
+            <span class="dev-metric-last">오늘 오전 8:00</span>
+            <span class="dev-metric-health ok">정상</span>
+          </div>
+          <div class="dev-metric-row">
+            <div class="dev-metric-name"><span class="perm-freq daily"></span>체성분</div>
+            <span class="dev-metric-last">오늘 오전 7:30</span>
+            <span class="dev-metric-health ok">정상</span>
+          </div>
+          <div class="dev-metric-row">
+            <div class="dev-metric-name"><span class="perm-freq daily"></span>수면</div>
+            <span class="dev-metric-last">오늘 오전 7:20</span>
+            <span class="dev-metric-health ok">정상</span>
+          </div>
+          <div class="dev-metric-row">
+            <div class="dev-metric-name">📱 사용패턴·통신</div>
+            <span class="dev-metric-last">3시간 전 집계</span>
+            <span class="dev-metric-health ok">정상</span>
+          </div>
+        </div>
+
+        <!-- 액션 버튼: 워치 관리 액션 -->
+        <div class="dev-actions">
+          <button class="dev-action-btn" onclick="devForceSync()">🔄 강제 동기화</button>
+          <button class="dev-action-btn" onclick="devUpdateFirmware()">⬆ 펌웨어 업데이트</button>
+          <button class="dev-action-btn" onclick="devRepair()">🔧 재페어링</button>
+        </div>
+      </div>
+
       <!-- 연결 계정 -->
       <div class="modal-section">
         <div class="modal-section-title">연결된 가족/의료진</div>
@@ -1138,7 +1581,7 @@
           <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#F8FAFF;border-radius:10px;">
             <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#34C4A0,#2AA08A);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600;">이</div>
             <div style="flex:1;">
-              <div style="font-size:13px;font-weight:600;color:#1A2332;">이민준 <span class="role-badge role-child" style="font-size:10px;padding:2px 7px;">자녀</span></div>
+              <div style="font-size:13px;font-weight:600;color:#1A2332;">이민준 <span class="role-badge role-child" style="font-size:10px;padding:2px 7px;">보호자</span></div>
               <div style="font-size:11px;color:#546E7A;">lee.minjun@naver.com</div>
             </div>
             <span style="font-size:11px;color:#34C4A0;font-weight:600;">● 연결됨</span>
@@ -1154,92 +1597,455 @@
         </div>
       </div>
 
+      <!-- 비상 연락망 -->
+      <!-- 기획 의도: 모바일 emergency.html(M-11 긴급 연락처)과 동일 데이터 모델.
+           SOS 발생 시 호출되는 연락처를 우선순위·호출 채널 단위로 관리.
+           119는 시스템 고정 항목으로 항상 마지막에 고정(수정·삭제 불가).
+           SOS 자동 호출 정책: 우선순위 1~3번 즉시 호출, 119는 30초 미응답 시. -->
+      <div class="modal-section">
+        <div class="modal-section-title">비상 연락망 <span style="font-size:11px;font-weight:500;color:#546E7A;margin-left:8px;">SOS 발생 시 자동 호출 대상</span></div>
+
+        <!-- SOS 자동 호출 정책 안내 -->
+        <div class="ec-policy">
+          <span>⚡</span>
+          <span>SOS 발생 시 우선순위 1~3번에 동시 호출, 30초 내 미응답 시 119 자동 연결</span>
+        </div>
+
+        <div class="ec-list" id="ec-list">
+
+          <!-- 우선순위 1: 자녀 -->
+          <div class="ec-item" data-ec-idx="1">
+            <div class="ec-priority">1</div>
+            <div class="ec-info">
+              <div class="ec-name-row">
+                이민준
+                <span class="ec-relation">자녀</span>
+                <span class="ec-sos-flag">SOS 자동</span>
+              </div>
+              <div class="ec-phone">010-2345-6789</div>
+            </div>
+            <div class="ec-channels" title="호출 방식">
+              <span class="ec-channel" title="전화">📞 전화</span>
+              <span class="ec-channel sms" title="문자">💬 SMS</span>
+            </div>
+            <div class="ec-actions">
+              <button class="ec-action-btn" disabled title="우선순위 올리기">▲</button>
+              <button class="ec-action-btn" onclick="ecMove(1, 1)" title="우선순위 내리기">▼</button>
+              <button class="ec-action-btn" onclick="ecEdit(1)" title="편집">✎</button>
+              <button class="ec-action-btn danger" onclick="ecRemove(1, '이민준')" title="삭제">✕</button>
+            </div>
+          </div>
+
+          <!-- 우선순위 2: 배우자 -->
+          <div class="ec-item" data-ec-idx="2">
+            <div class="ec-priority">2</div>
+            <div class="ec-info">
+              <div class="ec-name-row">
+                김철수
+                <span class="ec-relation">배우자</span>
+                <span class="ec-sos-flag">SOS 자동</span>
+              </div>
+              <div class="ec-phone">010-1111-2222</div>
+            </div>
+            <div class="ec-channels">
+              <span class="ec-channel">📞 전화</span>
+            </div>
+            <div class="ec-actions">
+              <button class="ec-action-btn" onclick="ecMove(2, -1)" title="우선순위 올리기">▲</button>
+              <button class="ec-action-btn" onclick="ecMove(2, 1)" title="우선순위 내리기">▼</button>
+              <button class="ec-action-btn" onclick="ecEdit(2)" title="편집">✎</button>
+              <button class="ec-action-btn danger" onclick="ecRemove(2, '김철수')" title="삭제">✕</button>
+            </div>
+          </div>
+
+          <!-- 우선순위 3: 주치의 -->
+          <div class="ec-item" data-ec-idx="3">
+            <div class="ec-priority">3</div>
+            <div class="ec-info">
+              <div class="ec-name-row">
+                박원장
+                <span class="ec-relation">주치의</span>
+                <span class="ec-sos-flag">SOS 자동</span>
+              </div>
+              <div class="ec-phone">031-555-7777 · 한마음내과</div>
+            </div>
+            <div class="ec-channels">
+              <span class="ec-channel">📞 전화</span>
+              <span class="ec-channel push">🔔 푸시</span>
+            </div>
+            <div class="ec-actions">
+              <button class="ec-action-btn" onclick="ecMove(3, -1)" title="우선순위 올리기">▲</button>
+              <button class="ec-action-btn" onclick="ecMove(3, 1)" title="우선순위 내리기">▼</button>
+              <button class="ec-action-btn" onclick="ecEdit(3)" title="편집">✎</button>
+              <button class="ec-action-btn danger" onclick="ecRemove(3, '박원장')" title="삭제">✕</button>
+            </div>
+          </div>
+
+          <!-- 우선순위 4: 이웃 (SOS 자동 호출 대상 아님) -->
+          <div class="ec-item" data-ec-idx="4">
+            <div class="ec-priority">4</div>
+            <div class="ec-info">
+              <div class="ec-name-row">
+                정여사
+                <span class="ec-relation">이웃</span>
+              </div>
+              <div class="ec-phone">010-3333-4444 · 같은 동 401호</div>
+            </div>
+            <div class="ec-channels">
+              <span class="ec-channel">📞 전화</span>
+              <span class="ec-channel sms">💬 SMS</span>
+            </div>
+            <div class="ec-actions">
+              <button class="ec-action-btn" onclick="ecMove(4, -1)" title="우선순위 올리기">▲</button>
+              <button class="ec-action-btn" disabled title="우선순위 내리기">▼</button>
+              <button class="ec-action-btn" onclick="ecEdit(4)" title="편집">✎</button>
+              <button class="ec-action-btn danger" onclick="ecRemove(4, '정여사')" title="삭제">✕</button>
+            </div>
+          </div>
+
+          <!-- 시스템 고정: 119 (수정·삭제 불가, 항상 마지막) -->
+          <div class="ec-item system" data-ec-idx="system">
+            <div class="ec-priority">!</div>
+            <div class="ec-info">
+              <div class="ec-name-row">
+                119 긴급구조
+                <span class="ec-relation">소방청 응급구조</span>
+                <span class="ec-sos-flag">30초 후 자동</span>
+              </div>
+              <div class="ec-phone">시스템 고정 · 미응답 시 자동 연결</div>
+            </div>
+            <div class="ec-channels">
+              <span class="ec-channel">📞 전화</span>
+            </div>
+            <div class="ec-actions">
+              <button class="ec-action-btn" disabled title="시스템 고정 항목">🔒</button>
+            </div>
+          </div>
+
+        </div>
+
+        <button class="ec-add-btn" onclick="ecAdd()">+ 비상 연락처 추가</button>
+      </div>
+
       <!-- 권한 범위 설정 -->
+      <!-- 기획 의도: 단일 "건강 데이터 조회" 토글이 8개 지표를 묶어 처리하던 구조를
+           카테고리 5그룹·21항목으로 세분화. 모바일 앱의 측정 주기 정책(실시간/10분/1일)을
+           그대로 반영하고, 사용패턴/사회적 고립 등 사생활 민감 항목엔 ⚠ 경고 표시. -->
       <div class="modal-section">
         <div class="modal-section-title">권한 범위 설정</div>
         <div class="perm-list">
 
-          <div class="perm-item">
-            <div class="perm-info">
-              <div class="perm-name">건강 데이터 조회</div>
-              <div class="perm-desc">심박수, 혈압, 활동량 등 실시간 건강 데이터 열람 허용</div>
+          <!-- ── 그룹 1: 건강 측정 데이터 (8지표) ───────────── -->
+          <div class="perm-group">
+            <div class="perm-group-header">
+              <div class="perm-group-title">
+                <span class="perm-group-icon">📊</span>
+                건강 측정 데이터
+                <span class="perm-group-count">8개 지표</span>
+              </div>
+              <div class="perm-bulk">
+                <button type="button" onclick="bulkPerm('grp-health', true)">전체 허용</button>
+                <button type="button" onclick="bulkPerm('grp-health', false)">전체 비허용</button>
+              </div>
             </div>
-            <div class="toggle-wrap">
-              <span class="toggle-label-text">허용</span>
-              <label class="toggle">
-                <input type="checkbox" checked />
-                <span class="toggle-slider"></span>
-              </label>
+            <div class="perm-group-body" id="grp-health">
+
+              <!-- 실시간 -->
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name"><span class="perm-freq realtime" title="실시간 측정"></span>심박수 조회</div>
+                  <div class="perm-desc">워치 센서로 실시간 측정되는 심박수 열람</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">허용</span>
+                  <label class="toggle"><input type="checkbox" checked onchange="updatePermLabel(this)" role="switch" aria-checked="true" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name"><span class="perm-freq realtime" title="실시간 측정"></span>걸음수·활동량 조회</div>
+                  <div class="perm-desc">일일 누적 걸음수·소모 칼로리·활동 시간 열람</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">허용</span>
+                  <label class="toggle"><input type="checkbox" checked onchange="updatePermLabel(this)" role="switch" aria-checked="true" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+
+              <!-- 10분 단위 -->
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name"><span class="perm-freq interval" title="10분 단위"></span>혈중산소(SpO₂) 조회</div>
+                  <div class="perm-desc">10분 단위로 자동 측정되는 산소포화도 열람</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">허용</span>
+                  <label class="toggle"><input type="checkbox" checked onchange="updatePermLabel(this)" role="switch" aria-checked="true" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name"><span class="perm-freq interval" title="10분 단위"></span>체온 조회</div>
+                  <div class="perm-desc">10분 단위로 자동 측정되는 체온 열람</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">허용</span>
+                  <label class="toggle"><input type="checkbox" checked onchange="updatePermLabel(this)" role="switch" aria-checked="true" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+
+              <!-- 1일 -->
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name"><span class="perm-freq daily" title="1일 1회"></span>혈압 조회</div>
+                  <div class="perm-desc">하루 1회 기록되는 수축기·이완기 혈압 열람</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">허용</span>
+                  <label class="toggle"><input type="checkbox" checked onchange="updatePermLabel(this)" role="switch" aria-checked="true" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name"><span class="perm-freq daily" title="1일 1회"></span>체성분 조회</div>
+                  <div class="perm-desc">체중·체지방률·골격근량 등 체성분 데이터 열람</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">허용</span>
+                  <label class="toggle"><input type="checkbox" checked onchange="updatePermLabel(this)" role="switch" aria-checked="true" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name"><span class="perm-freq daily" title="1일 1회"></span>수면 데이터 조회</div>
+                  <div class="perm-desc">수면 시간·기상 시각·수면 단계 분석 열람</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">허용</span>
+                  <label class="toggle"><input type="checkbox" checked onchange="updatePermLabel(this)" role="switch" aria-checked="true" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+
+              <!-- 프라이버시 민감 — 사용패턴 -->
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name">
+                    <span class="perm-freq daily" title="1일 집계"></span>
+                    사용패턴·통신 분석 조회
+                    <span class="perm-warn">⚠ 사생활 민감</span>
+                  </div>
+                  <div class="perm-desc">스마트폰 사용 시간·통화·SNS·사회적 연결 지수 등 열람 (가족 동의 필요)</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">비허용</span>
+                  <label class="toggle"><input type="checkbox" onchange="updatePermLabel(this)" role="switch" aria-checked="false" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+
             </div>
           </div>
 
-          <div class="perm-item">
-            <div class="perm-info">
-              <div class="perm-name">긴급 이벤트 알림 수신</div>
-              <div class="perm-desc">SOS, 낙상, 비정상 심박수 발생 시 푸시 알림 발송</div>
+          <!-- ── 그룹 2: 일정·복약 관리 (4) ────────────────── -->
+          <div class="perm-group">
+            <div class="perm-group-header">
+              <div class="perm-group-title">
+                <span class="perm-group-icon">📅</span>
+                일정 · 복약 관리
+                <span class="perm-group-count">4개</span>
+              </div>
+              <div class="perm-bulk">
+                <button type="button" onclick="bulkPerm('grp-schedule', true)">전체 허용</button>
+                <button type="button" onclick="bulkPerm('grp-schedule', false)">전체 비허용</button>
+              </div>
             </div>
-            <div class="toggle-wrap">
-              <span class="toggle-label-text">허용</span>
-              <label class="toggle">
-                <input type="checkbox" checked />
-                <span class="toggle-slider"></span>
-              </label>
+            <div class="perm-group-body" id="grp-schedule">
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name">일정·예약 조회</div>
+                  <div class="perm-desc">병원 진료, 운동, 가족 약속 등 일정 열람</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">허용</span>
+                  <label class="toggle"><input type="checkbox" checked onchange="updatePermLabel(this)" role="switch" aria-checked="true" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name">일정·예약 추가/수정</div>
+                  <div class="perm-desc">시니어를 대신해 일정 등록·변경·삭제 가능</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">허용</span>
+                  <label class="toggle"><input type="checkbox" checked onchange="updatePermLabel(this)" role="switch" aria-checked="true" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name">복약 처방·이력 조회</div>
+                  <div class="perm-desc">현재 복용 중인 약 목록과 일별 복약 이력 열람</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">허용</span>
+                  <label class="toggle"><input type="checkbox" checked onchange="updatePermLabel(this)" role="switch" aria-checked="true" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name">복약 알림 설정/변경</div>
+                  <div class="perm-desc">복약 시간·반복 주기·알림 메시지 설정 권한</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">허용</span>
+                  <label class="toggle"><input type="checkbox" checked onchange="updatePermLabel(this)" role="switch" aria-checked="true" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="perm-item">
-            <div class="perm-info">
-              <div class="perm-name">위치 정보 조회</div>
-              <div class="perm-desc">시니어의 현재 위치 및 이동 경로 열람 허용</div>
+          <!-- ── 그룹 3: 알림 수신 (4) ────────────────────── -->
+          <div class="perm-group">
+            <div class="perm-group-header">
+              <div class="perm-group-title">
+                <span class="perm-group-icon">🔔</span>
+                알림 수신
+                <span class="perm-group-count">4개</span>
+              </div>
+              <div class="perm-bulk">
+                <button type="button" onclick="bulkPerm('grp-alert', true)">전체 허용</button>
+                <button type="button" onclick="bulkPerm('grp-alert', false)">전체 비허용</button>
+              </div>
             </div>
-            <div class="toggle-wrap">
-              <span class="toggle-label-text">허용</span>
-              <label class="toggle">
-                <input type="checkbox" checked />
-                <span class="toggle-slider"></span>
-              </label>
+            <div class="perm-group-body" id="grp-alert">
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name">긴급 이벤트 알림</div>
+                  <div class="perm-desc">SOS·낙상·비정상 심박수 발생 시 즉시 푸시 발송</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">허용</span>
+                  <label class="toggle"><input type="checkbox" checked onchange="updatePermLabel(this)" role="switch" aria-checked="true" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name">건강 이상 알림</div>
+                  <div class="perm-desc">이상 수치(고혈압·저산소·고열 등) 감지 시 알림</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">허용</span>
+                  <label class="toggle"><input type="checkbox" checked onchange="updatePermLabel(this)" role="switch" aria-checked="true" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name">복약 미실시 알림</div>
+                  <div class="perm-desc">복약 예정 시각 후 일정 시간 미복용 시 알림</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">허용</span>
+                  <label class="toggle"><input type="checkbox" checked onchange="updatePermLabel(this)" role="switch" aria-checked="true" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name">
+                    사회적 고립 위험 알림
+                    <span class="perm-warn">⚠ 사생활 민감</span>
+                  </div>
+                  <div class="perm-desc">3일 이상 연락 횟수 3회 미만 등 고립 위험 감지 시 알림</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">비허용</span>
+                  <label class="toggle"><input type="checkbox" onchange="updatePermLabel(this)" role="switch" aria-checked="false" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="perm-item">
-            <div class="perm-info">
-              <div class="perm-name">보호자 연락처 관리</div>
-              <div class="perm-desc">비상 연락망 추가·수정·삭제 권한</div>
+          <!-- ── 그룹 4: 개인정보·연락처 (3) ──────────────── -->
+          <div class="perm-group">
+            <div class="perm-group-header">
+              <div class="perm-group-title">
+                <span class="perm-group-icon">🛡️</span>
+                개인정보 · 연락처
+                <span class="perm-group-count">3개</span>
+              </div>
+              <div class="perm-bulk">
+                <button type="button" onclick="bulkPerm('grp-priv', true)">전체 허용</button>
+                <button type="button" onclick="bulkPerm('grp-priv', false)">전체 비허용</button>
+              </div>
             </div>
-            <div class="toggle-wrap">
-              <span class="toggle-label-text">비허용</span>
-              <label class="toggle">
-                <input type="checkbox" />
-                <span class="toggle-slider"></span>
-              </label>
+            <div class="perm-group-body" id="grp-priv">
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name">
+                    위치 정보 조회
+                    <span class="perm-warn">⚠ 사생활 민감</span>
+                  </div>
+                  <div class="perm-desc">시니어의 실시간 위치 및 최근 이동 경로 열람</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">허용</span>
+                  <label class="toggle"><input type="checkbox" checked onchange="updatePermLabel(this)" role="switch" aria-checked="true" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name">보호자 연락처 관리</div>
+                  <div class="perm-desc">보호자 연락처 등록·수정·삭제</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">비허용</span>
+                  <label class="toggle"><input type="checkbox" onchange="updatePermLabel(this)" role="switch" aria-checked="false" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name">비상 연락망 관리</div>
+                  <div class="perm-desc">119·주치의·이웃 등 응급 시 자동 호출 대상 관리</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">비허용</span>
+                  <label class="toggle"><input type="checkbox" onchange="updatePermLabel(this)" role="switch" aria-checked="false" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="perm-item">
-            <div class="perm-info">
-              <div class="perm-name">복약 알림 설정</div>
-              <div class="perm-desc">복약 시간 및 알림 내용 설정·변경 권한</div>
+          <!-- ── 그룹 5: 보고서·내보내기 (2) ──────────────── -->
+          <div class="perm-group">
+            <div class="perm-group-header">
+              <div class="perm-group-title">
+                <span class="perm-group-icon">📄</span>
+                보고서 · 내보내기
+                <span class="perm-group-count">2개</span>
+              </div>
+              <div class="perm-bulk">
+                <button type="button" onclick="bulkPerm('grp-report', true)">전체 허용</button>
+                <button type="button" onclick="bulkPerm('grp-report', false)">전체 비허용</button>
+              </div>
             </div>
-            <div class="toggle-wrap">
-              <span class="toggle-label-text">허용</span>
-              <label class="toggle">
-                <input type="checkbox" checked />
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-          </div>
-
-          <div class="perm-item">
-            <div class="perm-info">
-              <div class="perm-name">보고서 다운로드</div>
-              <div class="perm-desc">주간·월간 건강 리포트 PDF 다운로드 허용</div>
-            </div>
-            <div class="toggle-wrap">
-              <span class="toggle-label-text">비허용</span>
-              <label class="toggle">
-                <input type="checkbox" />
-                <span class="toggle-slider"></span>
-              </label>
+            <div class="perm-group-body" id="grp-report">
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name">건강 리포트 PDF 다운로드</div>
+                  <div class="perm-desc">주간·월간 건강 요약 리포트 PDF 출력</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">비허용</span>
+                  <label class="toggle"><input type="checkbox" onchange="updatePermLabel(this)" role="switch" aria-checked="false" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+              <div class="perm-item">
+                <div class="perm-info">
+                  <div class="perm-name">원본 측정 데이터 CSV 내보내기</div>
+                  <div class="perm-desc">측정 원본 데이터를 CSV로 내려받기 (의료진·연구 분석용)</div>
+                </div>
+                <div class="toggle-wrap">
+                  <span class="toggle-label-text">비허용</span>
+                  <label class="toggle"><input type="checkbox" onchange="updatePermLabel(this)" role="switch" aria-checked="false" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1373,7 +2179,7 @@
 <script>
   const roleMap = {
     senior: { label: '시니어', cls: 'role-senior', bg: 'linear-gradient(135deg,#2B7FE0,#1A5FB4)' },
-    child:  { label: '자녀',   cls: 'role-child',  bg: 'linear-gradient(135deg,#34C4A0,#2AA08A)' },
+    child:  { label: '보호자', cls: 'role-child',  bg: 'linear-gradient(135deg,#34C4A0,#2AA08A)' },
     doctor: { label: '의료진', cls: 'role-doctor', bg: 'linear-gradient(135deg,#5C6BC0,#3F51B5)' },
     watch:  { label: '와치관리자', cls: 'role-watch', bg: 'linear-gradient(135deg,#F5A623,#E6920F)' },
   };
@@ -1391,6 +2197,102 @@
   }
   function closeModal() {
     document.getElementById('modal').style.display = 'none';
+  }
+
+  // ── 권한 토글 라벨 동기화 ────────────────────
+  // 기획 의도: 체크박스 상태에 따라 옆 라벨을 "허용"/"비허용"으로 즉시 갱신
+  //          시각적 피드백으로 관리자가 현재 권한 상태를 명확히 인지
+  function updatePermLabel(checkbox) {
+    const label = checkbox.closest('.perm-item').querySelector('.toggle-label-text');
+    if (label) label.textContent = checkbox.checked ? '허용' : '비허용';
+    // 접근성: role="switch" input의 aria-checked 동기화
+    checkbox.setAttribute('aria-checked', checkbox.checked ? 'true' : 'false');
+  }
+
+  // 전역 위임 핸들러: 모든 role="switch" 입력의 aria-checked 자동 동기화
+  // 기획 의도: 스크린리더가 토글 상태 변경을 즉시 감지하도록 보장
+  document.addEventListener('change', function(e) {
+    const t = e.target;
+    if (t && t.matches && t.matches('input[role="switch"]')) {
+      t.setAttribute('aria-checked', t.checked ? 'true' : 'false');
+    }
+  });
+
+  // ── 그룹 단위 일괄 토글 ─────────────────────
+  // 기획 의도: 역할별 권한 부여 시 그룹 단위로 빠르게 설정 가능
+  //          예) 의료진은 "건강 측정 데이터 전체 허용" 한 번 클릭으로 8개 토글 ON
+  function bulkPerm(groupId, allow) {
+    const group = document.getElementById(groupId);
+    if (!group) return;
+    group.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.checked = allow;
+      updatePermLabel(cb);
+    });
+  }
+
+  // ── 비상 연락망 관리 ─────────────────────────
+  // 기획 의도: 시니어 SOS 발생 시 호출되는 연락처 순서·내용을 admin이 즉시 조정.
+  //          119는 시스템 고정 항목으로 이동 대상에서 제외.
+  function ecMove(idx, direction) {
+    const list = document.getElementById('ec-list');
+    if (!list) return;
+    const items = Array.from(list.querySelectorAll('.ec-item:not(.system)'));
+    const cur = items.find(el => el.dataset.ecIdx === String(idx));
+    if (!cur) return;
+    const swap = direction === -1 ? cur.previousElementSibling : cur.nextElementSibling;
+    if (!swap || swap.classList.contains('system')) return;
+    if (direction === -1) list.insertBefore(cur, swap);
+    else                  list.insertBefore(swap, cur);
+    renumberEcPriorities();
+  }
+
+  function ecRemove(idx, name) {
+    if (!confirm('"' + name + '" 비상 연락처를 삭제하시겠습니까?')) return;
+    const list = document.getElementById('ec-list');
+    const item = list && list.querySelector('.ec-item[data-ec-idx="' + idx + '"]');
+    if (item) {
+      item.remove();
+      renumberEcPriorities();
+    }
+  }
+
+  function ecEdit(idx) {
+    // 실제 환경에서는 편집 바텀시트/모달을 열도록 연결.
+    // 프로토타입에서는 안내만 표시.
+    alert('연락처 #' + idx + ' 편집 화면을 엽니다.\n(이름·관계·전화번호·호출 채널·SOS 자동 호출 여부 수정)');
+  }
+
+  function ecAdd() {
+    alert('비상 연락처 추가 화면을 엽니다.\n관계(자녀·배우자·이웃·주치의·기타)·전화번호·호출 채널을 입력하세요.');
+  }
+
+  // ── 워치 기기 액션 ──────────────────────────
+  // 기획 의도: admin이 워치 운영 문제를 즉시 조치할 수 있는 진입점.
+  //          실제 구현에서는 워치 관리 API 호출로 연결.
+  function devForceSync() {
+    alert('워치에 강제 동기화 요청을 전송합니다.\n약 30초 내에 최신 데이터가 갱신됩니다.');
+  }
+  function devUpdateFirmware() {
+    if (!confirm('펌웨어를 v2.4.0으로 업데이트하시겠습니까?\n업데이트 중 약 15분간 측정이 일시 중단됩니다.')) return;
+    alert('펌웨어 업데이트 요청을 전송했습니다.\n진행 상황은 알림으로 통보됩니다.');
+  }
+  function devRepair() {
+    if (!confirm('워치 재페어링을 진행하시겠습니까?\n시니어 워치에서 QR 스캔이 필요합니다.')) return;
+    alert('재페어링 모드를 활성화했습니다.\nQR 연동 화면을 시니어에게 안내해 주세요.');
+  }
+
+  // 우선순위 번호 재정렬 + 상하 버튼 활성/비활성 상태 갱신
+  function renumberEcPriorities() {
+    const list = document.getElementById('ec-list');
+    if (!list) return;
+    const items = Array.from(list.querySelectorAll('.ec-item:not(.system)'));
+    items.forEach((el, i) => {
+      const badge = el.querySelector('.ec-priority');
+      if (badge) badge.textContent = (i + 1);
+      const [upBtn, downBtn] = el.querySelectorAll('.ec-action-btn');
+      if (upBtn)   upBtn.disabled   = (i === 0);
+      if (downBtn) downBtn.disabled = (i === items.length - 1);
+    });
   }
 
   let qrTimer = null;
