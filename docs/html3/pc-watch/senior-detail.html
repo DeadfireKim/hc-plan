@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>시니어 상세 · 와치관리자 — HealthCare Watch</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="shell">
+    <!-- ===== GNB ===== -->
+    <header class="gnb">
+      <a class="gnb-logo" href="../index.html" title="데모 허브로 이동">
+        <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+          <rect width="30" height="30" rx="8" fill="#d4af37" />
+          <path d="M4 15 h5 l2.2 -6 l3.4 12 l2.4 -6 H26" fill="none" stroke="#1f3a36" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        서울본병원
+      </a>
+      <nav class="gnb-menu">
+        <a class="gnb-item" href="../pc-admin/dashboard.html">관리자 포털</a>
+        <a class="gnb-item active" href="./dashboard.html">와치관리자 포털</a>
+        <a class="gnb-item" href="../pc-doctor/dashboard.html">의료진 포털</a>
+      </nav>
+      <div class="gnb-user">
+        <button class="gnb-user-btn" onclick="document.getElementById('um').classList.toggle('hidden')">
+          <span class="gnb-avatar">김</span> 김선숙
+        </button>
+        <div class="user-menu hidden" id="um">
+          <button class="user-menu-item">로그아웃</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="shell-body">
+      <!-- ===== LNB ===== -->
+      <aside class="lnb">
+        <div class="lnb-header">
+          <button class="lnb-toggle" onclick="document.querySelector('.lnb').classList.toggle('collapsed')">☰</button>
+          <span class="lnb-title">와치관리자</span>
+        </div>
+        <nav class="lnb-nav">
+          <a class="lnb-link" href="./dashboard.html">대시보드 <span class="lnb-type-badge">S</span></a>
+          <a class="lnb-link active" href="./seniors.html">시니어 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./medicals.html">의료진 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./mapping.html">의료진·시니어 매핑 <span class="lnb-type-badge">P-MAP</span></a>
+          <a class="lnb-link" href="./devices.html">기기 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./notice.html">공지사항 <span class="lnb-type-badge">L</span></a>
+        </nav>
+      </aside>
+
+      <!-- ===== 콘텐츠 (D형: 상단 정보 + 버튼 중앙 + 하단 탭·리스트) ===== -->
+      <main class="shell-content">
+        <div class="shell-content-inner">
+          <div class="page-header">
+            <div class="page-header-text">
+              <h1 class="page-title">시니어 상세 · 김순자 <span class="badge badge-blue type-tag">D</span></h1>
+              <p class="page-desc">서울본병원 소속 시니어</p>
+            </div>
+          </div>
+
+          <!-- 상단: 읽기전용 정보 (D = form-table) -->
+          <table class="form-table">
+            <tbody>
+              <tr>
+                <th>이름</th><td>김순자</td>
+                <th>출생일자·성별</th><td>1948-03-15 (만 78세) · 여</td>
+              </tr>
+              <tr>
+                <th>연락처</th><td>010-2345-6789</td>
+                <th>상태</th><td><span class="badge badge-green">활성</span></td>
+              </tr>
+              <tr>
+                <th>신체 정보</th><td>156cm · 52kg</td>
+                <th>가입일자</th><td>2026-03-12</td>
+              </tr>
+              <tr>
+                <th>주소</th><td>서울시 강남구 …</td>
+                <th>담당 의료진</th><td>이정민 (내과)</td>
+              </tr>
+              <tr>
+                <th>와치</th><td>HealthWatch A2X <span class="badge badge-green">Tier1</span> · 대여</td>
+                <th>보호자</th><td>이민준(자녀) 외 1명</td>
+              </tr>
+              <tr>
+                <th>입력일시</th><td>2026-03-12 14:20:05</td>
+                <th>입력자</th><td>김선숙</td>
+              </tr>
+              <tr>
+                <th>수정일시</th><td>2026-05-20 09:10:33</td>
+                <th>수정자</th><td>박서연</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- 버튼 = 정보 테이블 아래 중앙 정렬 (rnd_portal D형 규칙) -->
+          <div class="detail-actions">
+            <button class="btn btn-primary btn-md" onclick="openModal('seniorEditModal')">수정</button>
+            <button class="btn btn-secondary btn-md" onclick="openModal('qrModal')">와치 연동 QR</button>
+            <button class="btn btn-danger btn-md">서비스 중지</button>
+            <button class="btn btn-secondary btn-md" onclick="openModal('historyModal')">변경 이력</button>
+            <a class="btn btn-secondary btn-md" href="./seniors.html">목록</a>
+          </div>
+
+          <!-- 하단: 탭 + 리스트 (L) -->
+          <div class="tabs" style="margin-bottom: calc(-1 * var(--space-3)); align-items:center">
+            <button class="tab active" onclick="showTab(this,'collect')">수집 현황</button>
+            <button class="tab" onclick="showTab(this,'device')">기기 이력</button>
+            <button class="tab" onclick="showTab(this,'guardian')">보호자</button>
+            <button class="tab" onclick="showTab(this,'mapping')">담당 매핑</button>
+            <div id="guardianActions" style="margin-left:auto; display:none; align-items:center; gap:10px">
+              <label class="checkbox-label" style="font-size:var(--font-size-sm); margin-right:4px"><input type="checkbox" id="showDeletedChk" onchange="toggleShowDeleted(this)" /> 삭제 포함</label>
+              <button class="btn btn-danger btn-sm" id="guardianDelBtn" onclick="deleteGuardians()" disabled>보호자 삭제</button>
+              <button class="btn btn-primary btn-sm" onclick="openModal('guardianInviteModal')">보호자 추가</button>
+            </div>
+          </div>
+
+          <!-- 수집 현황 탭 (운영 정보 — 와치관리자는 건강 수치 열람 불가, 수집 메타데이터만) -->
+          <div id="tab-collect" class="tab-panel">
+            <table class="tbl">
+              <thead>
+                <tr><th>항목</th><th>상태</th><th>마지막 수신일시</th><th>비고</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>와치 연결</td><td><span class="badge badge-green">정상</span></td><td>2026-05-20 09:12:00 (3분 전)</td><td style="text-align:left">HealthWatch A2X</td></tr>
+                <tr><td>오늘 수집률</td><td><span class="badge badge-green">96%</span></td><td>2026-05-20 09:12:00</td><td style="text-align:left">심박·활동 자동</td></tr>
+                <tr><td>배터리</td><td><span class="badge badge-amber">21%</span></td><td>2026-05-20 09:12:00</td><td style="text-align:left">충전 안내 필요</td></tr>
+                <tr><td>착용 시간</td><td><span class="badge badge-green">18.5h</span></td><td>2026-05-19 22:30:00 (어제)</td><td style="text-align:left">권장 16h 이상</td></tr>
+                <tr><td>펌웨어</td><td><span class="badge badge-green">최신</span></td><td>2026-05-10 03:00:00</td><td style="text-align:left">v2.4</td></tr>
+              </tbody>
+            </table>
+            <div class="field-hint" style="margin-top:var(--space-2)">건강 수치(심박·혈압 등)는 의료진만 열람할 수 있습니다.</div>
+          </div>
+
+          <!-- 기기 이력 탭 -->
+          <div id="tab-device" class="tab-panel hidden">
+            <table class="tbl">
+              <thead><tr><th>기기</th><th>소유</th><th>페어링일</th><th>종료일</th><th>상태</th></tr></thead>
+              <tbody>
+                <tr><td>HealthWatch A2X</td><td>대여</td><td>2026-03-12</td><td></td><td><span class="badge badge-green">사용중</span></td></tr>
+                <tr><td>Galaxy Watch 5</td><td>본인</td><td>2025-11-01</td><td>2026-03-10</td><td><span class="badge badge-gray">교체</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 보호자 탭 (시니어 ↔ 보호자 1:N 최대 3명, 시니어 본인 승인 전제 — 요건 §1.2) -->
+          <div id="tab-guardian" class="tab-panel hidden">
+            <table class="tbl">
+              <thead><tr><th class="center" style="width:40px"><input type="checkbox" onchange="toggleAllGuardians(this)" /></th><th>이름</th><th>관계</th><th>연락처</th><th>연결 상태</th><th>등록자</th><th>등록일시</th><th>승인자</th><th>승인일시</th></tr></thead>
+              <tbody>
+                <tr><td class="center"><input type="checkbox" class="guardian-check" onchange="updateGuardianDelBtn()" /></td><td>이민준</td><td>자녀</td><td>010-1234-5678</td><td>연결됨</td><td>김선숙</td><td>2026-03-12 10:20:00</td><td>김순자</td><td>2026-03-12 14:05:33</td></tr>
+                <tr><td class="center"><input type="checkbox" class="guardian-check" onchange="updateGuardianDelBtn()" /></td><td>이수진</td><td>자녀</td><td>010-2222-3333</td><td>연결됨</td><td>김선숙</td><td>2026-03-15 09:30:00</td><td>김순자</td><td>2026-03-15 18:40:12</td></tr>
+                <tr><td class="center"><input type="checkbox" class="guardian-check" onchange="updateGuardianDelBtn()" /></td><td>박지훈</td><td>자녀</td><td>010-4444-5555</td><td>시니어 승인 대기</td><td>김선숙</td><td>2026-06-13 11:00:00</td><td></td><td></td></tr>
+                <tr class="deleted-row" style="display:none; color:var(--color-text-muted)"><td class="center"></td><td>최영자</td><td>자녀</td><td>010-7777-8888</td><td>삭제됨</td><td>김선숙</td><td>2026-02-01 10:00:00</td><td>김선숙</td><td>2026-05-30 15:20:00</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 담당 매핑 탭 -->
+          <div id="tab-mapping" class="tab-panel hidden">
+            <table class="tbl">
+              <thead><tr><th>의료진</th><th>직역</th><th>진료과</th><th>등록자</th><th>등록일자</th></tr></thead>
+              <tbody>
+                <tr><td>이정민</td><td>의사</td><td>내과</td><td>김선숙</td><td>2026-03-12</td></tr>
+                <tr><td>박서연</td><td>간호사</td><td>내과</td><td>김선숙</td><td>2026-03-12</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <style>.hidden{display:none}</style>
+  <script>
+    function showTab(btn, id) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+      document.getElementById('tab-' + id).classList.remove('hidden');
+      // 보호자 탭일 때만 탭바 우측 액션(삭제 포함·삭제·추가) 노출
+      document.getElementById('guardianActions').style.display = (id === 'guardian') ? 'flex' : 'none';
+    }
+    // 보호자 삭제: 체크된 항목이 있을 때만 삭제 버튼 활성화(default 비활성)
+    function updateGuardianDelBtn() {
+      var n = document.querySelectorAll('.guardian-check:checked').length;
+      document.getElementById('guardianDelBtn').disabled = (n === 0);
+    }
+    function toggleAllGuardians(master) {
+      document.querySelectorAll('.guardian-check').forEach(c => { c.checked = master.checked; });
+      updateGuardianDelBtn();
+    }
+    // soft delete: 행을 지우지 않고 "삭제됨"으로 표시 + 삭제자/삭제일시 기록(승인자/승인일시 자리)
+    function deleteGuardians() {
+      var delBy = '김선숙', delAt = '2026-06-14 09:30:00'; // 목업: 실제로는 로그인 사용자·현재시각
+      var showDeleted = document.getElementById('showDeletedChk').checked;
+      document.querySelectorAll('.guardian-check:checked').forEach(function (c) {
+        var tr = c.closest('tr');
+        if (tr.classList.contains('deleted-row')) return;
+        var tds = tr.querySelectorAll('td');
+        tds[4].textContent = '삭제됨';   // 연결 상태
+        tds[7].textContent = delBy;      // 승인자 → 삭제자
+        tds[8].textContent = delAt;      // 승인일시 → 삭제일시
+        tds[0].innerHTML = '';           // 삭제된 행은 재선택 불가
+        tr.classList.add('deleted-row');
+        tr.style.color = 'var(--color-text-muted)';
+        if (!showDeleted) tr.style.display = 'none';
+      });
+      updateGuardianDelBtn();
+    }
+    // 삭제 포함: 삭제된 보호자 행 표시/숨김 토글
+    function toggleShowDeleted(chk) {
+      document.querySelectorAll('.deleted-row').forEach(function (tr) {
+        tr.style.display = chk.checked ? '' : 'none';
+      });
+    }
+  </script>
+  <!-- 시니어 수정 모달 (M) -->
+  <div class="overlay hidden" id="seniorEditModal">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <span class="modal-title">시니어 수정 · 김순자</span>
+        <button class="modal-close" onclick="closeModal('seniorEditModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="form-table">
+          <tbody>
+            <tr><th>이름 <span class="required">*</span></th><td><input class="input" value="김순자" /></td></tr>
+            <tr><th>출생일자 <span class="required">*</span></th><td><input class="input" type="date" value="1948-03-15" /></td></tr>
+            <tr><th>성별 <span class="required">*</span></th><td><select class="select"><option>여</option><option>남</option></select></td></tr>
+            <tr><th>연락처 <span class="required">*</span></th><td><input class="input" value="010-2345-6789" /></td></tr>
+            <tr><th>주소</th><td>
+              <div style="display:flex; gap:8px; align-items:center">
+                <input class="input" id="sAddrEdit" value="서울시 강남구 …" readonly style="cursor:pointer; flex:1" onclick="searchAddr('sAddrEdit')" />
+                <button class="btn btn-secondary btn-md" type="button" onclick="searchAddr('sAddrEdit')">주소 검색</button>
+              </div>
+              <input class="input" placeholder="상세주소 입력" style="margin-top:6px" />
+            </td></tr>
+            <tr><th>키</th><td><div style="display:flex; align-items:center; gap:6px"><input class="input" type="number" value="156" style="width:120px" /> <span style="color:var(--color-text-muted)">cm</span></div></td></tr>
+            <tr><th>체중</th><td><div style="display:flex; align-items:center; gap:6px"><input class="input" type="number" value="52" style="width:120px" /> <span style="color:var(--color-text-muted)">kg</span></div></td></tr>
+            <tr><th>담당 의료진</th><td><select class="select"><option>이정민 (내과)</option><option>박서연</option><option>최동훈</option></select></td></tr>
+            <tr><th>상태 <span class="required">*</span></th><td><select class="select"><option>활성</option><option>중지</option></select></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('seniorEditModal')">취소</button>
+        <button class="btn btn-primary btn-md">저장</button>
+      </div>
+    </div>
+  </div>
+  <!-- 와치 연동 QR 모달 (M) -->
+  <div class="overlay hidden" id="qrModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <span class="modal-title">와치 연동 QR · 김순자</span>
+        <button class="modal-close" onclick="closeModal('qrModal')">✕</button>
+      </div>
+      <div class="modal-body" style="text-align:center">
+        <p style="margin:0 0 var(--space-3); color:var(--color-text-muted); font-size:var(--font-size-sm); line-height:1.6">
+          시니어 앱 → <b>와치 연동</b>에서 이 QR을 스캔하면<br />기기가 자동으로 페어링됩니다.
+        </p>
+        <div style="display:inline-block; padding:14px; background:#fff; border:1px solid var(--color-border); border-radius:10px">
+          <svg width="176" height="176" viewBox="0 0 25 25" shape-rendering="crispEdges" aria-label="와치 연동 QR 코드">
+            <rect width="25" height="25" fill="#fff" />
+            <g fill="#1f3a36">
+              <!-- 위치 탐지 패턴 3개 -->
+              <path d="M0 0h7v7h-7z M1 1v5h5v-5z M2 2h3v3h-3z" />
+              <path d="M18 0h7v7h-7z M19 1v5h5v-5z M20 2h3v3h-3z" />
+              <path d="M0 18h7v7h-7z M1 19v5h5v-5z M2 20h3v3h-3z" />
+              <!-- 데이터 모듈(목업 패턴) -->
+              <rect x="9" y="1" width="1" height="1" /><rect x="11" y="1" width="1" height="1" /><rect x="14" y="1" width="1" height="1" />
+              <rect x="9" y="3" width="1" height="1" /><rect x="12" y="3" width="1" height="1" /><rect x="15" y="3" width="1" height="1" />
+              <rect x="10" y="5" width="1" height="1" /><rect x="13" y="5" width="1" height="1" /><rect x="16" y="5" width="1" height="1" />
+              <rect x="8" y="8" width="1" height="1" /><rect x="10" y="8" width="1" height="1" /><rect x="12" y="8" width="1" height="1" /><rect x="15" y="8" width="1" height="1" /><rect x="18" y="8" width="1" height="1" /><rect x="21" y="8" width="1" height="1" /><rect x="23" y="8" width="1" height="1" />
+              <rect x="9" y="10" width="1" height="1" /><rect x="11" y="10" width="1" height="1" /><rect x="14" y="10" width="1" height="1" /><rect x="17" y="10" width="1" height="1" /><rect x="20" y="10" width="1" height="1" /><rect x="22" y="10" width="1" height="1" />
+              <rect x="1" y="9" width="1" height="1" /><rect x="3" y="9" width="1" height="1" /><rect x="5" y="11" width="1" height="1" /><rect x="2" y="12" width="1" height="1" /><rect x="4" y="13" width="1" height="1" />
+              <rect x="8" y="12" width="1" height="1" /><rect x="11" y="12" width="1" height="1" /><rect x="13" y="12" width="1" height="1" /><rect x="16" y="12" width="1" height="1" /><rect x="19" y="12" width="1" height="1" /><rect x="22" y="12" width="1" height="1" /><rect x="24" y="12" width="1" height="1" />
+              <rect x="9" y="14" width="1" height="1" /><rect x="12" y="14" width="1" height="1" /><rect x="15" y="14" width="1" height="1" /><rect x="18" y="14" width="1" height="1" /><rect x="21" y="14" width="1" height="1" />
+              <rect x="10" y="16" width="1" height="1" /><rect x="13" y="16" width="1" height="1" /><rect x="16" y="16" width="1" height="1" /><rect x="20" y="16" width="1" height="1" /><rect x="23" y="16" width="1" height="1" />
+              <rect x="9" y="18" width="1" height="1" /><rect x="11" y="19" width="1" height="1" /><rect x="14" y="18" width="1" height="1" /><rect x="17" y="19" width="1" height="1" /><rect x="20" y="18" width="1" height="1" /><rect x="22" y="20" width="1" height="1" />
+              <rect x="10" y="21" width="1" height="1" /><rect x="13" y="22" width="1" height="1" /><rect x="15" y="21" width="1" height="1" /><rect x="18" y="22" width="1" height="1" /><rect x="21" y="23" width="1" height="1" /><rect x="24" y="21" width="1" height="1" />
+              <rect x="9" y="24" width="1" height="1" /><rect x="12" y="24" width="1" height="1" /><rect x="16" y="24" width="1" height="1" /><rect x="19" y="24" width="1" height="1" /><rect x="23" y="24" width="1" height="1" />
+            </g>
+          </svg>
+        </div>
+        <p style="margin:var(--space-3) 0 0; color:var(--color-text-muted); font-size:var(--font-size-xs)">유효시간 10분 · 연동 코드 <b>A2X-7F3K</b></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('qrModal')">닫기</button>
+        <button class="btn btn-primary btn-md">QR 재발급</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 보호자 추가 모달 (M) — 와치관리자가 추가 → 시니어 본인 승인 시 연결 확정 -->
+  <div class="overlay hidden" id="guardianInviteModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <span class="modal-title">보호자 추가 · 김순자</span>
+        <button class="modal-close" onclick="closeModal('guardianInviteModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="form-table">
+          <tbody>
+            <tr><th>이름 <span class="required">*</span></th><td><input class="input" placeholder="보호자 이름" /></td></tr>
+            <tr><th>관계 <span class="required">*</span></th><td><select class="select"><option>자녀</option><option>배우자</option><option>형제·자매</option><option>기타</option></select></td></tr>
+            <tr><th>연락처 <span class="required">*</span></th><td><input class="input" placeholder="010-0000-0000" /></td></tr>
+            <tr><th>이메일</th><td><input class="input" type="email" placeholder="name@example.com" /></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('guardianInviteModal')">취소</button>
+        <button class="btn btn-primary btn-md">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 변경 이력 모달 (M, 공통) -->
+  <div class="overlay hidden" id="historyModal">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <span class="modal-title">변경 이력 · 김순자</span>
+        <button class="modal-close" onclick="closeModal('historyModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="filter-bar">
+          <div class="filter-item"><span class="filter-label">항목</span><select class="select"><option>전체</option><option>담당 의료진</option><option>상태</option><option>연락처</option><option>와치 배정</option></select></div>
+          <div class="filter-item"><span class="filter-label">데이터</span><input class="input" placeholder="변경 전·후 데이터 검색" /></div>
+          <div class="filter-item"><span class="filter-label">입력자</span><input class="input" placeholder="입력자 검색" /></div>
+          <div class="filter-actions">
+            <button class="btn-reset" title="초기화">↺</button>
+            <button class="btn btn-primary btn-md">조회</button>
+          </div>
+        </div>
+        <table class="tbl">
+          <thead><tr><th class="center" style="width:44px">No</th><th>항목</th><th>변경 전 데이터</th><th>변경 후 데이터</th><th>입력자</th><th>입력일시</th></tr></thead>
+          <tbody>
+            <tr><td class="center">5</td><td>담당 의료진</td><td>박서연</td><td>이정민</td><td>박서연</td><td>2026-05-20 09:10:33</td></tr>
+            <tr><td class="center">4</td><td>와치 배정</td><td></td><td>HealthWatch A2X (대여)</td><td>김선숙</td><td>2026-03-12 14:25:10</td></tr>
+            <tr><td class="center">3</td><td>상태</td><td>중지</td><td>활성</td><td>김선숙</td><td>2026-03-12 14:22:00</td></tr>
+            <tr><td class="center">2</td><td>연락처</td><td>010-2345-0000</td><td>010-2345-6789</td><td>김선숙</td><td>2026-03-12 14:21:30</td></tr>
+            <tr><td class="center">1</td><td></td><td></td><td>신규 등록</td><td>김선숙</td><td>2026-03-12 14:20:05</td></tr>
+          </tbody>
+        </table>
+        <div class="pagination">
+          <button class="page-btn" disabled title="맨앞">«</button>
+          <button class="page-btn" disabled title="이전">‹</button>
+          <button class="page-btn current">1</button>
+          <button class="page-btn" title="다음">›</button>
+          <button class="page-btn" title="마지막">»</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('historyModal')">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/modal.js"></script>
+  <script src="../assets/tier-tip.js"></script>
+  <script>
+    // 주소 검색(목업): 실제로는 우편번호/주소 검색 팝업 연동. 여기선 예시 주소 채움
+    function searchAddr(id) {
+      document.getElementById(id).value = '서울특별시 강남구 테헤란로 123 (역삼동)';
+    }
+  </script>
+</body>
+</html>

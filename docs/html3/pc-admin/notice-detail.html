@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>공지 상세 · 관리자 — HealthCare Watch</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="gnb">
+      <a class="gnb-logo" href="../index.html" title="데모 허브로 이동">
+        <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+          <rect width="30" height="30" rx="8" fill="#d4af37" />
+          <path d="M4 15 h5 l2.2 -6 l3.4 12 l2.4 -6 H26" fill="none" stroke="#1f3a36" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        HealthCare Watch
+      </a>
+      <nav class="gnb-menu">
+        <a class="gnb-item active" href="./dashboard.html">관리자 포털</a>
+        <a class="gnb-item" href="../pc-watch/dashboard.html">와치관리자 포털</a>
+        <a class="gnb-item" href="../pc-doctor/dashboard.html">의료진 포털</a>
+      </nav>
+      <div class="gnb-user">
+        <button class="gnb-user-btn" onclick="document.getElementById('um').classList.toggle('hidden')">
+          <span class="gnb-avatar">관</span> 관리자
+        </button>
+        <div class="user-menu hidden" id="um">
+          <button class="user-menu-item">로그아웃</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="shell-body">
+      <aside class="lnb">
+        <div class="lnb-header">
+          <button class="lnb-toggle" onclick="document.querySelector('.lnb').classList.toggle('collapsed')">☰</button>
+          <span class="lnb-title">관리자</span>
+        </div>
+        <nav class="lnb-nav">
+          <a class="lnb-link" href="./dashboard.html">대시보드 <span class="lnb-type-badge">S</span></a>
+          <a class="lnb-link" href="./hospitals.html">병원 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./accounts.html">계정 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./permissions.html">권한 관리 <span class="lnb-type-badge">P-MATRIX</span></a>
+          <a class="lnb-link active" href="./notice.html">공지 관리 <span class="lnb-type-badge">L</span></a>
+        </nav>
+      </aside>
+
+      <!-- ===== 콘텐츠 (D형 · 공지 정보) ===== -->
+      <main class="shell-content">
+        <div class="shell-content-inner">
+          <div class="page-header">
+            <div class="page-header-text">
+              <h1 class="page-title">공지 상세 <span class="badge badge-blue type-tag">D</span></h1>
+              <p class="page-desc">[필독] 개인정보 처리방침 개정 안내</p>
+            </div>
+          </div>
+
+          <table class="form-table">
+            <colgroup><col style="width:130px" /><col /><col style="width:130px" /><col /></colgroup>
+            <tbody>
+              <tr><th>제목</th><td colspan="3">[필독] 개인정보 처리방침 개정 안내</td></tr>
+              <tr>
+                <th>대상</th><td>전체 공지</td>
+                <th>상태</th><td><span class="badge badge-green">게시중</span></td>
+              </tr>
+              <tr>
+                <th>게시 기간</th><td colspan="3">2026-05-18 ~ 2026-06-30</td>
+              </tr>
+              <tr><th>내용</th><td colspan="3" style="white-space:pre-line; line-height:1.7; padding:var(--space-3)">개인정보 처리방침이 2026-06-01자로 개정됩니다.
+
+주요 변경 사항:
+1. 건강 데이터 보관 기간 명확화
+2. 위치정보 수집·이용 동의 항목 분리
+
+자세한 내용은 첨부 문서를 확인해 주세요.</td></tr>
+              <tr>
+                <th>입력일시</th><td>2026-05-18 09:40:12</td>
+                <th>입력자</th><td>관리자</td>
+              </tr>
+              <tr>
+                <th>수정일시</th><td>2026-05-18 09:40:12</td>
+                <th>수정자</th><td>관리자</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="detail-actions">
+            <a class="btn btn-primary btn-md" href="./notice-edit.html">수정</a>
+            <button class="btn btn-danger btn-md">게시 종료</button>
+            <a class="btn btn-secondary btn-md" href="./notice.html">목록</a>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <style>.hidden{display:none}</style>
+</body>
+</html>

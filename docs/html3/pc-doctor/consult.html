@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>상담·소견 작성 · 의료진 — 서울본병원</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="shell">
+    <!-- ===== GNB ===== -->
+    <header class="gnb">
+      <a class="gnb-logo" href="../index.html" title="데모 허브로 이동">
+        <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+          <rect width="30" height="30" rx="8" fill="#d4af37" />
+          <path d="M4 15 h5 l2.2 -6 l3.4 12 l2.4 -6 H26" fill="none" stroke="#1f3a36" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        서울본병원
+      </a>
+      <nav class="gnb-menu">
+        <a class="gnb-item" href="../pc-admin/dashboard.html">관리자 포털</a>
+        <a class="gnb-item" href="../pc-watch/dashboard.html">와치관리자 포털</a>
+        <a class="gnb-item active" href="./dashboard.html">의료진 포털</a>
+      </nav>
+      <div class="gnb-user">
+        <button class="gnb-user-btn" onclick="document.getElementById('um').classList.toggle('hidden')">
+          <span class="gnb-avatar">이</span> 이정민
+        </button>
+        <div class="user-menu hidden" id="um">
+          <button class="user-menu-item">로그아웃</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="shell-body">
+      <!-- ===== LNB ===== -->
+      <aside class="lnb">
+        <div class="lnb-header">
+          <button class="lnb-toggle" onclick="document.querySelector('.lnb').classList.toggle('collapsed')">☰</button>
+          <span class="lnb-title">의료진</span>
+        </div>
+        <nav class="lnb-nav">
+          <a class="lnb-link" href="./dashboard.html">대시보드 <span class="lnb-type-badge">S</span></a>
+          <a class="lnb-link" href="./seniors.html">담당 시니어 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./alerts.html">이상징후 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link active" href="./consult.html">상담·소견 <span title="Max 전용 기능" style="font-size:11px">👑</span> <span class="lnb-type-badge">F</span></a>
+        </nav>
+      </aside>
+
+      <!-- ===== 콘텐츠 (F형) ===== -->
+      <main class="shell-content">
+        <div class="shell-content-inner">
+          <div class="page-header">
+            <div class="page-header-text">
+              <h1 class="page-title">상담·소견 작성 <span class="badge badge-blue type-tag">F</span> <span class="badge type-tag" style="background:#eef3fc;color:#3a6bd6">Max</span></h1>
+              <p class="page-desc">의료인(의사·간호사)만 작성 가능 · 김순자</p>
+            </div>
+          </div>
+
+          <!-- F형 = form-table (라벨 셀 + 입력 셀) -->
+          <table class="form-table">
+            <tbody>
+              <tr>
+                <th>대상 시니어</th>
+                <td>김순자 (78 · 여)</td>
+                <th>기저질환</th>
+                <td>고혈압 · 2형 당뇨</td>
+              </tr>
+              <tr>
+                <th>상담 유형 <span class="required">*</span></th>
+                <td>
+                  <select class="select"><option>대면 상담</option><option>전화 상담</option><option>비대면(앱) 상담</option><option>데이터 검토</option></select>
+                </td>
+                <th>상담 일시 <span class="required">*</span></th>
+                <td><input class="input" type="datetime-local" value="2026-05-20T15:00" /></td>
+              </tr>
+              <tr>
+                <th>관련 이상수치</th>
+                <td colspan="3">
+                  <span class="badge badge-red">혈압 +18% (145/92)</span>
+                  <span class="badge badge-amber">수면 -22% (5.2h)</span>
+                  <span class="field-hint">감지된 이상수치가 자동 첨부됩니다.</span>
+                </td>
+              </tr>
+              <tr>
+                <th>소견 내용 <span class="required">*</span></th>
+                <td colspan="3">
+                  <textarea class="textarea" placeholder="진찰·검토 소견을 입력하세요.">최근 2주간 수축기 혈압이 기저선(128) 대비 지속 상승(최고 145). 복약 순응도는 양호하나 야간 수면 부족과 연관 가능성. 암로디핀 용량 조정 검토 필요.</textarea>
+                </td>
+              </tr>
+              <tr>
+                <th>권고 사항</th>
+                <td colspan="3">
+                  <textarea class="textarea" placeholder="시니어·보호자에게 전달할 권고를 입력하세요.">저염식 유지, 야간 카페인 제한. 3일간 가정 혈압 추가 측정 후 재평가. 어지럼·두통 시 즉시 내원 안내.</textarea>
+                </td>
+              </tr>
+              <tr>
+                <th>처방 변경</th>
+                <td>
+                  <label class="checkbox-label"><input type="checkbox" /> 처방 변경 포함 (앱 자동 반영·알림)</label>
+                </td>
+                <th>다음 상담 예약일자</th>
+                <td><input class="input" type="date" value="2026-05-27" /></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- 버튼 = 폼 아래 중앙 정렬 -->
+          <div class="detail-actions">
+            <button class="btn btn-primary btn-md">저장</button>
+            <a class="btn btn-secondary btn-md" href="./senior-detail.html">취소</a>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <style>.hidden{display:none}</style>
+  <script src="../assets/textarea-autogrow.js"></script>
+</body>
+</html>

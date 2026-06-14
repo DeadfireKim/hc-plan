@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>병원 관리 · 관리자 — HealthCare Watch</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="shell">
+    <!-- ===== GNB ===== -->
+    <header class="gnb">
+      <a class="gnb-logo" href="../index.html" title="데모 허브로 이동">
+        <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+          <rect width="30" height="30" rx="8" fill="#d4af37" />
+          <path d="M4 15 h5 l2.2 -6 l3.4 12 l2.4 -6 H26" fill="none" stroke="#1f3a36" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        HealthCare Watch
+      </a>
+      <nav class="gnb-menu">
+        <a class="gnb-item active" href="./dashboard.html">관리자 포털</a>
+        <a class="gnb-item" href="../pc-watch/dashboard.html">와치관리자 포털</a>
+        <a class="gnb-item" href="../pc-doctor/dashboard.html">의료진 포털</a>
+      </nav>
+      <div class="gnb-user">
+        <button class="gnb-user-btn" onclick="document.getElementById('um').classList.toggle('hidden')">
+          <span class="gnb-avatar">관</span> 관리자
+        </button>
+        <div class="user-menu hidden" id="um">
+          <button class="user-menu-item">로그아웃</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="shell-body">
+      <!-- ===== LNB ===== -->
+      <aside class="lnb">
+        <div class="lnb-header">
+          <button class="lnb-toggle" onclick="document.querySelector('.lnb').classList.toggle('collapsed')">☰</button>
+          <span class="lnb-title">관리자</span>
+        </div>
+        <nav class="lnb-nav">
+          <a class="lnb-link" href="./dashboard.html">대시보드 <span class="lnb-type-badge">S</span></a>
+          <a class="lnb-link active" href="./hospitals.html">병원 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./accounts.html">계정 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./permissions.html">권한 관리 <span class="lnb-type-badge">P-MATRIX</span></a>
+          <a class="lnb-link" href="./notice.html">공지 관리 <span class="lnb-type-badge">L</span></a>
+        </nav>
+      </aside>
+
+      <!-- ===== 콘텐츠 (L형) ===== -->
+      <main class="shell-content">
+        <div class="shell-content-inner">
+          <div class="page-header">
+            <div class="page-header-text">
+              <h1 class="page-title">병원 관리 <span class="badge badge-blue type-tag">L</span></h1>
+              <p class="page-desc">등록된 병원·요양기관</p>
+            </div>
+          </div>
+
+          <!-- 조회조건 -->
+          <div class="filter-bar">
+            <div class="filter-item">
+              <span class="filter-label">병원·기관명</span>
+              <input class="input" placeholder="기관명 검색" />
+            </div>
+            <div class="filter-item">
+              <span class="filter-label">유형</span>
+              <select class="select"><option>전체</option><option>병원·의원</option><option>요양기관</option></select>
+            </div>
+            <div class="filter-item">
+              <span class="filter-label">상태</span>
+              <select class="select"><option>전체</option><option>운영중</option><option>계약대기</option><option>중지</option></select>
+            </div>
+            <div class="filter-actions">
+              <button class="btn-reset" title="초기화">↺</button>
+              <button class="btn btn-primary btn-md">조회</button>
+            </div>
+          </div>
+
+          <!-- 결과 테이블 -->
+          <div class="table-wrap">
+            <div class="table-toolbar">
+              <span class="table-count">총 <b>8</b>건</span>
+              <div class="table-toolbar-actions">
+                <select class="select page-size-select"><option>20개씩 보기</option><option>50개씩 보기</option><option>100개씩 보기</option></select>
+                <button class="btn btn-excel btn-sm">엑셀</button>
+                <button class="btn btn-primary btn-sm" onclick="openModal('hospitalModal')">추가</button>
+              </div>
+            </div>
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th class="center" style="width:44px">No</th><th>병원·기관명</th><th>유형</th><th>지역</th><th>시니어</th>
+                  <th>와치관리자</th><th>의료진</th><th>상태</th><th>등록자</th><th>등록일자</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="center">8</td>
+                  <td><a class="cell-link" href="./hospital-detail.html">서울본병원</a></td>
+                  <td>병원·의원</td><td>서울 강남</td><td class="num">128</td>
+                  <td class="num">3</td><td class="num">12</td>
+                  <td>운영중</td><td>관리자</td><td>2025-11-02</td>
+                </tr>
+                <tr>
+                  <td class="center">7</td>
+                  <td><a class="cell-link" href="./hospital-detail.html">강남센트럴의원</a></td>
+                  <td>병원·의원</td><td>서울 강남</td><td class="num">312</td>
+                  <td class="num">5</td><td class="num">21</td>
+                  <td>운영중</td><td>관리자</td><td>2025-12-15</td>
+                </tr>
+                <tr>
+                  <td class="center">6</td>
+                  <td><a class="cell-link" href="./hospital-detail.html">부산해운대병원</a></td>
+                  <td>병원·의원</td><td>부산 해운대</td><td class="num">256</td>
+                  <td class="num">4</td><td class="num">18</td>
+                  <td>운영중</td><td>관리자</td><td>2026-01-20</td>
+                </tr>
+                <tr>
+                  <td class="center">5</td>
+                  <td><a class="cell-link" href="./hospital-detail.html">행복요양원</a></td>
+                  <td>요양기관</td><td>경기 성남</td><td class="num">198</td>
+                  <td class="num">3</td><td class="num">8</td>
+                  <td>운영중</td><td>관리자</td><td>2026-02-08</td>
+                </tr>
+                <tr>
+                  <td class="center">4</td>
+                  <td><a class="cell-link" href="./hospital-detail.html">대구미래병원</a></td>
+                  <td>병원·의원</td><td>대구 수성</td><td class="num">224</td>
+                  <td class="num">4</td><td class="num">15</td>
+                  <td>운영중</td><td>관리자</td><td>2026-03-01</td>
+                </tr>
+                <tr>
+                  <td class="center">3</td>
+                  <td><a class="cell-link" href="./hospital-detail.html">광주실버케어</a></td>
+                  <td>요양기관</td><td>광주 북구</td><td class="num">86</td>
+                  <td class="num">2</td><td class="num">5</td>
+                  <td>계약대기</td><td>관리자</td><td>2026-05-18</td>
+                </tr>
+                <tr>
+                  <td class="center">2</td>
+                  <td><a class="cell-link" href="./hospital-detail.html">인천연수의원</a></td>
+                  <td>병원·의원</td><td>인천 연수</td><td class="num">68</td>
+                  <td class="num">2</td><td class="num">6</td>
+                  <td>운영중</td><td>관리자</td><td>2026-04-22</td>
+                </tr>
+                <tr>
+                  <td class="center">1</td>
+                  <td><a class="cell-link" href="./hospital-detail.html">대전요양센터</a></td>
+                  <td>요양기관</td><td>대전 유성</td><td class="num">12</td>
+                  <td class="num">1</td><td class="num">2</td>
+                  <td>중지</td><td>관리자</td><td>2026-01-10</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="pagination">
+              <button class="page-btn" disabled title="맨앞">«</button>
+              <button class="page-btn" disabled title="이전">‹</button>
+              <button class="page-btn current">1</button>
+              <button class="page-btn" title="다음">›</button>
+              <button class="page-btn" title="마지막">»</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 병원 추가 모달 (M) -->
+  <div class="overlay hidden" id="hospitalModal">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <span class="modal-title">병원·기관 추가</span>
+        <button class="modal-close" onclick="closeModal('hospitalModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="form-table">
+          <tbody>
+            <tr><th>기관명 <span class="required">*</span></th><td><input class="input" placeholder="병원·기관명" /></td></tr>
+            <tr><th>유형 <span class="required">*</span></th><td><select class="select"><option>병원·의원</option><option>요양기관</option></select></td></tr>
+            <tr><th>대표자 <span class="required">*</span></th><td><input class="input" placeholder="대표자명" /></td></tr>
+            <tr><th>대표 연락처 <span class="required">*</span></th><td><input class="input" placeholder="02-0000-0000" /></td></tr>
+            <tr><th>주소 <span class="required">*</span></th><td>
+              <div style="display:flex; gap:8px; align-items:center">
+                <input class="input" id="hAddrNew" placeholder="주소 검색을 눌러 입력" readonly style="cursor:pointer; flex:1" onclick="searchAddr('hAddrNew')" />
+                <button class="btn btn-secondary btn-md" type="button" onclick="searchAddr('hAddrNew')">주소 검색</button>
+              </div>
+              <input class="input" placeholder="상세주소 입력" style="margin-top:6px" />
+            </td></tr>
+            <tr><th>계약 시작일자</th><td><input class="input" type="date" /></td></tr>
+            <tr><th>계약 만료일자</th><td><input class="input" type="date" /></td></tr>
+            <tr><th>상태 <span class="required">*</span></th><td><select class="select"><option>운영중</option><option selected>계약대기</option><option>중지</option></select></td></tr>
+          </tbody>
+        </table>      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('hospitalModal')">취소</button>
+        <button class="btn btn-primary btn-md">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <style>.hidden{display:none}</style>
+  <script src="../assets/modal.js"></script>
+  <script>
+    // 주소 검색(목업): 실제로는 우편번호/주소 검색 팝업 연동. 여기선 예시 주소 채움
+    function searchAddr(id) {
+      document.getElementById(id).value = '서울특별시 강남구 테헤란로 123 (역삼동)';
+    }
+  </script>
+</body>
+</html>

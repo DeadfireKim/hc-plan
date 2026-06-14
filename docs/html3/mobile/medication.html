@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>복약 · 시니어 앱 — 서울본병원</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="m-frame">
+    <header class="m-appbar">
+      <a class="m-brand" href="../index.html" title="데모 허브로 이동">서울본병원</a>
+      <a class="m-bell" href="./notifications.html" title="알림">🔔<span class="dot-red"></span></a>
+    </header>
+
+    <main class="m-body">
+      <div class="m-greet" style="font-size:20px; margin-bottom:4px">복약</div>
+      <div class="m-greet-sub" style="margin-bottom:14px">2026년 5월 20일 · 오늘 2회</div>
+      <div class="m-toggle" id="mViewToggle"><button class="active" data-mode="simple">간단히</button><button data-mode="detail">자세히</button></div>
+      <a class="m-btn m-btn-line" onclick="openModal('medAddModal')" style="margin-bottom:16px; cursor:pointer">＋ 복약 추가</a>
+
+      <!-- 아침 (완료) -->
+      <div class="m-card">
+        <div class="m-card-head">
+          <span class="m-card-title">아침 8시</span>
+          <span class="m-card-more badge badge-green" style="color:var(--color-success)">복용 완료</span>
+        </div>
+        <div class="m-list-row">
+          <div>
+            <div class="m-list-main">암로디핀 5mg</div>
+            <div class="m-list-sub">혈압약 · 1정 · 오전 8시 10분 복용</div>
+          </div>
+          <span class="m-list-right" style="font-size:24px">✅</span>
+        </div>
+        <div class="detail-only m-list-sub" style="margin-top:6px">💡 어지러울 수 있어요. 일어설 때 천천히 움직이세요. · 처방: 이정민 선생님</div>
+      </div>
+
+      <!-- 저녁 (예정) -->
+      <div class="m-card">
+        <div class="m-card-head">
+          <span class="m-card-title">저녁 7시</span>
+          <span class="m-card-more badge badge-amber" style="color:var(--color-warning)">복용 예정</span>
+        </div>
+        <div class="m-list-row" style="border-bottom:none">
+          <div>
+            <div class="m-list-main">메트포르민 500mg</div>
+            <div class="m-list-sub">당뇨약 · 1정</div>
+          </div>
+        </div>
+        <button class="m-btn m-btn-primary" onclick="this.textContent='✅ 복용 완료';this.disabled=true;this.style.background='var(--color-success)'" style="margin-top:8px">복용 완료 표시</button>
+        <div style="font-size:12px; color:var(--color-text-muted); text-align:center; margin-top:8px">완료를 누르지 않으면 30분마다 다시 알려드려요</div>
+        <div class="detail-only m-list-sub" style="margin-top:6px">💡 식사와 함께 드세요. 속이 불편하면 의료진에게 알려주세요. · 처방: 이정민 선생님</div>
+      </div>
+
+    </main>
+
+    <nav class="m-tabbar">
+      <a href="./home.html"><span class="m-tab-ico">🏠</span>홈</a>
+      <a href="./trend.html"><span class="m-tab-ico">📈</span>건강추이</a>
+      <a class="active" href="./medication.html"><span class="m-tab-ico">💊</span>복약</a>
+      <a href="./schedule.html"><span class="m-tab-ico">📅</span>일정</a>
+      <a href="./settings.html"><span class="m-tab-ico">⚙️</span>설정</a>
+    </nav>
+  </div>
+  <!-- 복약 추가 모달 (M, 시니어 본인 등록 — 요건 §6) -->
+  <div class="overlay hidden m-sheet" id="medAddModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <span class="modal-title">복약 추가</span>
+        <button class="modal-close" onclick="closeModal('medAddModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="form-table">
+          <tbody>
+            <tr><th>약품명 <span class="required">*</span></th><td><input class="input" placeholder="예: 암로디핀 5mg" /></td></tr>
+            <tr><th>분류</th><td><input class="input" placeholder="예: 혈압약" /></td></tr>
+            <tr><th>복용 주기 <span class="required">*</span></th><td><select class="select" id="medFreq" onchange="toggleMedFreq()"><option>매일</option><option>매주</option></select></td></tr>
+            <tr id="medWeekRow" class="hidden"><th>복용 요일 <span class="required">*</span></th><td><div style="display:flex; gap:10px; flex-wrap:wrap">
+              <label class="checkbox-label"><input type="checkbox" /> 월</label>
+              <label class="checkbox-label"><input type="checkbox" /> 화</label>
+              <label class="checkbox-label"><input type="checkbox" /> 수</label>
+              <label class="checkbox-label"><input type="checkbox" /> 목</label>
+              <label class="checkbox-label"><input type="checkbox" /> 금</label>
+              <label class="checkbox-label"><input type="checkbox" /> 토</label>
+              <label class="checkbox-label"><input type="checkbox" /> 일</label>
+            </div></td></tr>
+            <tr><th>복용 시간 <span class="required">*</span></th><td><input class="input" type="time" /></td></tr>
+            <tr><th>메모</th><td><textarea class="textarea" placeholder="복용 안내(선택)"></textarea></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('medAddModal')">취소</button>
+        <button class="btn btn-primary btn-md">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/modal.js"></script>
+  <script src="../assets/textarea-autogrow.js"></script>
+  <script src="../assets/mobile-view.js"></script>
+  <script>
+    // 복용 주기 '매주' 선택 시 복용 요일 표시
+    function toggleMedFreq() {
+      var v = document.getElementById('medFreq').value;
+      document.getElementById('medWeekRow').classList.toggle('hidden', v !== '매주');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>건강 추이 · 시니어 앱 — 서울본병원</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="m-frame">
+    <header class="m-appbar">
+      <a class="m-brand" href="../index.html" title="데모 허브로 이동">서울본병원</a>
+      <a class="m-bell" href="./notifications.html" title="알림">🔔<span class="dot-red"></span></a>
+    </header>
+
+    <main class="m-body">
+      <div class="m-greet" style="font-size:20px; margin-bottom:12px">건강 추이</div>
+      <div class="m-toggle" id="mViewToggle"><button class="active" data-mode="simple">간단히</button><button data-mode="detail">자세히</button></div>
+
+      <!-- 항목 선택 (2열 카드 그리드 — 토글과 구분) -->
+      <div class="m-metric-pick">
+        <button class="active" onclick="pickMetric(this,'bp')"><span>🩸</span> 혈압</button>
+        <button onclick="pickMetric(this,'hr')"><span>❤️</span> 심박수</button>
+        <button onclick="pickMetric(this,'spo2')"><span>🫁</span> 산소포화도</button>
+        <button onclick="pickMetric(this,'sleep')"><span>😴</span> 수면</button>
+        <button onclick="pickMetric(this,'steps')"><span>👣</span> 걸음수</button>
+      </div>
+
+      <!-- 현재값 카드 -->
+      <div class="m-card">
+        <div class="m-card-head">
+          <span class="m-card-title" id="trTitle">혈압(수축기)</span>
+          <span class="m-card-more" id="trBadge" style="color:var(--color-danger)">평소보다 +18%</span>
+        </div>
+        <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:16px">
+          <span style="font-size:38px; font-weight:800" id="trVal">145</span>
+          <span style="font-size:16px; color:var(--color-text-muted)" id="trUnit">mmHg</span>
+        </div>
+        <!-- 7일 선그래프 (기저선 점선 포함) -->
+        <div class="line-chart" id="trChart"></div>
+        <div style="font-size:13px; color:var(--color-text-secondary); margin-top:10px; text-align:center" id="trNote">최근 7일 · 회색 점선은 평소 수준</div>
+        <div class="detail-only m-list-sub" style="margin-top:10px; text-align:center; line-height:1.6">측정 방식: 와치 자동 기록 · 하루 평균 6회<br>최근 측정 2026-05-20 09:12</div>
+      </div>
+
+      <!-- 안내 -->
+      <div class="m-status warn" id="trAdvice">
+        <span class="m-status-ico">💡</span>
+        <div>
+          <div class="m-status-txt" style="font-size:16px">혈압이 평소보다 높아요</div>
+          <div class="m-status-sub">저염식과 충분한 휴식을 권해요. 어지럽거나 두통이 있으면 병원에 알려주세요.</div>
+        </div>
+      </div>
+
+      <!-- 직접 입력 (혈당·체중) — 와치 미수집 항목, 시니어 본인만 입력(요건 D-03) -->
+      <div class="m-card">
+        <div class="m-card-head">
+          <span class="m-card-title">직접 입력</span>
+        </div>
+        <div class="m-list-row">
+          <div><div class="m-list-main">혈당</div><div class="m-list-sub">최근 110 mg/dL · 오늘 아침 공복</div></div>
+          <a class="m-list-right m-card-more" onclick="openModal('manualModal')" style="cursor:pointer">기록</a>
+        </div>
+        <div class="m-list-row" style="border-bottom:none">
+          <div><div class="m-list-main">체중</div><div class="m-list-sub">최근 52.3 kg · 어제</div></div>
+          <a class="m-list-right m-card-more" onclick="openModal('manualModal')" style="cursor:pointer">기록</a>
+        </div>
+      </div>
+
+      <!-- 월간 건강 레포트 (본인+보호자 열람 — 요건 §8) -->
+      <div class="m-card" style="background:var(--color-primary-subtle)">
+        <div class="m-card-head">
+          <span class="m-card-title">5월 건강 레포트</span>
+          <a class="m-card-more" onclick="openModal('reportModal')" style="cursor:pointer">자세히</a>
+        </div>
+        <div class="m-list-sub" style="line-height:1.6">
+          5월 건강은 <b>대체로 안정적</b>이었어요. 다만 최근 2주 <b>혈압 상승</b>과 <b>수면 감소</b>가 있었어요. 주치의가 약 용량 조정을 검토 중이에요.
+        </div>
+      </div>
+    </main>
+
+    <nav class="m-tabbar">
+      <a href="./home.html"><span class="m-tab-ico">🏠</span>홈</a>
+      <a class="active" href="./trend.html"><span class="m-tab-ico">📈</span>건강추이</a>
+      <a href="./medication.html"><span class="m-tab-ico">💊</span>복약</a>
+      <a href="./schedule.html"><span class="m-tab-ico">📅</span>일정</a>
+      <a href="./settings.html"><span class="m-tab-ico">⚙️</span>설정</a>
+    </nav>
+  </div>
+
+  <style>
+    .m-metric-pick { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+    .m-metric-pick button { display:flex; align-items:center; gap:8px; background:var(--color-surface); border:1.5px solid var(--color-border); border-radius:12px; padding:13px 14px; font-size:15px; font-weight:600; font-family:inherit; color:var(--color-text); cursor:pointer; box-shadow:var(--shadow-card); }
+    .m-metric-pick button span { font-size:18px; }
+    .m-metric-pick button.active { background:var(--color-primary-subtle); border-color:var(--color-primary); color:var(--color-primary); }
+  </style>
+  <script>
+    var TR = {
+      bp:   { title:'혈압(수축기)', unit:'mmHg', val:'145', delta:'평소보다 +18%', color:'var(--color-danger)', base:128, lo:118, hi:150, pts:[134,137,135,140,139,142,145], advice:['혈압이 평소보다 높아요','저염식과 충분한 휴식을 권해요. 어지럽거나 두통이 있으면 병원에 알려주세요.'], good:false },
+      hr:   { title:'심박수', unit:'bpm', val:'88', delta:'평소보다 +12%', color:'var(--color-warning)', base:70, lo:58, hi:95, pts:[72,75,73,78,80,84,88], advice:['심박수가 조금 높아요','무리한 활동을 피하고 푹 쉬세요.'], good:false },
+      spo2: { title:'산소포화도', unit:'%', val:'97', delta:'정상', color:'var(--color-success)', base:98, lo:94, hi:100, pts:[98,97,98,97,97,97,97], advice:['산소포화도는 정상이에요','잘 유지되고 있어요.'], good:true },
+      sleep:{ title:'수면', unit:'시간', val:'5.2', delta:'평소보다 -22%', color:'var(--color-warning)', base:7, lo:4, hi:8, pts:[6.5,6.2,5.9,5.6,5.4,5.0,5.2], advice:['수면이 부족해요','규칙적인 취침과 야간 카페인 제한을 권해요.'], good:false },
+      steps:{ title:'걸음수', unit:'보', val:'1,240', delta:'오늘', color:'var(--color-text-muted)', base:4000, lo:0, hi:7000, pts:[3200,4100,3500,5200,6000,3800,1240], advice:['오늘 걸음수예요','가벼운 산책은 건강에 좋아요.'], good:true }
+    };
+    var DAYS = ['월','화','수','목','금','토','일'];
+    function smoothPath(c) {
+      if (c.length < 2) return c.length ? 'M ' + c[0][0] + ' ' + c[0][1] : '';
+      var d = 'M ' + c[0][0] + ' ' + c[0][1];
+      for (var i = 0; i < c.length - 1; i++) {
+        var p0 = c[i - 1] || c[i], p1 = c[i], p2 = c[i + 1], p3 = c[i + 2] || p2;
+        var c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
+        var c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
+        d += ' C ' + c1x.toFixed(1) + ' ' + c1y.toFixed(1) + ', ' + c2x.toFixed(1) + ' ' + c2y.toFixed(1) + ', ' + p2[0] + ' ' + p2[1];
+      }
+      return d;
+    }
+    function renderLine(m) {
+      var W = 320, H = 132, padL = 8, padR = 8, padT = 18, padB = 22;
+      var iW = W - padL - padR, iH = H - padT - padB, n = m.pts.length;
+      var X = function (i) { return padL + (i / (n - 1)) * iW; };
+      var Y = function (v) { return padT + (1 - (v - m.lo) / (m.hi - m.lo)) * iH; };
+      var c = m.pts.map(function (v, i) { return [+X(i).toFixed(1), +Y(v).toFixed(1)]; });
+      var line = smoothPath(c), floor = (padT + iH).toFixed(1);
+      var area = line + ' L ' + c[n - 1][0] + ' ' + floor + ' L ' + c[0][0] + ' ' + floor + ' Z';
+      var baseY = Y(m.base).toFixed(1);
+      var dots = '', labels = '';
+      c.forEach(function (p, i) {
+        dots += '<circle class="lc-dot" cx="' + p[0] + '" cy="' + p[1] + '" r="3"/>';
+        labels += '<text class="lc-label" x="' + p[0] + '" y="' + (H - 7) + '">' + DAYS[i] + '</text>';
+      });
+      return '<svg viewBox="0 0 ' + W + ' ' + H + '">'
+        + '<path class="lc-area" d="' + area + '"/>'
+        + '<path class="lc-line" d="' + line + '"/>'
+        + '<line class="lc-base" x1="' + padL + '" y1="' + baseY + '" x2="' + (W - padR) + '" y2="' + baseY + '"/>'
+        + '<text class="lc-label" x="' + (W - padR) + '" y="' + (+baseY - 4) + '" style="text-anchor:end">평소 ' + m.base + '</text>'
+        + dots + labels + '</svg>';
+    }
+    function pickMetric(btn, key) {
+      document.querySelectorAll('.m-metric-pick button').forEach(function (c) { c.classList.remove('active'); });
+      btn.classList.add('active');
+      var m = TR[key];
+      document.getElementById('trTitle').textContent = m.title;
+      document.getElementById('trVal').textContent = m.val;
+      document.getElementById('trUnit').textContent = m.unit;
+      var badge = document.getElementById('trBadge');
+      badge.textContent = m.delta; badge.style.color = m.color;
+      document.getElementById('trChart').innerHTML = renderLine(m);
+      var adv = document.getElementById('trAdvice');
+      adv.querySelector('.m-status-txt').textContent = m.advice[0];
+      adv.querySelector('.m-status-sub').textContent = m.advice[1];
+      adv.className = 'm-status ' + (m.good ? 'good' : 'warn');
+    }
+    pickMetric(document.querySelector('.m-metric-pick button.active'), 'bp');
+  </script>
+  <!-- 직접 입력 모달 (M, 혈당·체중 — 시니어 본인만) -->
+  <div class="overlay hidden m-sheet" id="manualModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <span class="modal-title">직접 입력</span>
+        <button class="modal-close" onclick="closeModal('manualModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="form-table">
+          <tbody>
+            <tr><th>항목 <span class="required">*</span></th><td><select class="select"><option>혈당 (mg/dL)</option><option>체중 (kg)</option></select></td></tr>
+            <tr><th>측정값 <span class="required">*</span></th><td><input class="input" type="number" placeholder="예: 110" /></td></tr>
+            <tr><th>측정 일시 <span class="required">*</span></th><td><input class="input" type="datetime-local" /></td></tr>
+            <tr><th>메모</th><td><textarea class="textarea" placeholder="공복/식후 등(선택)"></textarea></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('manualModal')">취소</button>
+        <button class="btn btn-primary btn-md">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 월간 건강 레포트 모달 (M, 읽기) -->
+  <div class="overlay hidden" id="reportModal">
+    <div class="modal modal-sm">
+      <div class="modal-header"><span class="modal-title">5월 건강 레포트</span><button class="modal-close" onclick="closeModal('reportModal')">✕</button></div>
+      <div class="modal-body">
+        <div class="m-status warn" style="margin-bottom:14px">
+          <span class="m-status-ico">📋</span>
+          <div><div class="m-status-txt" style="font-size:15px">전반적으로 안정적</div><div class="m-status-sub">최근 2주 혈압 상승·수면 감소 주의</div></div>
+        </div>
+        <table class="tbl">
+          <thead><tr><th>항목</th><th>5월 평균</th><th>평소 대비</th></tr></thead>
+          <tbody>
+            <tr><td>혈압(수축기)</td><td class="num">138</td><td class="num" style="color:var(--color-warning)">+8%</td></tr>
+            <tr><td>심박수</td><td class="num">76 bpm</td><td class="num">+3%</td></tr>
+            <tr><td>수면</td><td class="num">5.6 h</td><td class="num" style="color:var(--color-warning)">-15%</td></tr>
+            <tr><td>복약 순응도</td><td class="num">93%</td><td class="num" style="color:var(--color-success)">양호</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer"><button class="btn btn-primary btn-md" onclick="closeModal('reportModal')">확인</button></div>
+    </div>
+  </div>
+
+  <script src="../assets/modal.js"></script>
+  <script src="../assets/textarea-autogrow.js"></script>
+  <script src="../assets/mobile-view.js"></script>
+</body>
+</html>

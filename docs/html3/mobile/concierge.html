@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>컨시어지 · 앱 — 서울본병원</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="m-frame">
+    <header class="m-appbar">
+      <a class="m-back" href="./subscription.html" title="뒤로">←</a>
+      <span class="m-title">컨시어지</span>
+    </header>
+
+    <main class="m-body">
+      <!-- VIP 안내 -->
+      <div class="m-card" style="background:#fdfaf0; border:1.5px solid var(--color-gnb-accent)">
+        <div style="font-size:17px; font-weight:800; margin-bottom:6px">⭐ VIP 컨시어지</div>
+        <div class="m-list-sub" style="line-height:1.6">전담 케어매니저가 전국 병원 예약, 의료인 상담, 외국인 진료까지 대신 도와드려요.</div>
+        <div class="m-list-row" style="border-bottom:none; padding:10px 0 0">
+          <div>
+            <div class="m-list-main">담당 케어매니저</div>
+            <div class="m-list-sub">박지원 매니저 · 평일 09–18시</div>
+          </div>
+          <a class="m-bell" href="tel:0215889000" style="margin-left:auto; font-size:22px">📞</a>
+        </div>
+      </div>
+
+      <!-- 빠른 요청 -->
+      <div class="m-card-title" style="margin:6px 0 10px">새 요청</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px">
+        <a class="m-quick" onclick="openModal('conciergeModal')" style="cursor:pointer"><span class="m-quick-ico">🏥</span>전국 병원<br>예약 대행</a>
+        <a class="m-quick" onclick="openModal('conciergeModal')" style="cursor:pointer"><span class="m-quick-ico">🩺</span>의료인<br>상담</a>
+        <a class="m-quick" onclick="openModal('conciergeModal')" style="cursor:pointer"><span class="m-quick-ico">🌐</span>외국인<br>진료</a>
+        <a class="m-quick" onclick="openModal('conciergeModal')" style="cursor:pointer"><span class="m-quick-ico">🚗</span>병원 동행<br>요청</a>
+      </div>
+
+      <!-- 내 요청 목록 -->
+      <div class="m-card-title" style="margin:6px 0 10px">내 요청</div>
+      <div class="m-card">
+        <div class="m-list-row">
+          <div>
+            <div class="m-list-main">서울아산병원 순환기내과 예약</div>
+            <div class="m-list-sub">5월 18일 요청 · 6월 3일 오전으로 조율 중</div>
+          </div>
+          <span class="m-list-right badge badge-amber">진행 중</span>
+        </div>
+        <div class="m-list-row">
+          <div>
+            <div class="m-list-main">수면 관련 의료인 상담</div>
+            <div class="m-list-sub">5월 16일 요청 · 5월 17일 상담 완료</div>
+          </div>
+          <span class="m-list-right badge badge-green">완료</span>
+        </div>
+        <div class="m-list-row" style="border-bottom:none">
+          <div>
+            <div class="m-list-main">건강검진 종합 패키지 예약</div>
+            <div class="m-list-sub">5월 10일 요청 · 5월 23일 확정</div>
+          </div>
+          <span class="m-list-right badge badge-green">완료</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <style>
+    .m-quick { background:var(--color-surface); border-radius:14px; padding:18px 12px; text-align:center; font-size:14px; font-weight:700; color:var(--color-text); text-decoration:none; box-shadow:var(--shadow-card); line-height:1.4; }
+    .m-quick .m-quick-ico { display:block; font-size:30px; margin-bottom:8px; }
+  </style>
+
+  <!-- 컨시어지 요청 모달 (M) -->
+  <div class="overlay hidden m-sheet" id="conciergeModal">
+    <div class="modal modal-sm">
+      <div class="modal-header"><span class="modal-title">컨시어지 요청</span><button class="modal-close" onclick="closeModal('conciergeModal')">✕</button></div>
+      <div class="modal-body">
+        <table class="form-table">
+          <tbody>
+            <tr><th>요청 유형 <span class="required">*</span></th><td><select class="select"><option>전국 병원 예약 대행</option><option>의료인 상담</option><option>외국인 진료</option><option>병원 동행</option></select></td></tr>
+            <tr><th>희망 일정</th><td><input class="input" type="date" /></td></tr>
+            <tr><th>요청 내용 <span class="required">*</span></th><td><textarea class="textarea" placeholder="어떤 도움이 필요하신지 적어주세요"></textarea></td></tr>
+          </tbody>
+        </table>      </div>
+      <div class="modal-footer"><button class="btn btn-secondary btn-md" onclick="closeModal('conciergeModal')">취소</button><button class="btn btn-primary btn-md">요청 보내기</button></div>
+    </div>
+  </div>
+
+  <script src="../assets/modal.js"></script>
+  <script src="../assets/textarea-autogrow.js"></script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>담당 시니어 · 의료진 — 서울본병원</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="shell">
+    <!-- ===== GNB ===== -->
+    <header class="gnb">
+      <a class="gnb-logo" href="../index.html" title="데모 허브로 이동">
+        <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+          <rect width="30" height="30" rx="8" fill="#d4af37" />
+          <path d="M4 15 h5 l2.2 -6 l3.4 12 l2.4 -6 H26" fill="none" stroke="#1f3a36" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        서울본병원
+      </a>
+      <nav class="gnb-menu">
+        <a class="gnb-item" href="../pc-admin/dashboard.html">관리자 포털</a>
+        <a class="gnb-item" href="../pc-watch/dashboard.html">와치관리자 포털</a>
+        <a class="gnb-item active" href="./dashboard.html">의료진 포털</a>
+      </nav>
+      <div class="gnb-user">
+        <button class="gnb-user-btn" onclick="document.getElementById('um').classList.toggle('hidden')">
+          <span class="gnb-avatar">이</span> 이정민
+        </button>
+        <div class="user-menu hidden" id="um">
+          <button class="user-menu-item">로그아웃</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="shell-body">
+      <!-- ===== LNB ===== -->
+      <aside class="lnb">
+        <div class="lnb-header">
+          <button class="lnb-toggle" onclick="document.querySelector('.lnb').classList.toggle('collapsed')">☰</button>
+          <span class="lnb-title">의료진</span>
+        </div>
+        <nav class="lnb-nav">
+          <a class="lnb-link" href="./dashboard.html">대시보드 <span class="lnb-type-badge">S</span></a>
+          <a class="lnb-link active" href="./seniors.html">담당 시니어 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./alerts.html">이상징후 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./consult.html">상담·소견 <span title="Max 전용 기능" style="font-size:11px">👑</span> <span class="lnb-type-badge">F</span></a>
+        </nav>
+      </aside>
+
+      <!-- ===== 콘텐츠 (L형) ===== -->
+      <main class="shell-content">
+        <div class="shell-content-inner">
+          <div class="page-header">
+            <div class="page-header-text">
+              <h1 class="page-title">담당 시니어 <span class="badge badge-blue type-tag">L</span></h1>
+              <p class="page-desc">이정민에게 매핑된 시니어만 표시</p>
+            </div>
+          </div>
+
+          <!-- 조회조건 -->
+          <div class="filter-bar">
+            <div class="filter-item">
+              <span class="filter-label">이름·연락처</span>
+              <input class="input" placeholder="이름 또는 전화번호" />
+            </div>
+            <div class="filter-item">
+              <span class="filter-label">이상징후</span>
+              <select class="select"><option>전체</option><option>있음(오늘)</option><option>없음</option></select>
+            </div>
+            <div class="filter-item">
+              <span class="filter-label">와치 상태</span>
+              <select class="select"><option>전체</option><option>정상</option><option>연결 오류</option></select>
+            </div>
+            <div class="filter-item">
+              <span class="filter-label">상태</span>
+              <select class="select"><option>전체</option><option>활성</option><option>페어링 대기</option></select>
+            </div>
+            <div class="filter-actions">
+              <button class="btn-reset" title="초기화">↺</button>
+              <button class="btn btn-primary btn-md">조회</button>
+            </div>
+          </div>
+
+          <!-- 결과 테이블 (의료진은 계정 생성·내보내기 불가 → 액션 버튼 없음) -->
+          <div class="table-wrap">
+            <div class="table-toolbar">
+              <span class="table-count">총 <b>42</b>건</span>
+              <div class="table-toolbar-actions">
+                <select class="select page-size-select"><option>20개씩 보기</option><option>50개씩 보기</option><option>100개씩 보기</option></select>
+              </div>
+            </div>
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th class="center" style="width:44px">No</th><th>이름</th><th>출생년도</th><th>나이·성별</th><th>주요 이상</th><th>심박수</th><th>혈압</th>
+                  <th>평상시 대비</th><th>와치 (Tier)</th><th>최근 측정일시</th><th>상태</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="center">7</td>
+                  <td><a class="cell-link" href="./senior-detail.html">김순자</a></td>
+                  <td>1948</td><td>78 · 여</td><td><span class="badge badge-red">혈압</span> <span style="color:var(--color-text-muted);font-size:var(--font-size-xs)">외 2건</span></td>
+                  <td class="num">88 bpm</td><td class="num">145/92</td>
+                  <td class="num" style="color:var(--color-danger)">+18%</td>
+                  <td>HealthWatch A2X <span class="badge badge-green">Tier1</span></td>
+                  <td>2026-05-20 09:12:00</td><td>활성</td>
+                </tr>
+                <tr>
+                  <td class="center">6</td>
+                  <td><a class="cell-link" href="./senior-detail.html">박영호</a></td>
+                  <td>1945</td><td>81 · 남</td><td><span class="badge badge-red">SpO₂</span></td>
+                  <td class="num">76 bpm</td><td class="num">128/80</td>
+                  <td class="num" style="color:var(--color-danger)">-9%</td>
+                  <td>Galaxy Watch 6 <span class="badge badge-green">Tier1</span></td>
+                  <td>2026-05-20 08:47:00</td><td>활성</td>
+                </tr>
+                <tr>
+                  <td class="center">5</td>
+                  <td><a class="cell-link" href="./senior-detail.html">이말순</a></td>
+                  <td>1951</td><td>75 · 여</td><td><span class="badge badge-red">심박수</span> <span style="color:var(--color-text-muted);font-size:var(--font-size-xs)">외 1건</span></td>
+                  <td class="num">112 bpm</td><td class="num">132/85</td>
+                  <td class="num" style="color:var(--color-danger)">+38%</td>
+                  <td>Fitbit Charge 6 <span class="badge badge-amber">Tier2</span></td>
+                  <td>2026-05-20 09:12:00</td><td>활성</td>
+                </tr>
+                <tr>
+                  <td class="center">4</td>
+                  <td><a class="cell-link" href="./senior-detail.html">정복동</a></td>
+                  <td>1943</td><td>83 · 남</td><td><span class="badge badge-amber">수면</span></td>
+                  <td class="num">72 bpm</td><td class="num">126/79</td>
+                  <td class="num" style="color:var(--color-warning)">-31%</td>
+                  <td>HealthWatch A2X <span class="badge badge-green">Tier1</span></td>
+                  <td>2026-05-19 21:30:00</td><td>페어링 대기</td>
+                </tr>
+                <tr>
+                  <td class="center">3</td>
+                  <td><a class="cell-link" href="./senior-detail.html">한정식</a></td>
+                  <td>1949</td><td>77 · 남</td><td><span class="badge badge-amber">혈압</span></td>
+                  <td class="num">80 bpm</td><td class="num">138/88</td>
+                  <td class="num" style="color:var(--color-warning)">+15%</td>
+                  <td>Apple Watch SE <span class="badge badge-green">Tier1</span></td>
+                  <td>2026-05-20 06:50:00</td><td>활성</td>
+                </tr>
+                <tr>
+                  <td class="center">2</td>
+                  <td><a class="cell-link" href="./senior-detail.html">최금자</a></td>
+                  <td>1947</td><td>79 · 여</td><td></td>
+                  <td class="num"></td><td class="num"></td>
+                  <td class="num"></td>
+                  <td>HealthWatch A2X <span class="badge badge-green">Tier1</span></td>
+                  <td><span class="badge badge-red">미수신</span></td><td>활성</td>
+                </tr>
+                <tr>
+                  <td class="center">1</td>
+                  <td><a class="cell-link" href="./senior-detail.html">오삼순</a></td>
+                  <td>1941</td><td>85 · 여</td><td></td>
+                  <td class="num">74 bpm</td><td class="num">122/78</td>
+                  <td class="num">+3%</td>
+                  <td>Mi Band 8 <span class="badge badge-gray">Tier3</span></td>
+                  <td>2026-05-20 08:30:00</td><td>활성</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="pagination">
+              <button class="page-btn" disabled title="맨앞">«</button>
+              <button class="page-btn" disabled title="이전">‹</button>
+              <button class="page-btn current">1</button>
+              <button class="page-btn">2</button>
+              <button class="page-btn">3</button>
+              <button class="page-btn" title="다음">›</button>
+              <button class="page-btn" title="마지막">»</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <style>.hidden{display:none}</style>
+  <script src="../assets/tier-tip.js"></script>
+</body>
+</html>

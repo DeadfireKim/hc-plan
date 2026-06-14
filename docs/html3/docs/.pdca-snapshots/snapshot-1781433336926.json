@@ -1,0 +1,119 @@
+{
+  "timestamp": "2026-06-14T10:35:36.922Z",
+  "reason": "compaction",
+  "status": {
+    "version": "2.0",
+    "lastUpdated": "2026-06-14T10:11:43.196Z",
+    "activeFeatures": [
+      "docs",
+      "assets"
+    ],
+    "primaryFeature": "docs",
+    "features": {
+      "docs": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-06-13T11:46:34.486Z",
+          "lastUpdated": "2026-06-13T11:55:54.876Z"
+        },
+        "lastFile": "D:\\+Public\\hc-plan\\docs\\_transcribe.py"
+      },
+      "assets": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-06-14T02:27:41.779Z",
+          "lastUpdated": "2026-06-14T10:11:43.196Z"
+        },
+        "lastFile": "D:\\+Public\\hc-plan\\docs\\html3\\assets\\multiselect.js"
+      }
+    },
+    "pipeline": {
+      "currentPhase": 1,
+      "level": "Dynamic",
+      "phaseHistory": []
+    },
+    "session": {
+      "startedAt": "2026-06-13T11:34:16.614Z",
+      "onboardingCompleted": false,
+      "lastActivity": "2026-06-14T10:11:43.196Z"
+    },
+    "history": [
+      {
+        "timestamp": "2026-06-13T11:46:34.486Z",
+        "feature": "docs",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-06-13T11:55:54.876Z",
+        "feature": "docs",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-06-14T02:27:41.779Z",
+        "feature": "assets",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-06-14T03:54:15.553Z",
+        "feature": "assets",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-06-14T04:23:48.188Z",
+        "feature": "assets",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-06-14T09:43:27.291Z",
+        "feature": "assets",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-06-14T09:49:13.085Z",
+        "feature": "assets",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-06-14T09:50:54.703Z",
+        "feature": "assets",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-06-14T10:01:46.981Z",
+        "feature": "assets",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-06-14T10:09:32.740Z",
+        "feature": "assets",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-06-14T10:11:43.196Z",
+        "feature": "assets",
+        "phase": "do",
+        "action": "updated"
+      }
+    ]
+  }
+}

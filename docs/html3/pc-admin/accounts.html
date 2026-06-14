@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>계정 관리 · 관리자 — HealthCare Watch</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="shell">
+    <!-- ===== GNB ===== -->
+    <header class="gnb">
+      <a class="gnb-logo" href="../index.html" title="데모 허브로 이동">
+        <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+          <rect width="30" height="30" rx="8" fill="#d4af37" />
+          <path d="M4 15 h5 l2.2 -6 l3.4 12 l2.4 -6 H26" fill="none" stroke="#1f3a36" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        HealthCare Watch
+      </a>
+      <nav class="gnb-menu">
+        <a class="gnb-item active" href="./dashboard.html">관리자 포털</a>
+        <a class="gnb-item" href="../pc-watch/dashboard.html">와치관리자 포털</a>
+        <a class="gnb-item" href="../pc-doctor/dashboard.html">의료진 포털</a>
+      </nav>
+      <div class="gnb-user">
+        <button class="gnb-user-btn" onclick="document.getElementById('um').classList.toggle('hidden')">
+          <span class="gnb-avatar">관</span> 관리자
+        </button>
+        <div class="user-menu hidden" id="um">
+          <button class="user-menu-item">로그아웃</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="shell-body">
+      <!-- ===== LNB ===== -->
+      <aside class="lnb">
+        <div class="lnb-header">
+          <button class="lnb-toggle" onclick="document.querySelector('.lnb').classList.toggle('collapsed')">☰</button>
+          <span class="lnb-title">관리자</span>
+        </div>
+        <nav class="lnb-nav">
+          <a class="lnb-link" href="./dashboard.html">대시보드 <span class="lnb-type-badge">S</span></a>
+          <a class="lnb-link" href="./hospitals.html">병원 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link active" href="./accounts.html">계정 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./permissions.html">권한 관리 <span class="lnb-type-badge">P-MATRIX</span></a>
+          <a class="lnb-link" href="./notice.html">공지 관리 <span class="lnb-type-badge">L</span></a>
+        </nav>
+      </aside>
+
+      <!-- ===== 콘텐츠 (L형) ===== -->
+      <main class="shell-content">
+        <div class="shell-content-inner">
+          <div class="page-header">
+            <div class="page-header-text">
+              <h1 class="page-title">계정 관리 <span class="badge badge-blue type-tag">L</span></h1>
+              <p class="page-desc">전 역할 계정 (관리자·와치관리자·의료진·시니어·보호자)</p>
+            </div>
+          </div>
+
+          <!-- 조회조건 -->
+          <div class="filter-bar">
+            <div class="filter-item">
+              <span class="filter-label">이름·연락처</span>
+              <input class="input" placeholder="이름 또는 전화번호" />
+            </div>
+            <div class="filter-item">
+              <span class="filter-label">역할</span>
+              <div class="multisel">
+                <div class="multisel-btn" onclick="msToggle(this)"><span class="ms-label">전체</span></div>
+                <div class="multisel-list hidden">
+                  <label class="checkbox-label"><input type="checkbox" class="ms-all" onchange="msAll(this)" /> 전체</label>
+                  <label class="checkbox-label"><input type="checkbox" onchange="msUpdate(this)" /> 관리자</label>
+                  <label class="checkbox-label"><input type="checkbox" onchange="msUpdate(this)" /> 와치관리자</label>
+                  <label class="checkbox-label"><input type="checkbox" onchange="msUpdate(this)" /> 의료진</label>
+                  <label class="checkbox-label"><input type="checkbox" onchange="msUpdate(this)" /> 시니어</label>
+                  <label class="checkbox-label"><input type="checkbox" onchange="msUpdate(this)" /> 보호자</label>
+                </div>
+              </div>
+            </div>
+            <div class="filter-item">
+              <span class="filter-label">소속 병원</span>
+              <select class="select"><option>전체</option><option>서울본병원</option><option>강남센트럴의원</option><option>부산해운대병원</option></select>
+            </div>
+            <div class="filter-item">
+              <span class="filter-label">상태</span>
+              <select class="select"><option>전체</option><option>활성</option><option>비활성</option></select>
+            </div>
+            <div class="filter-actions">
+              <button class="btn-reset" title="초기화">↺</button>
+              <button class="btn btn-primary btn-md">조회</button>
+            </div>
+          </div>
+
+          <!-- 결과 테이블 -->
+          <div class="table-wrap">
+            <div class="table-toolbar">
+              <span class="table-count">총 <b>1,438</b>건</span>
+              <div class="table-toolbar-actions">
+                <select class="select page-size-select"><option>20개씩 보기</option><option>50개씩 보기</option><option>100개씩 보기</option></select>
+                <button class="btn btn-excel btn-sm">엑셀</button>
+                <button class="btn btn-primary btn-sm" onclick="openModal('accountModal')">추가</button>
+              </div>
+            </div>
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th class="center" style="width:44px">No</th><th>이름</th><th>역할</th><th>소속 병원</th><th>연락처</th><th>상태</th><th>등록자</th><th>등록일자</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="center">1,438</td>
+                  <td><a class="cell-link" href="./account-detail.html">관리자</a></td>
+                  <td><span class="badge badge-amber">관리자</span></td>
+                  <td>HealthCare Watch</td><td>02-0000-0000</td>
+                  <td>활성</td><td>시스템</td><td>2025-10-01</td>
+                </tr>
+                <tr>
+                  <td class="center">1,437</td>
+                  <td><a class="cell-link" href="./account-detail.html">김선숙</a></td>
+                  <td><span class="badge badge-blue">와치관리자</span> <span class="badge badge-green">의료진</span></td>
+                  <td>서울본병원</td><td>010-1111-2222</td>
+                  <td>활성</td><td>관리자</td><td>2025-11-02</td>
+                </tr>
+                <tr>
+                  <td class="center">1,436</td>
+                  <td><a class="cell-link" href="./account-detail.html">이정민</a></td>
+                  <td><span class="badge badge-green">의료진</span></td>
+                  <td>서울본병원</td><td>010-3333-4444</td>
+                  <td>활성</td><td>김선숙</td><td>2025-11-05</td>
+                </tr>
+                <tr>
+                  <td class="center">1,435</td>
+                  <td><a class="cell-link" href="./account-detail.html">김순자</a></td>
+                  <td><span class="badge badge-gray">시니어</span></td>
+                  <td>서울본병원</td><td>010-2345-6789</td>
+                  <td>활성</td><td>김선숙</td><td>2026-03-12</td>
+                </tr>
+                <tr>
+                  <td class="center">1,434</td>
+                  <td><a class="cell-link" href="./account-detail.html">이민준</a></td>
+                  <td><span class="badge badge-gray">보호자</span></td>
+                  <td>서울본병원</td><td>010-1234-5678</td>
+                  <td>활성</td><td>김순자</td><td>2026-03-12</td>
+                </tr>
+                <tr>
+                  <td class="center">1,433</td>
+                  <td><a class="cell-link" href="./account-detail.html">최동훈</a></td>
+                  <td><span class="badge badge-green">의료진</span></td>
+                  <td>강남센트럴의원</td><td>010-7777-8888</td>
+                  <td>활성</td><td>관리자</td><td>2025-12-20</td>
+                </tr>
+                <tr>
+                  <td class="center">1,432</td>
+                  <td><a class="cell-link" href="./account-detail.html">박영호</a></td>
+                  <td><span class="badge badge-gray">시니어</span></td>
+                  <td>강남센트럴의원</td><td>010-3456-7890</td>
+                  <td>비활성</td><td>강남관리자</td><td>2026-03-15</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="pagination">
+              <button class="page-btn" disabled title="맨앞">«</button>
+              <button class="page-btn" disabled title="이전">‹</button>
+              <button class="page-btn current">1</button>
+              <button class="page-btn">2</button>
+              <button class="page-btn">3</button>
+              <button class="page-btn">…</button>
+              <button class="page-btn">72</button>
+              <button class="page-btn" title="다음">›</button>
+              <button class="page-btn" title="마지막">»</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 계정 추가 모달 (M) -->
+  <div class="overlay hidden" id="accountModal">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <span class="modal-title">계정 추가</span>
+        <button class="modal-close" onclick="closeModal('accountModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="form-table">
+          <tbody>
+            <tr><th>이름 <span class="required">*</span></th><td><input class="input" placeholder="이름" /></td></tr>
+            <tr>
+              <th>역할 <span class="required">*</span></th>
+              <td>
+                <div style="display:flex; gap:16px; white-space:nowrap">
+                  <label class="checkbox-label"><input type="checkbox" /> 와치관리자</label>
+                  <label class="checkbox-label"><input type="checkbox" /> 의료진</label>
+                  <label class="checkbox-label"><input type="checkbox" /> 시니어</label>
+                  <label class="checkbox-label"><input type="checkbox" /> 보호자</label>
+                </div>
+              </td>
+            </tr>
+            <tr><th>소속 병원</th><td>
+              <div class="combo">
+                <input class="input" oninput="comboFilter(this)" onfocus="comboFilter(this)" autocomplete="off" placeholder="병원명을 입력하면 검색됩니다" />
+                <div class="combo-list hidden">
+                  <div class="combo-opt" onclick="comboPick(this)">서울본병원</div>
+                  <div class="combo-opt" onclick="comboPick(this)">강남센트럴의원</div>
+                  <div class="combo-opt" onclick="comboPick(this)">부산해운대병원</div>
+                  <div class="combo-opt" onclick="comboPick(this)">행복요양원</div>
+                  <div class="combo-opt" onclick="comboPick(this)">대구미래병원</div>
+                  <div class="combo-opt" onclick="comboPick(this)">광주실버케어</div>
+                  <div class="combo-opt" onclick="comboPick(this)">인천연수의원</div>
+                  <div class="combo-opt" onclick="comboPick(this)">대전요양센터</div>
+                </div>
+              </div>
+            </td></tr>
+            <tr><th>연락처 <span class="required">*</span></th><td><input class="input" placeholder="010-0000-0000" /></td></tr>
+            <tr><th>이메일(구글) <span class="required">*</span></th><td><input class="input" type="email" placeholder="name@gmail.com" /></td></tr>
+            <tr><th>상태 <span class="required">*</span></th><td><select class="select"><option>활성</option><option>비활성</option></select></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('accountModal')">취소</button>
+        <button class="btn btn-primary btn-md">초대 발송</button>
+      </div>
+    </div>
+  </div>
+
+  <style>.hidden{display:none}</style>
+  <script src="../assets/modal.js"></script>
+  <script src="../assets/combo.js"></script>
+  <script src="../assets/multiselect.js"></script>
+</body>
+</html>

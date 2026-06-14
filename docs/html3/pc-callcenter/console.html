@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>상담 콘솔 · 콜센터 — HealthCare Watch</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="shell">
+    <!-- ===== GNB ===== -->
+    <header class="gnb">
+      <a class="gnb-logo" href="../index.html" title="데모 허브로 이동">
+        <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+          <rect width="30" height="30" rx="8" fill="#d4af37" />
+          <path d="M4 15 h5 l2.2 -6 l3.4 12 l2.4 -6 H26" fill="none" stroke="#1f3a36" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        HealthCare Watch
+      </a>
+      <nav class="gnb-menu">
+        <a class="gnb-item" href="../pc-admin/dashboard.html">관리자 포털</a>
+        <a class="gnb-item" href="../pc-watch/dashboard.html">와치관리자 포털</a>
+        <a class="gnb-item" href="../pc-doctor/dashboard.html">의료진 포털</a>
+        <a class="gnb-item active" href="./console.html">콜센터 <span class="badge type-tag" style="background:#eef3fc;color:#3a6bd6">Max</span></a>
+      </nav>
+      <div class="gnb-user">
+        <button class="gnb-user-btn" onclick="document.getElementById('um').classList.toggle('hidden')">
+          <span class="gnb-avatar">정</span> 정상담
+        </button>
+        <div class="user-menu hidden" id="um">
+          <button class="user-menu-item">로그아웃</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="shell-body">
+      <!-- ===== LNB ===== -->
+      <aside class="lnb">
+        <div class="lnb-header">
+          <button class="lnb-toggle" onclick="document.querySelector('.lnb').classList.toggle('collapsed')">☰</button>
+          <span class="lnb-title">통합 콜센터</span>
+        </div>
+        <nav class="lnb-nav">
+          <a class="lnb-link active" href="./console.html">상담 큐 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./console.html">예약 대행 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./console.html">상담 이력 <span class="lnb-type-badge">L</span></a>
+        </nav>
+      </aside>
+
+      <!-- ===== 콘텐츠 (L형 · 상담 대기열) ===== -->
+      <main class="shell-content">
+        <div class="shell-content-inner">
+          <div class="page-header">
+            <div class="page-header-text">
+              <h1 class="page-title">상담 큐 <span class="badge badge-blue type-tag">L</span></h1>
+              <p class="page-desc">전 병원 통합 상담·예약 대행 요청 (의료인 상담원)</p>
+            </div>
+          </div>
+
+          <!-- 통계 -->
+          <div class="stat-cards">
+            <div class="stat-card">
+              <div class="stat-label">대기 중</div>
+              <div class="stat-value" style="color:var(--color-danger)">6</div>
+              <div class="stat-sub">미배정 상담</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">진행 중</div>
+              <div class="stat-value" style="color:var(--color-warning)">3</div>
+              <div class="stat-sub">상담원 응대 중</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">오늘 완료</div>
+              <div class="stat-value">42</div>
+              <div class="stat-sub">평균 대기 4분</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">내 담당</div>
+              <div class="stat-value">8</div>
+              <div class="stat-sub">정상담 간호사</div>
+            </div>
+          </div>
+
+          <!-- 조회조건 -->
+          <div class="filter-bar">
+            <div class="filter-item">
+              <span class="filter-label">시니어·보호자</span>
+              <input class="input" placeholder="이름 검색" />
+            </div>
+            <div class="filter-item">
+              <span class="filter-label">유형</span>
+              <select class="select"><option>전체</option><option>예약 대행</option><option>의료인 상담</option><option>이상징후 후속</option><option>외국인 진료</option></select>
+            </div>
+            <div class="filter-item">
+              <span class="filter-label">우선순위</span>
+              <select class="select"><option>전체</option><option>긴급</option><option>일반</option></select>
+            </div>
+            <div class="filter-item">
+              <span class="filter-label">상태</span>
+              <select class="select"><option>대기 중</option><option>진행 중</option><option>완료</option></select>
+            </div>
+            <div class="filter-actions">
+              <button class="btn-reset" title="초기화">↺</button>
+              <button class="btn btn-primary btn-md">조회</button>
+            </div>
+          </div>
+
+          <!-- 상담 큐 -->
+          <div class="table-wrap">
+            <div class="table-toolbar">
+              <span class="table-count">대기 <b>6</b>건 · 진행 <b>3</b>건</span>
+              <div class="table-toolbar-actions">
+                <select class="select page-size-select"><option>20개씩 보기</option><option>50개씩 보기</option></select>
+                <button class="btn btn-excel btn-sm">엑셀</button>
+              </div>
+            </div>
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th class="center" style="width:44px">No</th><th>요청일시</th><th>요청자</th><th>구분</th><th>유형</th><th>요지</th><th>우선순위</th><th>상태</th><th>담당</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="center">5</td>
+                  <td>2026-05-20 09:20:11</td>
+                  <td><a class="cell-link" onclick="openModal('consultModal')" style="cursor:pointer">김순자</a></td><td><span class="badge badge-gray">시니어</span></td>
+                  <td>이상징후 후속</td><td>혈압 상승 상담 요청</td>
+                  <td><span class="badge badge-red">긴급</span></td><td>대기 중</td><td></td>
+                </tr>
+                <tr>
+                  <td class="center">4</td>
+                  <td>2026-05-20 09:05:43</td>
+                  <td><a class="cell-link" onclick="openModal('consultModal')" style="cursor:pointer">이민준</a></td><td><span class="badge badge-gray">보호자</span></td>
+                  <td>예약 대행</td><td>서울아산병원 순환기내과</td>
+                  <td><span class="badge badge-gray">일반</span></td><td>대기 중</td><td></td>
+                </tr>
+                <tr>
+                  <td class="center">3</td>
+                  <td>2026-05-20 08:48:02</td>
+                  <td><a class="cell-link" onclick="openModal('consultModal')" style="cursor:pointer">박영호</a></td><td><span class="badge badge-gray">시니어</span></td>
+                  <td>의료인 상담</td><td>수면 부족 상담</td>
+                  <td><span class="badge badge-gray">일반</span></td><td>진행 중</td><td>정상담</td>
+                </tr>
+                <tr>
+                  <td class="center">2</td>
+                  <td>2026-05-20 08:30:55</td>
+                  <td><a class="cell-link" onclick="openModal('consultModal')" style="cursor:pointer">최금자</a></td><td><span class="badge badge-gray">시니어</span></td>
+                  <td>외국인 진료</td><td>통역 동반 진료 문의</td>
+                  <td><span class="badge badge-gray">일반</span></td><td>진행 중</td><td>박지원</td>
+                </tr>
+                <tr>
+                  <td class="center">1</td>
+                  <td>2026-05-19 17:12:30</td>
+                  <td><a class="cell-link" onclick="openModal('consultModal')" style="cursor:pointer">한정식</a></td><td><span class="badge badge-gray">시니어</span></td>
+                  <td>예약 대행</td><td>건강검진 종합 패키지</td>
+                  <td><span class="badge badge-gray">일반</span></td><td>완료</td><td>정상담</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="pagination">
+              <button class="page-btn" disabled title="맨앞">«</button>
+              <button class="page-btn" disabled title="이전">‹</button>
+              <button class="page-btn current">1</button>
+              <button class="page-btn">2</button>
+              <button class="page-btn" title="다음">›</button>
+              <button class="page-btn" title="마지막">»</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 상담 처리 모달 (M) -->
+  <div class="overlay hidden" id="consultModal">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <span class="modal-title">상담 처리 · 김순자</span>
+        <button class="modal-close" onclick="closeModal('consultModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="form-table">
+          <tbody>
+            <tr><th>요청자</th><td>김순자 (시니어)</td><th>구분</th><td>이상징후 후속</td></tr>
+            <tr><th>요청일시</th><td>2026-05-20 09:20:11</td><th>우선순위</th><td><span class="badge badge-red">긴급</span></td></tr>
+            <tr><th>요지</th><td colspan="3">혈압 상승(평소 대비 +18%) 관련 상담 요청</td></tr>
+            <tr><th>담당 배정</th><td><select class="select"><option>정상담 (간호사)</option><option>박지원</option></select></td><th>상태</th><td><select class="select"><option>대기 중</option><option>진행 중</option><option>완료</option></select></td></tr>
+            <tr><th>상담 메모</th><td colspan="3"><textarea class="textarea" placeholder="상담 내용·조치를 기록하세요"></textarea></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('consultModal')">취소</button>
+        <button class="btn btn-primary btn-md">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <style>.hidden{display:none}</style>
+  <script src="../assets/modal.js"></script>
+  <script src="../assets/textarea-autogrow.js"></script>
+</body>
+</html>

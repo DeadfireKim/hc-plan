@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>건강 상세 · 의료진 — 서울본병원</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="shell">
+    <!-- ===== GNB ===== -->
+    <header class="gnb">
+      <a class="gnb-logo" href="../index.html" title="데모 허브로 이동">
+        <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+          <rect width="30" height="30" rx="8" fill="#d4af37" />
+          <path d="M4 15 h5 l2.2 -6 l3.4 12 l2.4 -6 H26" fill="none" stroke="#1f3a36" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        서울본병원
+      </a>
+      <nav class="gnb-menu">
+        <a class="gnb-item" href="../pc-admin/dashboard.html">관리자 포털</a>
+        <a class="gnb-item" href="../pc-watch/dashboard.html">와치관리자 포털</a>
+        <a class="gnb-item active" href="./dashboard.html">의료진 포털</a>
+      </nav>
+      <div class="gnb-user">
+        <button class="gnb-user-btn" onclick="document.getElementById('um').classList.toggle('hidden')">
+          <span class="gnb-avatar">이</span> 이정민
+        </button>
+        <div class="user-menu hidden" id="um">
+          <button class="user-menu-item">로그아웃</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="shell-body">
+      <!-- ===== LNB ===== -->
+      <aside class="lnb">
+        <div class="lnb-header">
+          <button class="lnb-toggle" onclick="document.querySelector('.lnb').classList.toggle('collapsed')">☰</button>
+          <span class="lnb-title">의료진</span>
+        </div>
+        <nav class="lnb-nav">
+          <a class="lnb-link" href="./dashboard.html">대시보드 <span class="lnb-type-badge">S</span></a>
+          <a class="lnb-link active" href="./seniors.html">담당 시니어 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./alerts.html">이상징후 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./consult.html">상담·소견 <span title="Max 전용 기능" style="font-size:11px">👑</span> <span class="lnb-type-badge">F</span></a>
+        </nav>
+      </aside>
+
+      <!-- ===== 콘텐츠 (D+S형) ===== -->
+      <main class="shell-content">
+        <div class="shell-content-inner">
+          <div class="page-header">
+            <div class="page-header-text">
+              <h1 class="page-title">건강 상세 · 김순자 <span class="badge badge-blue type-tag">D·S</span></h1>
+              <p class="page-desc">78 · 여 · 내과 담당 · 위치정보는 진료 목적 외 차단</p>
+            </div>
+          </div>
+
+          <!-- 상단: 읽기전용 정보 (위치정보 제외 — glossary §7) -->
+          <table class="form-table">
+            <tbody>
+              <tr>
+                <th>이름</th><td>김순자</td>
+                <th>출생일자·성별</th><td>1948-03-15 (만 78세) · 여</td>
+              </tr>
+              <tr>
+                <th>연락처</th><td>010-2345-6789</td>
+                <th>상태</th><td><span class="badge badge-green">활성</span></td>
+              </tr>
+              <tr>
+                <th>신체 정보</th><td>156cm · 52kg · BMI 21.4</td>
+                <th>가입일자</th><td>2026-03-12</td>
+              </tr>
+              <tr>
+                <th>기저질환</th><td>고혈압 · 2형 당뇨</td>
+                <th>최근 상담</th><td>2026-05-18 (이정민)</td>
+              </tr>
+              <tr>
+                <th>와치</th><td>HealthWatch A2X <span class="badge badge-green">Tier1</span> · 대여</td>
+                <th>보호자</th><td>이민준(자녀) 외 1명</td>
+              </tr>
+              <tr>
+                <th>입력일시</th><td>2026-03-12 14:20:05</td>
+                <th>입력자</th><td>김선숙</td>
+              </tr>
+              <tr>
+                <th>수정일시</th><td>2026-05-20 09:10:33</td>
+                <th>수정자</th><td>이정민</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- 버튼 = 정보 테이블 아래 중앙 정렬 (D형 규칙) -->
+          <div class="detail-actions">
+            <button class="btn btn-secondary btn-md" onclick="openModal('historyModal')">변경 이력</button>
+            <a class="btn btn-secondary btn-md" href="./seniors.html">목록</a>
+          </div>
+
+          <!-- 하단: 탭 -->
+          <div class="tabs" style="margin-bottom: calc(-1 * var(--space-3)); align-items:center">
+            <button class="tab active" onclick="showTab(this,'trend')">건강 추이</button>
+            <button class="tab" onclick="showTab(this,'measure')">측정 데이터</button>
+            <button class="tab" onclick="showTab(this,'med')">복약</button>
+            <button class="tab" onclick="showTab(this,'consult')">상담·소견 이력</button>
+            <button class="tab" onclick="showTab(this,'threshold')">임계치</button>
+            <select id="pageSizeSel" class="select page-size-select" style="margin-left:auto; display:none"><option>20개씩 보기</option><option>50개씩 보기</option><option>100개씩 보기</option></select>
+          </div>
+
+          <!-- 건강 추이 탭 (S = 차트) -->
+          <div id="tab-trend" class="tab-panel">
+            <table class="tbl">
+              <thead>
+                <tr><th>항목</th><th>최근값</th><th>평상시 대비</th><th>측정 시각</th><th>상태</th></tr>
+              </thead>
+              <tbody>
+                <tr class="metric-row" onclick="showMetric(this,'hr')"><td>심박수</td><td class="num">88 bpm</td><td class="num" style="color:var(--color-warning)">+12%</td><td>09:12</td><td><span class="badge badge-green">정상</span></td></tr>
+                <tr class="metric-row" onclick="showMetric(this,'spo2')"><td>SpO₂</td><td class="num">97 %</td><td class="num">-1%</td><td>09:10</td><td><span class="badge badge-green">정상</span></td></tr>
+                <tr class="metric-row active" onclick="showMetric(this,'bp')"><td>혈압</td><td class="num">145 / 92</td><td class="num" style="color:var(--color-danger)">+18%</td><td>07:30</td><td><span class="badge badge-red">주의</span></td></tr>
+                <tr class="metric-row" onclick="showMetric(this,'temp')"><td>체온</td><td class="num">36.6 ℃</td><td class="num">0%</td><td>09:00</td><td><span class="badge badge-green">정상</span></td></tr>
+                <tr class="metric-row" onclick="showMetric(this,'sleep')"><td>수면</td><td class="num">5.2 h</td><td class="num" style="color:var(--color-warning)">-22%</td><td>어제</td><td><span class="badge badge-amber">주의</span></td></tr>
+              </tbody>
+            </table>
+
+            <!-- 선택 항목 추이 (line-chart, SVG) — 위 표에서 항목 클릭 시 전환 -->
+            <div class="widget" style="margin-top: var(--space-4)">
+              <div class="widget-header"><span id="trendTitle">혈압(수축기) 14일 추이</span> <span class="badge badge-gray widget-role" id="trendBase">기저선 128 mmHg</span></div>
+              <div class="widget-body">
+                <div class="line-chart" id="trendChart"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 측정 데이터 탭 -->
+          <div id="tab-measure" class="tab-panel hidden">
+            <table class="tbl">
+              <thead><tr><th>측정 일시</th><th>심박수</th><th>SpO₂</th><th>혈압</th><th>체온</th><th>걸음수</th></tr></thead>
+              <tbody>
+                <tr><td>2026-05-20 09:12:00</td><td class="num">88</td><td class="num">97</td><td class="num">145/92</td><td class="num">36.6</td><td class="num">1,240</td></tr>
+                <tr><td>2026-05-20 06:00:00</td><td class="num">62</td><td class="num">98</td><td class="num">132/84</td><td class="num">36.3</td><td class="num">0</td></tr>
+                <tr><td>2026-05-19 21:30:00</td><td class="num">71</td><td class="num">97</td><td class="num">128/80</td><td class="num">36.5</td><td class="num">5,820</td></tr>
+                <tr><td>2026-05-19 12:00:00</td><td class="num">79</td><td class="num">98</td><td class="num">130/82</td><td class="num">36.7</td><td class="num">3,110</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 복약 탭 -->
+          <div id="tab-med" class="tab-panel hidden">
+            <table class="tbl">
+              <thead><tr><th>약품</th><th>용법</th><th>처방</th><th>최근 복약</th><th>순응도(7일)</th></tr></thead>
+              <tbody>
+                <tr><td>암로디핀 5mg</td><td>1일 1회 (아침)</td><td>이정민</td><td>오늘 08:10</td><td><span class="badge badge-green">100%</span></td></tr>
+                <tr><td>메트포르민 500mg</td><td>1일 2회 (아침·저녁)</td><td>이정민</td><td>오늘 08:10</td><td><span class="badge badge-amber">86%</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 상담·소견 이력 탭 -->
+          <div id="tab-consult" class="tab-panel hidden">
+            <table class="tbl">
+              <thead><tr><th>작성일시</th><th>유형</th><th>작성자</th><th>소견</th></tr></thead>
+              <tbody>
+                <tr><td>2026-05-18 15:20:00</td><td><span class="badge badge-blue">대면 상담</span></td><td>이정민</td><td style="text-align:left"><a class="cell-link" onclick="openModal('consultViewModal')" style="cursor:pointer">혈압 상승 추세, 약 용량 조정 검토</a></td></tr>
+                <tr><td>2026-04-30 11:05:00</td><td><span class="badge badge-gray">전화 상담</span></td><td>박서연</td><td style="text-align:left"><a class="cell-link" onclick="openModal('consultViewModal')" style="cursor:pointer">수면 부족 호소, 생활 습관 안내</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 임계치 탭 (시니어별 개인 임계치 — 기본값 상속 + 직접 설정) -->
+          <div id="tab-threshold" class="tab-panel hidden">
+            <table class="tbl">
+              <thead>
+                <tr><th>항목</th><th>주의 임계치 (평상시 대비)</th><th>위험 임계치</th><th>적용</th><th>설정</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>심박수</td><td class="num">±15%</td><td class="num">±30%</td><td><span class="badge badge-gray">기본값 상속</span></td><td><button class="btn btn-text btn-sm" onclick="openModal('thresholdModal')">직접 설정</button></td></tr>
+                <tr><td>혈압</td><td class="num">+10%</td><td class="num">+18%</td><td><span class="badge badge-blue">직접 설정</span></td><td><button class="btn btn-text btn-sm" onclick="openModal('resetThresholdModal')">기본값 복귀</button></td></tr>
+                <tr><td>SpO₂</td><td class="num">-4%</td><td class="num">-8%</td><td><span class="badge badge-gray">기본값 상속</span></td><td><button class="btn btn-text btn-sm" onclick="openModal('thresholdModal')">직접 설정</button></td></tr>
+                <tr><td>체온</td><td class="num">±3%</td><td class="num">±6%</td><td><span class="badge badge-gray">기본값 상속</span></td><td><button class="btn btn-text btn-sm" onclick="openModal('thresholdModal')">직접 설정</button></td></tr>
+                <tr><td>수면</td><td class="num">-20%</td><td class="num">-40%</td><td><span class="badge badge-gray">기본값 상속</span></td><td><button class="btn btn-text btn-sm" onclick="openModal('thresholdModal')">직접 설정</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <style>.hidden{display:none}</style>
+  <script>
+    function showTab(btn, id) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+      document.getElementById('tab-' + id).classList.remove('hidden');
+      // 목록형 탭(측정 데이터·상담소견 이력)에서만 N개씩 보기 노출
+      document.getElementById('pageSizeSel').style.display = (id === 'measure' || id === 'consult') ? '' : 'none';
+    }
+
+    // ===== 건강 추이 선그래프 (항목 클릭 시 전환) =====
+    var METRICS = {
+      hr:   { name: '심박수',     unit: 'bpm',  base: 70,   lo: 58,  hi: 95,   pts: [['05-07',66],['05-08',68],['05-09',67],['05-10',70],['05-11',72],['05-12',69],['05-13',71],['05-14',73],['05-15',74],['05-16',76],['05-17',78],['05-18',80],['05-19',84],['05-20',88]] },
+      spo2: { name: 'SpO₂',       unit: '%',    base: 98,   lo: 94,  hi: 100,  pts: [['05-07',98],['05-08',98],['05-09',97],['05-10',98],['05-11',98],['05-12',97],['05-13',98],['05-14',97],['05-15',97],['05-16',98],['05-17',97],['05-18',97],['05-19',97],['05-20',97]] },
+      bp:   { name: '혈압(수축기)', unit: 'mmHg', base: 128,  lo: 118, hi: 150,  pts: [['05-07',124],['05-08',125],['05-09',127],['05-10',126],['05-11',129],['05-12',130],['05-13',131],['05-14',133],['05-15',135],['05-16',136],['05-17',138],['05-18',139],['05-19',142],['05-20',145]] },
+      temp: { name: '체온',       unit: '℃',    base: 36.5, lo: 35.8, hi: 37.5, pts: [['05-07',36.4],['05-08',36.5],['05-09',36.4],['05-10',36.6],['05-11',36.5],['05-12',36.6],['05-13',36.5],['05-14',36.6],['05-15',36.5],['05-16',36.7],['05-17',36.6],['05-18',36.7],['05-19',36.6],['05-20',36.6]] },
+      sleep:{ name: '수면',       unit: 'h',    base: 7.0,  lo: 4,   hi: 8,    pts: [['05-07',7.0],['05-08',6.8],['05-09',6.6],['05-10',6.5],['05-11',6.2],['05-12',6.0],['05-13',5.9],['05-14',5.8],['05-15',5.6],['05-16',5.4],['05-17',5.2],['05-18',5.0],['05-19',5.1],['05-20',5.2]] }
+    };
+    function smoothPath(c) {
+      if (c.length < 2) return c.length ? 'M ' + c[0][0] + ' ' + c[0][1] : '';
+      var d = 'M ' + c[0][0] + ' ' + c[0][1];
+      for (var i = 0; i < c.length - 1; i++) {
+        var p0 = c[i - 1] || c[i], p1 = c[i], p2 = c[i + 1], p3 = c[i + 2] || p2;
+        var c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
+        var c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
+        d += ' C ' + c1x.toFixed(1) + ' ' + c1y.toFixed(1) + ', ' + c2x.toFixed(1) + ' ' + c2y.toFixed(1) + ', ' + p2[0] + ' ' + p2[1];
+      }
+      return d;
+    }
+    function renderTrend(key) {
+      var m = METRICS[key];
+      var W = 600, H = 133, padL = 40, padR = 16, padT = 18, padB = 22;
+      var iW = W - padL - padR, iH = H - padT - padB, n = m.pts.length;
+      var X = function (i) { return padL + (n === 1 ? iW / 2 : (i / (n - 1)) * iW); };
+      var Y = function (v) { return padT + (1 - (v - m.lo) / (m.hi - m.lo)) * iH; };
+      var c = m.pts.map(function (p, i) { return [+X(i).toFixed(1), +Y(p[1]).toFixed(1)]; });
+      var line = smoothPath(c);
+      var floor = (padT + iH).toFixed(1);
+      var area = line + ' L ' + c[n - 1][0] + ' ' + floor + ' L ' + c[0][0] + ' ' + floor + ' Z';
+      var baseY = Y(m.base).toFixed(1);
+      var dots = '', labels = '', vals = '';
+      m.pts.forEach(function (p, i) {
+        dots += '<circle class="lc-dot" cx="' + c[i][0] + '" cy="' + c[i][1] + '" r="2.5"/>';
+        if (i % 2 === 0 || i === n - 1) { // 14일이라 라벨은 격일만 (겹침 방지)
+          labels += '<text class="lc-label" x="' + c[i][0] + '" y="' + (H - 6) + '">' + p[0] + '</text>';
+          vals += '<text class="lc-val" x="' + c[i][0] + '" y="' + (c[i][1] - 6) + '">' + p[1] + '</text>';
+        }
+      });
+      var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '">'
+        + '<path class="lc-area" d="' + area + '"/>'
+        + '<path class="lc-line" d="' + line + '"/>'
+        + '<line class="lc-base" x1="' + padL + '" y1="' + baseY + '" x2="' + (W - padR) + '" y2="' + baseY + '"/>'
+        + '<text class="lc-label" x="2" y="' + (+baseY + 3) + '" style="text-anchor:start">기저선</text>'
+        + dots + vals + labels
+        + '</svg>';
+      document.getElementById('trendChart').innerHTML = svg;
+      document.getElementById('trendTitle').textContent = m.name + ' 14일 추이';
+      document.getElementById('trendBase').textContent = '기저선 ' + m.base + ' ' + m.unit;
+    }
+    function showMetric(row, key) {
+      document.querySelectorAll('.metric-row').forEach(function (r) { r.classList.remove('active'); });
+      row.classList.add('active');
+      renderTrend(key);
+    }
+    renderTrend('bp');
+  </script>
+  <!-- 임계치 직접 설정 모달 (M) — 시니어별 개인 임계치 (평상시 대비 %) -->
+  <div class="overlay hidden" id="thresholdModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <span class="modal-title">임계치 직접 설정 · 심박수</span>
+        <button class="modal-close" onclick="closeModal('thresholdModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="form-table">
+          <tbody>
+            <tr><th>항목</th><td><input class="input" value="심박수" disabled /></td></tr>
+            <tr><th>주의 임계치 <span class="required">*</span></th><td><input class="input" value="±15%" placeholder="평상시 대비 (예: ±15%)" /></td></tr>
+            <tr><th>위험 임계치 <span class="required">*</span></th><td><input class="input" value="±30%" placeholder="평상시 대비 (예: ±30%)" /></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('thresholdModal')">취소</button>
+        <button class="btn btn-primary btn-md">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 임계치 기본값 복귀 확인 모달 (M) -->
+  <div class="overlay hidden" id="resetThresholdModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <span class="modal-title">기본값 복귀</span>
+        <button class="modal-close" onclick="closeModal('resetThresholdModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin:0; line-height:1.7; text-align:center; color:var(--color-text-secondary)">
+          이 항목의 임계치를 기본값으로 되돌릴까요?<br />직접 설정한 값은 삭제됩니다.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('resetThresholdModal')">취소</button>
+        <button class="btn btn-danger btn-md" onclick="closeModal('resetThresholdModal')">기본값 복귀</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 소견 정보 모달 (M, 읽기 전용) -->
+  <div class="overlay hidden" id="consultViewModal">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <span class="modal-title">소견 정보 · 김순자</span>
+        <button class="modal-close" onclick="closeModal('consultViewModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="form-table">
+          <colgroup><col style="width:110px" /><col /><col style="width:110px" /><col /></colgroup>
+          <tbody>
+            <tr><th>시니어</th><td>김순자</td><th>유형</th><td>대면 상담</td></tr>
+            <tr><th>소견 내용</th><td colspan="3" style="white-space:pre-line; line-height:1.7; text-align:left; padding:var(--space-3)">혈압 상승 추세(평소 대비 +18%). 고혈압 약 용량 조정 검토가 필요해 보임.
+1주 후 재측정 권고, 가정 혈압 일지 작성 안내함.</td></tr>
+            <tr><th>조치</th><td colspan="3">내원 권고</td></tr>
+            <tr><th>입력일시</th><td>2026-05-18 15:20:00</td><th>입력자</th><td>이정민</td></tr>
+            <tr><th>수정일시</th><td>2026-05-18 15:20:00</td><th>수정자</th><td>이정민</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('consultViewModal')">닫기</button>
+        <button class="btn btn-primary btn-md" onclick="closeModal('consultViewModal'); openModal('consultEditModal')">소견 수정</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 소견 수정 모달 (M) -->
+  <div class="overlay hidden" id="consultEditModal">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <span class="modal-title">소견 수정 · 김순자</span>
+        <button class="modal-close" onclick="closeModal('consultEditModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="form-table">
+          <tbody>
+            <tr><th>시니어</th><td><input class="input" value="김순자" disabled /></td></tr>
+            <tr><th>유형</th><td><select class="select"><option>대면 상담</option><option>전화 상담</option><option>비대면(앱) 상담</option><option>데이터 검토</option></select></td></tr>
+            <tr><th>소견 내용 <span class="required">*</span></th><td><textarea class="textarea">혈압 상승 추세(평소 대비 +18%). 고혈압 약 용량 조정 검토가 필요해 보임. 1주 후 재측정 권고, 가정 혈압 일지 작성 안내함.</textarea></td></tr>
+            <tr><th>조치</th><td><select class="select"><option>내원 권고</option><option>경과 관찰</option><option>처방 조정</option><option>보호자 통보</option></select></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('consultEditModal')">취소</button>
+        <button class="btn btn-primary btn-md">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 변경 이력 모달 (M, 공통) — 시니어별 개인 임계치 변경 이력 -->
+  <div class="overlay hidden" id="historyModal">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <span class="modal-title">변경 이력 · 김순자</span>
+        <button class="modal-close" onclick="closeModal('historyModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="filter-bar">
+          <div class="filter-item"><span class="filter-label">항목</span><select class="select"><option>전체</option><option>혈압 위험 임계치</option><option>혈압 주의 임계치</option><option>심박수 위험 임계치</option><option>심박수 주의 임계치</option></select></div>
+          <div class="filter-item"><span class="filter-label">데이터</span><input class="input" placeholder="변경 전·후 데이터 검색" /></div>
+          <div class="filter-item"><span class="filter-label">입력자</span><input class="input" placeholder="입력자 검색" /></div>
+          <div class="filter-actions">
+            <button class="btn-reset" title="초기화">↺</button>
+            <button class="btn btn-primary btn-md">조회</button>
+          </div>
+        </div>
+        <table class="tbl">
+          <thead><tr><th class="center" style="width:44px">No</th><th>항목</th><th>변경 전 데이터</th><th>변경 후 데이터</th><th>입력자</th><th>입력일시</th></tr></thead>
+          <tbody>
+            <tr><td class="center">5</td><td>혈압 위험 임계치</td><td>+15%</td><td>+18%</td><td>이정민</td><td>2026-05-20 09:10:33</td></tr>
+            <tr><td class="center">4</td><td>혈압 주의 임계치</td><td>기본값 상속</td><td>+10%</td><td>이정민</td><td>2026-05-18 15:25:40</td></tr>
+            <tr><td class="center">3</td><td>심박수 위험 임계치</td><td>±28%</td><td>±30%</td><td>이정민</td><td>2026-04-12 10:05:00</td></tr>
+            <tr><td class="center">2</td><td>심박수 주의 임계치</td><td>±12%</td><td>±15%</td><td>이정민</td><td>2026-04-12 10:04:30</td></tr>
+            <tr><td class="center">1</td><td></td><td></td><td>신규 등록</td><td>김선숙</td><td>2026-03-12 14:20:05</td></tr>
+          </tbody>
+        </table>
+        <div class="pagination">
+          <button class="page-btn" disabled title="맨앞">«</button>
+          <button class="page-btn" disabled title="이전">‹</button>
+          <button class="page-btn current">1</button>
+          <button class="page-btn" title="다음">›</button>
+          <button class="page-btn" title="마지막">»</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('historyModal')">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/modal.js"></script>
+  <script src="../assets/textarea-autogrow.js"></script>
+  <script src="../assets/tier-tip.js"></script>
+</body>
+</html>

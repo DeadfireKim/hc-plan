@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>권한 관리 · 관리자 — HealthCare Watch</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="shell">
+    <!-- ===== GNB ===== -->
+    <header class="gnb">
+      <a class="gnb-logo" href="../index.html" title="데모 허브로 이동">
+        <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+          <rect width="30" height="30" rx="8" fill="#d4af37" />
+          <path d="M4 15 h5 l2.2 -6 l3.4 12 l2.4 -6 H26" fill="none" stroke="#1f3a36" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        HealthCare Watch
+      </a>
+      <nav class="gnb-menu">
+        <a class="gnb-item active" href="./dashboard.html">관리자 포털</a>
+        <a class="gnb-item" href="../pc-watch/dashboard.html">와치관리자 포털</a>
+        <a class="gnb-item" href="../pc-doctor/dashboard.html">의료진 포털</a>
+      </nav>
+      <div class="gnb-user">
+        <button class="gnb-user-btn" onclick="document.getElementById('um').classList.toggle('hidden')">
+          <span class="gnb-avatar">관</span> 관리자
+        </button>
+        <div class="user-menu hidden" id="um">
+          <button class="user-menu-item">로그아웃</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="shell-body">
+      <!-- ===== LNB ===== -->
+      <aside class="lnb">
+        <div class="lnb-header">
+          <button class="lnb-toggle" onclick="document.querySelector('.lnb').classList.toggle('collapsed')">☰</button>
+          <span class="lnb-title">관리자</span>
+        </div>
+        <nav class="lnb-nav">
+          <a class="lnb-link" href="./dashboard.html">대시보드 <span class="lnb-type-badge">S</span></a>
+          <a class="lnb-link" href="./hospitals.html">병원 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./accounts.html">계정 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link active" href="./permissions.html">권한 관리 <span class="lnb-type-badge">P-MATRIX</span></a>
+          <a class="lnb-link" href="./notice.html">공지 관리 <span class="lnb-type-badge">L</span></a>
+        </nav>
+      </aside>
+
+      <!-- ===== 콘텐츠 (P-MATRIX) ===== -->
+      <main class="shell-content">
+        <div class="shell-content-inner">
+          <div class="page-header">
+            <div class="page-header-text">
+              <h1 class="page-title">권한 관리 <span class="badge badge-blue type-tag">P-MATRIX</span></h1>
+              <p class="page-desc">역할(RBAC)별 기능 권한 · 관리자는 전체 ON 고정 · 시니어 본인 설정이 우선</p>
+            </div>
+          </div>
+
+          <!-- 권한 매트릭스 -->
+          <div class="table-wrap">
+            <table class="tbl perm-matrix">
+              <thead>
+                <tr>
+                  <th class="center">기능</th>
+                  <th class="center">관리자</th>
+                  <th class="center">와치관리자</th>
+                  <th class="center">의료진</th>
+                  <th class="center">시니어</th>
+                  <th class="center">보호자</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>건강 데이터 조회</td><td class="center perm-on">✔</td><td class="center perm-off">✘</td><td class="center perm-on">✔</td><td class="center perm-on">✔</td><td class="center perm-on">✔</td></tr>
+                <tr><td>건강 데이터 수정</td><td class="center perm-on">✔</td><td class="center perm-off">✘</td><td class="center perm-on">✔</td><td class="center perm-off">✘</td><td class="center perm-off">✘</td></tr>
+                <tr><td>소견서 작성·조회</td><td class="center perm-on">✔</td><td class="center perm-off">✘</td><td class="center perm-on">✔</td><td class="center perm-on">✔</td><td class="center perm-off">✘</td></tr>
+                <tr><td>위치 정보 조회</td><td class="center perm-on">✔</td><td class="center perm-off">✘</td><td class="center perm-off">✘</td><td class="center perm-on">✔</td><td class="center perm-on">✔</td></tr>
+                <tr><td>보호자 연락처 관리</td><td class="center perm-on">✔</td><td class="center perm-off">✘</td><td class="center perm-off">✘</td><td class="center perm-on">✔</td><td class="center perm-off">✘</td></tr>
+                <tr><td>CSV 원본 내보내기</td><td class="center perm-on">✔</td><td class="center perm-off">✘</td><td class="center perm-on">✔</td><td class="center perm-off">✘</td><td class="center perm-off">✘</td></tr>
+                <tr><td>기기 설정</td><td class="center perm-on">✔</td><td class="center perm-on">✔</td><td class="center perm-off">✘</td><td class="center perm-off">✘</td><td class="center perm-off">✘</td></tr>
+                <tr><td>의료진·시니어 매핑</td><td class="center perm-on">✔</td><td class="center perm-on">✔</td><td class="center perm-off">✘</td><td class="center perm-off">✘</td><td class="center perm-off">✘</td></tr>
+                <tr><td>계정 관리 <span style="color:var(--color-text-muted);font-size:var(--font-size-xs)">(와치관리자는 관리자 역할 제외)</span></td><td class="center perm-on">✔</td><td class="center perm-on">✔</td><td class="center perm-off">✘</td><td class="center perm-off">✘</td><td class="center perm-off">✘</td></tr>
+                <tr><td>긴급 이벤트 알림 수신</td><td class="center perm-on">✔</td><td class="center perm-off">✘</td><td class="center perm-on">✔</td><td class="center perm-on">✔</td><td class="center perm-on">✔</td></tr>
+                <tr><td>복약 미실시 알림 수신</td><td class="center perm-on">✔</td><td class="center perm-off">✘</td><td class="center perm-off">✘</td><td class="center perm-on">✔</td><td class="center perm-on">✔</td></tr>
+                <tr><td>대여 기기 회수</td><td class="center perm-on">✔</td><td class="center perm-on">✔</td><td class="center perm-off">✘</td><td class="center perm-off">✘</td><td class="center perm-off">✘</td></tr>
+                <tr><td>본인 와치 셀프 페어링</td><td class="center perm-off">✘</td><td class="center perm-off">✘</td><td class="center perm-off">✘</td><td class="center perm-on">✔</td><td class="center perm-on">✔</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="detail-actions">
+            <a class="btn btn-primary btn-md" href="./permissions-edit.html">권한 편집</a>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <style>
+    .hidden{display:none}
+    .perm-matrix .perm-on { color: var(--color-success); font-weight: 700; }
+    .perm-matrix .perm-off { color: var(--color-border-strong); }
+  </style>
+</body>
+</html>

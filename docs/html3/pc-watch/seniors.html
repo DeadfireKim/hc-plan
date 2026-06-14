@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>시니어 관리 · 와치관리자 — HealthCare Watch</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="shell">
+    <!-- ===== GNB ===== -->
+    <header class="gnb">
+      <a class="gnb-logo" href="../index.html" title="데모 허브로 이동">
+        <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+          <rect width="30" height="30" rx="8" fill="#d4af37" />
+          <path d="M4 15 h5 l2.2 -6 l3.4 12 l2.4 -6 H26" fill="none" stroke="#1f3a36" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        서울본병원
+      </a>
+      <nav class="gnb-menu">
+        <a class="gnb-item" href="../pc-admin/dashboard.html">관리자 포털</a>
+        <a class="gnb-item active" href="./dashboard.html">와치관리자 포털</a>
+        <a class="gnb-item" href="../pc-doctor/dashboard.html">의료진 포털</a>
+      </nav>
+      <div class="gnb-user">
+        <button class="gnb-user-btn" onclick="document.getElementById('um').classList.toggle('hidden')">
+          <span class="gnb-avatar">김</span> 김선숙
+        </button>
+        <div class="user-menu hidden" id="um">
+          <button class="user-menu-item">로그아웃</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="shell-body">
+      <!-- ===== LNB ===== -->
+      <aside class="lnb">
+        <div class="lnb-header">
+          <button class="lnb-toggle" onclick="document.querySelector('.lnb').classList.toggle('collapsed')">☰</button>
+          <span class="lnb-title">와치관리자</span>
+        </div>
+        <nav class="lnb-nav">
+          <a class="lnb-link" href="./dashboard.html">대시보드 <span class="lnb-type-badge">S</span></a>
+          <a class="lnb-link active" href="./seniors.html">시니어 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./medicals.html">의료진 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./mapping.html">의료진·시니어 매핑 <span class="lnb-type-badge">P-MAP</span></a>
+          <a class="lnb-link" href="./devices.html">기기 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./notice.html">공지사항 <span class="lnb-type-badge">L</span></a>
+        </nav>
+      </aside>
+
+      <!-- ===== 콘텐츠 (L형) ===== -->
+      <main class="shell-content">
+        <div class="shell-content-inner">
+          <div class="page-header">
+            <div class="page-header-text">
+              <h1 class="page-title">시니어 관리 <span class="badge badge-blue type-tag">L</span></h1>
+              <p class="page-desc">서울본병원 소속 시니어</p>
+            </div>
+          </div>
+
+          <!-- 조회조건 -->
+          <div class="filter-bar">
+            <div class="filter-item">
+              <span class="filter-label">이름·연락처</span>
+              <input class="input" placeholder="이름 또는 전화번호" />
+            </div>
+            <div class="filter-item">
+              <span class="filter-label">상태</span>
+              <select class="select"><option>전체</option><option>활성</option><option>페어링 대기</option><option>중지</option></select>
+            </div>
+            <div class="filter-item">
+              <span class="filter-label">기기 상태</span>
+              <select class="select"><option>전체</option><option>정상</option><option>연결 오류</option><option>미등록</option></select>
+            </div>
+            <div class="filter-item">
+              <span class="filter-label">담당 의료진</span>
+              <select class="select"><option>전체</option><option>박서연</option><option>이정민</option><option>최동훈</option></select>
+            </div>
+            <div class="filter-actions">
+              <button class="btn-reset" title="초기화">↺</button>
+              <button class="btn btn-primary btn-md">조회</button>
+            </div>
+          </div>
+
+          <!-- 결과 테이블 -->
+          <div class="table-wrap">
+            <div class="table-toolbar">
+              <span class="table-count">총 <b>128</b>건</span>
+              <div class="table-toolbar-actions">
+                <select class="select page-size-select"><option>20개씩 보기</option><option>50개씩 보기</option><option>100개씩 보기</option></select>
+                <button class="btn btn-primary btn-sm" onclick="openModal('seniorModal')">추가</button>
+              </div>
+            </div>
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th class="center" style="width:44px">No</th><th>이름</th><th>출생일자</th><th>나이·성별</th><th>연락처</th><th>와치 (Tier)</th>
+                  <th>담당 의료진</th><th>보호자</th><th>상태</th><th>등록자</th><th>등록일자</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="center">128</td>
+                  <td><a class="cell-link" href="./senior-detail.html">김순자</a></td>
+                  <td>1948-03-15</td><td>78 · 여</td><td>010-2345-6789</td>
+                  <td>HealthWatch A2X <span class="badge badge-green">Tier1</span></td>
+                  <td>이정민</td><td class="center">2명</td>
+                  <td>활성</td><td>김선숙</td><td>2026-03-12</td>
+                </tr>
+                <tr>
+                  <td class="center">127</td>
+                  <td><a class="cell-link" href="./senior-detail.html">박영호</a></td>
+                  <td>1945-07-22</td><td>81 · 남</td><td>010-3456-7890</td>
+                  <td>Galaxy Watch 6 <span class="badge badge-green">Tier1</span></td>
+                  <td>박서연</td><td class="center">1명</td>
+                  <td>활성</td><td>김선숙</td><td>2026-03-15</td>
+                </tr>
+                <tr>
+                  <td class="center">126</td>
+                  <td><a class="cell-link" href="./senior-detail.html">이말순</a></td>
+                  <td>1951-11-03</td><td>75 · 여</td><td>010-4567-8901</td>
+                  <td>Fitbit Charge 6 <span class="badge badge-amber">Tier2</span></td>
+                  <td>이정민</td><td class="center">3명</td>
+                  <td>활성</td><td>김선숙</td><td>2026-03-20</td>
+                </tr>
+                <tr>
+                  <td class="center">125</td>
+                  <td><a class="cell-link" href="./senior-detail.html">정복동</a></td>
+                  <td>1943-01-28</td><td>83 · 남</td><td>010-5678-9012</td>
+                  <td>HealthWatch A2X <span class="badge badge-green">Tier1</span></td>
+                  <td>최동훈</td><td class="center">1명</td>
+                  <td>페어링 대기</td><td>김선숙</td><td>2026-04-01</td>
+                </tr>
+                <tr>
+                  <td class="center">124</td>
+                  <td><a class="cell-link" href="./senior-detail.html">최금자</a></td>
+                  <td>1947-09-10</td><td>79 · 여</td><td>010-6789-0123</td>
+                  <td>HealthWatch A2X <span class="badge badge-green">Tier1</span></td>
+                  <td>박서연</td><td class="center">2명</td>
+                  <td>연결 오류</td><td>김선숙</td><td>2026-02-28</td>
+                </tr>
+                <tr>
+                  <td class="center">123</td>
+                  <td><a class="cell-link" href="./senior-detail.html">한정식</a></td>
+                  <td>1949-05-17</td><td>77 · 남</td><td>010-7890-1234</td>
+                  <td>Apple Watch SE <span class="badge badge-green">Tier1</span></td>
+                  <td>이정민</td><td class="center">1명</td>
+                  <td>활성</td><td>김선숙</td><td>2026-03-08</td>
+                </tr>
+                <tr>
+                  <td class="center">122</td>
+                  <td><a class="cell-link" href="./senior-detail.html">오삼순</a></td>
+                  <td>1941-12-05</td><td>85 · 여</td><td>010-8901-2345</td>
+                  <td>Mi Band 8 <span class="badge badge-gray">Tier3</span></td>
+                  <td>최동훈</td><td class="center">2명</td>
+                  <td>활성</td><td>김선숙</td><td>2026-03-25</td>
+                </tr>
+                <tr>
+                  <td class="center">121</td>
+                  <td><a class="cell-link" href="./senior-detail.html">강대수</a></td>
+                  <td>1946-02-19</td><td>80 · 남</td><td>010-9012-3456</td>
+                  <td><span class="badge badge-gray">회수 대기</span></td>
+                  <td>박서연</td><td class="center">0명</td>
+                  <td>중지</td><td>김선숙</td><td>2026-01-30</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="pagination">
+              <button class="page-btn" disabled title="맨앞">«</button>
+              <button class="page-btn" disabled title="이전">‹</button>
+              <button class="page-btn current">1</button>
+              <button class="page-btn">2</button>
+              <button class="page-btn">3</button>
+              <button class="page-btn">4</button>
+              <button class="page-btn">5</button>
+              <button class="page-btn" title="다음">›</button>
+              <button class="page-btn" title="마지막">»</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 시니어 추가/수정 모달 (M) -->
+  <div class="overlay hidden" id="seniorModal">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <span class="modal-title">시니어 추가</span>
+        <button class="modal-close" onclick="closeModal('seniorModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="form-table">
+          <tbody>
+            <tr><th>이름 <span class="required">*</span></th><td><input class="input" placeholder="이름" /></td></tr>
+            <tr><th>출생일자 <span class="required">*</span></th><td><input class="input" type="date" /></td></tr>
+            <tr><th>성별 <span class="required">*</span></th><td><select class="select"><option>여</option><option>남</option></select></td></tr>
+            <tr><th>연락처 <span class="required">*</span></th><td><input class="input" placeholder="010-0000-0000" /></td></tr>
+            <tr><th>주소</th><td>
+              <div style="display:flex; gap:8px; align-items:center">
+                <input class="input" id="sAddrNew" placeholder="주소 검색을 눌러 입력" readonly style="cursor:pointer; flex:1" onclick="searchAddr('sAddrNew')" />
+                <button class="btn btn-secondary btn-md" type="button" onclick="searchAddr('sAddrNew')">주소 검색</button>
+              </div>
+              <input class="input" placeholder="상세주소 입력" style="margin-top:6px" />
+            </td></tr>
+            <tr><th>키</th><td><div style="display:flex; align-items:center; gap:6px"><input class="input" type="number" placeholder="키" style="width:120px" /> <span style="color:var(--color-text-muted)">cm</span></div></td></tr>
+            <tr><th>체중</th><td><div style="display:flex; align-items:center; gap:6px"><input class="input" type="number" placeholder="체중" style="width:120px" /> <span style="color:var(--color-text-muted)">kg</span></div></td></tr>
+            <tr><th>담당 의료진</th><td><select class="select"><option>선택</option><option>박서연</option><option>이정민</option><option>최동훈</option></select></td></tr>
+            <tr><th>와치 배정</th><td><select class="select"><option>나중에 배정</option><option>대여형(병원 보유)</option><option>본인 보유</option></select></td></tr>
+            <tr><th>상태 <span class="required">*</span></th><td><select class="select"><option>활성</option><option>페어링 대기</option><option>중지</option></select></td></tr>
+          </tbody>
+        </table>      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('seniorModal')">취소</button>
+        <button class="btn btn-primary btn-md">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <style>.hidden{display:none}</style>
+  <script src="../assets/modal.js"></script>
+  <script src="../assets/tier-tip.js"></script>
+  <script>
+    // 주소 검색(목업): 실제로는 우편번호/주소 검색 팝업 연동. 여기선 예시 주소 채움
+    function searchAddr(id) {
+      document.getElementById(id).value = '서울특별시 강남구 테헤란로 123 (역삼동)';
+    }
+  </script>
+</body>
+</html>

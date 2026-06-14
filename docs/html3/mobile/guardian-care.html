@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>대리 케어 · 보호자 앱 — 서울본병원</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="m-frame">
+    <header class="m-appbar">
+      <a class="m-brand" href="../index.html" title="데모 허브로 이동">서울본병원</a>
+      <a class="m-bell" href="./guardian-notifications.html" title="알림">🔔<span class="dot-red"></span></a>
+    </header>
+
+    <main class="m-body">
+      <div class="m-greet" style="font-size:20px; margin-bottom:4px">대리 케어</div>
+      <div class="m-greet-sub">김순자 님의 복약·일정을 대신 관리해요</div>
+
+      <!-- 복약 관리 -->
+      <div class="m-card">
+        <div class="m-card-head">
+          <span class="m-card-title">복약 일정</span>
+          <a class="m-card-more" onclick="openModal('careMedModal')" style="cursor:pointer">＋ 추가</a>
+        </div>
+        <div class="m-list-row">
+          <div>
+            <div class="m-list-main">암로디핀 5mg</div>
+            <div class="m-list-sub">혈압약 · 매일 아침 8시</div>
+          </div>
+          <a class="m-list-right m-card-more" onclick="openModal('careMedEditModal')" style="cursor:pointer">수정</a>
+        </div>
+        <div class="m-list-row" style="border-bottom:none">
+          <div>
+            <div class="m-list-main">메트포르민 500mg</div>
+            <div class="m-list-sub">당뇨약 · 매일 저녁 7시</div>
+          </div>
+          <a class="m-list-right m-card-more" onclick="openModal('careMedEditModal')" style="cursor:pointer">수정</a>
+        </div>
+      </div>
+
+      <!-- 일정 관리 -->
+      <div class="m-card">
+        <div class="m-card-head">
+          <span class="m-card-title">일정</span>
+          <a class="m-card-more" onclick="openModal('careScheduleModal')" style="cursor:pointer">＋ 추가</a>
+        </div>
+        <div class="m-list-row">
+          <div>
+            <div style="margin-bottom:4px"><span class="badge badge-blue">병원 예약</span></div>
+            <div class="m-list-main">내과 진료</div>
+            <div class="m-list-sub">오늘 오후 2시 · 서울본병원</div>
+          </div>
+          <a class="m-list-right m-card-more" onclick="openModal('careScheduleEditModal')" style="cursor:pointer">수정</a>
+        </div>
+        <div class="m-list-row" style="border-bottom:none">
+          <div>
+            <div style="margin-bottom:4px"><span class="badge badge-blue">검진</span></div>
+            <div class="m-list-main">정기 건강검진</div>
+            <div class="m-list-sub">5월 23일 오전 10시</div>
+          </div>
+          <a class="m-list-right m-card-more" onclick="openModal('careScheduleEditModal')" style="cursor:pointer">수정</a>
+        </div>
+      </div>
+
+      <div class="m-status good">
+        <span class="m-status-ico">🤝</span>
+        <div>
+          <div class="m-status-txt" style="font-size:15px">대리 권한: 복약·일정</div>
+          <div class="m-status-sub">어머니가 허용한 범위입니다. 건강 데이터 수정·소견 열람은 제한돼요.</div>
+        </div>
+      </div>
+    </main>
+
+    <nav class="m-tabbar">
+      <a href="./guardian-home.html"><span class="m-tab-ico">🏠</span>홈</a>
+      <a href="./guardian-alerts.html"><span class="m-tab-ico">🔔</span>알림·레포트</a>
+      <a class="active" href="./guardian-care.html"><span class="m-tab-ico">💊</span>대리 케어</a>
+    </nav>
+  </div>
+
+  <!-- 복약 대리 편집 모달 (M) -->
+  <div class="overlay hidden m-sheet" id="careMedModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <span class="modal-title">복약 일정 (대리)</span>
+        <button class="modal-close" onclick="closeModal('careMedModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="form-table">
+          <tbody>
+            <tr><th>약품명 <span class="required">*</span></th><td><input class="input" placeholder="예: 암로디핀 5mg" /></td></tr>
+            <tr><th>분류</th><td><input class="input" placeholder="예: 혈압약" /></td></tr>
+            <tr><th>복용 주기 <span class="required">*</span></th><td><select class="select" id="careMedFreqAdd" onchange="toggleCareMed('Add')"><option>매일</option><option>매주</option></select></td></tr>
+            <tr id="careMedWeekAdd" class="hidden"><th>복용 요일 <span class="required">*</span></th><td><div style="display:flex; gap:10px; flex-wrap:wrap">
+              <label class="checkbox-label"><input type="checkbox" /> 월</label>
+              <label class="checkbox-label"><input type="checkbox" /> 화</label>
+              <label class="checkbox-label"><input type="checkbox" /> 수</label>
+              <label class="checkbox-label"><input type="checkbox" /> 목</label>
+              <label class="checkbox-label"><input type="checkbox" /> 금</label>
+              <label class="checkbox-label"><input type="checkbox" /> 토</label>
+              <label class="checkbox-label"><input type="checkbox" /> 일</label>
+            </div></td></tr>
+            <tr><th>복용 시간 <span class="required">*</span></th><td><input class="input" type="time" /></td></tr>
+            <tr><th>메모</th><td><textarea class="textarea" placeholder="복용 안내(선택)"></textarea></td></tr>
+          </tbody>
+        </table>      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('careMedModal')">취소</button>
+        <button class="btn btn-primary btn-md">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 일정 대리 편집 모달 (M) -->
+  <div class="overlay hidden m-sheet" id="careScheduleModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <span class="modal-title">일정 (대리)</span>
+        <button class="modal-close" onclick="closeModal('careScheduleModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="form-table">
+          <tbody>
+            <tr><th>유형 <span class="required">*</span></th><td><select class="select"><option>병원 예약</option><option>검진</option><option>운동</option><option>기타</option></select></td></tr>
+            <tr><th>제목 <span class="required">*</span></th><td><input class="input" placeholder="일정 제목" /></td></tr>
+            <tr><th>반복</th><td><select class="select" id="careRepeatAdd" onchange="toggleCareRepeat('Add')"><option>반복 안 함</option><option>매일</option><option>매주</option><option>매월</option></select></td></tr>
+            <tr id="rowOnceAdd"><th>일시 <span class="required">*</span></th><td><input class="input" type="datetime-local" /></td></tr>
+            <tr id="rowWeeklyAdd" class="hidden"><th>반복 요일 <span class="required">*</span></th><td><div style="display:flex; gap:10px; flex-wrap:wrap">
+              <label class="checkbox-label"><input type="checkbox" /> 월</label>
+              <label class="checkbox-label"><input type="checkbox" /> 화</label>
+              <label class="checkbox-label"><input type="checkbox" /> 수</label>
+              <label class="checkbox-label"><input type="checkbox" /> 목</label>
+              <label class="checkbox-label"><input type="checkbox" /> 금</label>
+              <label class="checkbox-label"><input type="checkbox" /> 토</label>
+              <label class="checkbox-label"><input type="checkbox" /> 일</label>
+            </div></td></tr>
+            <tr id="rowMonthlyAdd" class="hidden"><th>반복 일자 <span class="required">*</span></th><td><select class="select"><option>매월 1일</option><option>매월 5일</option><option>매월 10일</option><option>매월 15일</option><option>매월 20일</option><option>매월 25일</option><option>매월 말일</option></select></td></tr>
+            <tr id="rowTimeAdd" class="hidden"><th>시간 <span class="required">*</span></th><td><input class="input" type="time" /></td></tr>
+            <tr><th>장소</th><td><input class="input" placeholder="장소(선택)" /></td></tr>
+          </tbody>
+        </table>      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('careScheduleModal')">취소</button>
+        <button class="btn btn-primary btn-md">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 복약 대리 수정 모달 (M) -->
+  <div class="overlay hidden m-sheet" id="careMedEditModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <span class="modal-title">복약 일정 수정 (대리)</span>
+        <button class="modal-close" onclick="closeModal('careMedEditModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="form-table">
+          <tbody>
+            <tr><th>약품명 <span class="required">*</span></th><td><input class="input" value="암로디핀 5mg" /></td></tr>
+            <tr><th>분류</th><td><input class="input" value="혈압약" /></td></tr>
+            <tr><th>복용 주기 <span class="required">*</span></th><td><select class="select" id="careMedFreqEdit" onchange="toggleCareMed('Edit')"><option>매일</option><option>매주</option></select></td></tr>
+            <tr id="careMedWeekEdit" class="hidden"><th>복용 요일 <span class="required">*</span></th><td><div style="display:flex; gap:10px; flex-wrap:wrap">
+              <label class="checkbox-label"><input type="checkbox" /> 월</label>
+              <label class="checkbox-label"><input type="checkbox" /> 화</label>
+              <label class="checkbox-label"><input type="checkbox" /> 수</label>
+              <label class="checkbox-label"><input type="checkbox" /> 목</label>
+              <label class="checkbox-label"><input type="checkbox" /> 금</label>
+              <label class="checkbox-label"><input type="checkbox" /> 토</label>
+              <label class="checkbox-label"><input type="checkbox" /> 일</label>
+            </div></td></tr>
+            <tr><th>복용 시간 <span class="required">*</span></th><td><input class="input" type="time" value="08:00" /></td></tr>
+            <tr><th>메모</th><td><textarea class="textarea">식후 30분 복용</textarea></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('careMedEditModal')">취소</button>
+        <button class="btn btn-primary btn-md">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 일정 대리 수정 모달 (M) -->
+  <div class="overlay hidden m-sheet" id="careScheduleEditModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <span class="modal-title">일정 수정 (대리)</span>
+        <button class="modal-close" onclick="closeModal('careScheduleEditModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="form-table">
+          <tbody>
+            <tr><th>유형 <span class="required">*</span></th><td><select class="select"><option>병원 예약</option><option>검진</option><option>운동</option><option>기타</option></select></td></tr>
+            <tr><th>제목 <span class="required">*</span></th><td><input class="input" value="내과 진료" /></td></tr>
+            <tr><th>반복</th><td><select class="select" id="careRepeatEdit" onchange="toggleCareRepeat('Edit')"><option>반복 안 함</option><option>매일</option><option>매주</option><option>매월</option></select></td></tr>
+            <tr id="rowOnceEdit"><th>일시 <span class="required">*</span></th><td><input class="input" type="datetime-local" value="2026-05-20T14:00" /></td></tr>
+            <tr id="rowWeeklyEdit" class="hidden"><th>반복 요일 <span class="required">*</span></th><td><div style="display:flex; gap:10px; flex-wrap:wrap">
+              <label class="checkbox-label"><input type="checkbox" /> 월</label>
+              <label class="checkbox-label"><input type="checkbox" /> 화</label>
+              <label class="checkbox-label"><input type="checkbox" /> 수</label>
+              <label class="checkbox-label"><input type="checkbox" /> 목</label>
+              <label class="checkbox-label"><input type="checkbox" /> 금</label>
+              <label class="checkbox-label"><input type="checkbox" /> 토</label>
+              <label class="checkbox-label"><input type="checkbox" /> 일</label>
+            </div></td></tr>
+            <tr id="rowMonthlyEdit" class="hidden"><th>반복 일자 <span class="required">*</span></th><td><select class="select"><option>매월 1일</option><option>매월 5일</option><option>매월 10일</option><option>매월 15일</option><option>매월 20일</option><option>매월 25일</option><option>매월 말일</option></select></td></tr>
+            <tr id="rowTimeEdit" class="hidden"><th>시간 <span class="required">*</span></th><td><input class="input" type="time" /></td></tr>
+            <tr><th>장소</th><td><input class="input" value="서울본병원" /></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('careScheduleEditModal')">취소</button>
+        <button class="btn btn-primary btn-md">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/modal.js"></script>
+  <script src="../assets/textarea-autogrow.js"></script>
+  <script>
+    // 복용 주기 '매주' 선택 시 복용 요일 표시 (모달별 접미사 Add/Edit)
+    function toggleCareMed(s) {
+      var v = document.getElementById('careMedFreq' + s).value;
+      document.getElementById('careMedWeek' + s).classList.toggle('hidden', v !== '매주');
+    }
+    // 반복 선택에 따라 입력 필드 전환: 반복 안 함=일시 / 매일=시간 / 매주=요일+시간 / 매월=일자+시간
+    function toggleCareRepeat(s) {
+      var v = document.getElementById('careRepeat' + s).value;
+      document.getElementById('rowOnce' + s).classList.toggle('hidden', v !== '반복 안 함');
+      document.getElementById('rowWeekly' + s).classList.toggle('hidden', v !== '매주');
+      document.getElementById('rowMonthly' + s).classList.toggle('hidden', v !== '매월');
+      document.getElementById('rowTime' + s).classList.toggle('hidden', v === '반복 안 함');
+    }
+  </script>
+</body>
+</html>

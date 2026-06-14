@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>설정 · 시니어 앱 — 서울본병원</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="m-frame">
+    <header class="m-appbar">
+      <a class="m-brand" href="../index.html" title="데모 허브로 이동">서울본병원</a>
+      <a class="m-bell" href="./notifications.html" title="알림">🔔<span class="dot-red"></span></a>
+    </header>
+
+    <main class="m-body">
+      <div class="m-greet" style="font-size:20px; margin-bottom:12px">설정</div>
+      <div class="m-toggle" id="mViewToggle"><button class="active" data-mode="simple">간단히</button><button data-mode="detail">자세히</button></div>
+
+      <!-- 프로필 -->
+      <div class="m-card">
+        <div style="display:flex; align-items:center; gap:14px">
+          <span style="width:56px; height:56px; border-radius:50%; background:var(--color-primary-subtle); display:flex; align-items:center; justify-content:center; font-size:24px">👵</span>
+          <div>
+            <div style="font-size:18px; font-weight:800">김순자</div>
+            <div class="m-list-sub">1948-03-15 (만 78세) · 여</div>
+          </div>
+          <a class="m-card-more" onclick="openModal('profileModal')" style="margin-left:auto; cursor:pointer">수정</a>
+        </div>
+      </div>
+
+      <!-- 와치 -->
+      <div class="m-card">
+        <div class="m-card-head"><span class="m-card-title">내 와치</span></div>
+        <div class="m-list-row" style="border-bottom:none; padding:0">
+          <div>
+            <div class="m-list-main">HealthWatch A2X <span class="badge badge-green">Tier1</span></div>
+            <div class="m-list-sub">대여 · 정상 연결 · 배터리 82%</div>
+          </div>
+          <span class="m-list-right" style="font-size:22px">⌚</span>
+        </div>
+      </div>
+
+      <!-- 알림 설정 -->
+      <div class="m-card">
+        <div class="m-card-head"><span class="m-card-title">알림</span></div>
+        <label class="m-set-row"><span>복약 알림</span><input type="checkbox" checked></label>
+        <label class="m-set-row"><span>일정 알림</span><input type="checkbox" checked></label>
+        <label class="m-set-row"><span>건강 이상 알림</span><input type="checkbox" checked></label>
+        <label class="m-set-row" style="border-bottom:none"><span>안부 메시지</span><input type="checkbox"></label>
+      </div>
+
+      <!-- 보호자 -->
+      <div class="m-card">
+        <div class="m-card-head"><span class="m-card-title">연결된 보호자</span></div>
+        <!-- 승인 대기: 병원(와치관리자)이 요청한 보호자 연결 — 시니어 본인 승인 필요 -->
+        <div class="m-list-row" style="background:#fff8ec; margin:0 -16px; padding-left:16px; padding-right:16px; align-items:center">
+          <div><div class="m-list-main">박지훈</div><div class="m-list-sub">자녀 · 병원이 연결을 요청했어요</div></div>
+          <div style="display:flex; gap:8px; flex-shrink:0; margin-left:auto">
+            <button onclick="this.closest('.m-list-row').remove()" style="padding:9px 16px; border:none; border-radius:8px; background:var(--color-primary); color:#fff; font-size:15px; font-weight:700">승인</button>
+            <button onclick="this.closest('.m-list-row').remove()" style="padding:9px 14px; border:1px solid var(--color-border); border-radius:8px; background:#fff; color:var(--color-text-secondary); font-size:15px">거절</button>
+          </div>
+        </div>
+        <div class="m-list-row"><div><div class="m-list-main">이민준</div><div class="m-list-sub">자녀</div></div><span class="m-list-right badge badge-green">연결됨</span></div>
+        <div class="m-list-row" style="border-bottom:none"><div><div class="m-list-main">이수진</div><div class="m-list-sub">자녀</div></div><span class="m-list-right badge badge-green">연결됨</span></div>
+      </div>
+
+      <!-- 데이터 공개 범위 (본인 설정 우선) -->
+      <div class="m-card">
+        <div class="m-card-head"><span class="m-card-title">내 데이터 공개 범위</span></div>
+        <div class="m-list-sub" style="margin-bottom:12px">내 설정이 병원·보호자 설정보다 우선해요</div>
+        <label class="m-set-row"><span>보호자에게 건강 데이터</span><select class="select" style="width:auto"><option>전체 공개</option><option>요약만</option><option>비공개</option></select></label>
+        <label class="m-set-row" style="border-bottom:none"><span>위치 정보 공유</span><select class="select" style="width:auto"><option>응급 시에만</option><option>항상</option><option>비공개</option></select></label>
+      </div>
+
+      <!-- 자세히 모드: 더보기 -->
+      <div class="m-card detail-only">
+        <div class="m-card-head"><span class="m-card-title">더보기</span></div>
+        <a class="m-set-row" href="./subscription.html" style="text-decoration:none; color:inherit"><span>구독 관리</span><span class="m-card-more">스탠다드 ›</span></a>
+        <label class="m-set-row"><span>고대비 모드</span><input type="checkbox"></label>
+        <label class="m-set-row"><span>음성 안내(TTS)</span><input type="checkbox"></label>
+        <a class="m-set-row" onclick="openModal('exportModal')" style="border-bottom:none; text-decoration:none; color:inherit; cursor:pointer"><span>내 데이터 내보내기</span><span class="m-card-more">›</span></a>
+      </div>
+
+      <button class="m-btn m-btn-line" style="color:var(--color-danger); border-color:var(--color-danger)">로그아웃</button>
+    </main>
+
+    <nav class="m-tabbar">
+      <a href="./home.html"><span class="m-tab-ico">🏠</span>홈</a>
+      <a href="./trend.html"><span class="m-tab-ico">📈</span>건강추이</a>
+      <a href="./medication.html"><span class="m-tab-ico">💊</span>복약</a>
+      <a href="./schedule.html"><span class="m-tab-ico">📅</span>일정</a>
+      <a class="active" href="./settings.html"><span class="m-tab-ico">⚙️</span>설정</a>
+    </nav>
+  </div>
+
+  <style>
+    .m-set-row { display:flex; align-items:center; justify-content:space-between; padding:13px 0; border-bottom:1px solid var(--color-bg); font-size:15px; font-weight:600; }
+    .m-set-row input[type=checkbox] { width:22px; height:22px; accent-color:var(--color-primary); }
+  </style>
+
+  <!-- 프로필 수정 모달 (M) -->
+  <div class="overlay hidden m-sheet" id="profileModal">
+    <div class="modal modal-sm">
+      <div class="modal-header"><span class="modal-title">프로필 수정</span><button class="modal-close" onclick="closeModal('profileModal')">✕</button></div>
+      <div class="modal-body">
+        <table class="form-table">
+          <tbody>
+            <tr><th>이름 <span class="required">*</span></th><td><input class="input" value="김순자" /></td></tr>
+            <tr><th>출생일자</th><td><input class="input" type="date" value="1948-03-15" /></td></tr>
+            <tr><th>연락처 <span class="required">*</span></th><td><input class="input" value="010-2345-6789" /></td></tr>
+            <tr><th>주소</th><td><input class="input" placeholder="주소" /></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary btn-md" onclick="closeModal('profileModal')">취소</button><button class="btn btn-primary btn-md">저장</button></div>
+    </div>
+  </div>
+
+  <!-- 데이터 내보내기 모달 (M) -->
+  <div class="overlay hidden m-sheet" id="exportModal">
+    <div class="modal modal-sm">
+      <div class="modal-header"><span class="modal-title">내 데이터 내보내기</span><button class="modal-close" onclick="closeModal('exportModal')">✕</button></div>
+      <div class="modal-body">
+        <table class="form-table">
+          <tbody>
+            <tr><th>형식</th><td><select class="select"><option>PDF 요약</option><option>CSV 원본</option></select></td></tr>
+            <tr><th>기간</th><td><select class="select"><option>최근 1개월</option><option>최근 3개월</option><option>전체</option></select></td></tr>
+          </tbody>
+        </table>      </div>
+      <div class="modal-footer"><button class="btn btn-secondary btn-md" onclick="closeModal('exportModal')">취소</button><button class="btn btn-primary btn-md">내보내기</button></div>
+    </div>
+  </div>
+
+  <script src="../assets/modal.js"></script>
+  <script src="../assets/mobile-view.js"></script>
+  <script src="../assets/tier-tip.js"></script>
+</body>
+</html>

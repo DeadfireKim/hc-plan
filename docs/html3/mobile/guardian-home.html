@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>홈 · 보호자 앱 — 서울본병원</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="m-frame">
+    <header class="m-appbar">
+      <a class="m-brand" href="../index.html" title="데모 허브로 이동">서울본병원</a>
+      <a class="m-bell" href="./guardian-notifications.html" title="알림">🔔<span class="dot-red"></span></a>
+    </header>
+
+    <main class="m-body">
+      <div class="m-greet" style="font-size:20px; margin-bottom:4px">엄마 건강 살펴보기</div>
+      <div class="m-greet-sub">이민준 님 · 보호자</div>
+
+      <!-- 부모 프로필 + 연락 -->
+      <div class="m-card">
+        <div style="display:flex; align-items:center; gap:14px">
+          <span style="width:52px; height:52px; border-radius:50%; background:var(--color-primary-subtle); display:flex; align-items:center; justify-content:center; font-size:24px">👵</span>
+          <div>
+            <div style="font-size:17px; font-weight:800">김순자 <span class="m-list-sub" style="font-weight:500">(만 78세)</span></div>
+            <div class="m-list-sub">서울본병원 · HealthWatch 연결됨</div>
+          </div>
+          <a class="m-bell" href="tel:01023456789" style="margin-left:auto; font-size:24px">📞</a>
+        </div>
+      </div>
+
+      <!-- 오늘 상태 -->
+      <div class="m-status warn">
+        <span class="m-status-ico">⚠️</span>
+        <div>
+          <div class="m-status-txt">오늘 주의가 필요해요</div>
+          <div class="m-status-sub">혈압이 평소보다 높습니다. 안부 전화를 권해요.</div>
+        </div>
+      </div>
+
+      <!-- 핵심 지표 (공개 범위: 전체 공개) -->
+      <div class="m-metrics" style="margin-bottom:14px">
+        <div class="m-metric">
+          <div class="m-metric-label">혈압</div>
+          <div class="m-metric-val">145/92</div>
+          <div class="m-metric-delta" style="color:var(--color-danger)">평소보다 +18%</div>
+        </div>
+        <div class="m-metric">
+          <div class="m-metric-label">심박수</div>
+          <div class="m-metric-val">88 <span class="m-metric-unit">bpm</span></div>
+          <div class="m-metric-delta" style="color:var(--color-warning)">평소보다 +12%</div>
+        </div>
+      </div>
+
+      <!-- 복약 현황 -->
+      <div class="m-card">
+        <div class="m-card-head">
+          <span class="m-card-title">오늘 복약</span>
+          <a class="m-card-more" href="./guardian-care.html">대리 관리</a>
+        </div>
+        <div class="m-list-row" style="border-bottom:none; padding:0">
+          <div>
+            <div class="m-list-main">1 / 2회 복용</div>
+            <div class="m-list-sub">아침 완료 · 저녁 예정</div>
+          </div>
+          <span class="m-list-right badge badge-amber">진행 중</span>
+        </div>
+      </div>
+
+      <!-- 최근 이상 알림 -->
+      <div class="m-card">
+        <div class="m-card-head">
+          <span class="m-card-title">최근 알림</span>
+          <a class="m-card-more" href="./guardian-alerts.html">전체 보기</a>
+        </div>
+        <div class="m-list-row" style="border-bottom:none; padding:0">
+          <div>
+            <div class="m-list-main">혈압 상승 감지</div>
+            <div class="m-list-sub">오늘 오전 7시 30분 · 평소보다 +18%</div>
+          </div>
+          <span class="m-list-right badge badge-red">주의</span>
+        </div>
+      </div>
+
+      <div style="font-size:12px; color:var(--color-text-muted); text-align:center">
+        위치는 응급 상황에서만 공유됩니다 · 공개 범위는 어머니가 설정합니다
+      </div>
+    </main>
+
+    <nav class="m-tabbar">
+      <a class="active" href="./guardian-home.html"><span class="m-tab-ico">🏠</span>홈</a>
+      <a href="./guardian-alerts.html"><span class="m-tab-ico">🔔</span>알림·레포트</a>
+      <a href="./guardian-care.html"><span class="m-tab-ico">💊</span>대리 케어</a>
+    </nav>
+  </div>
+</body>
+</html>

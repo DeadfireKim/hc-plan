@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>대시보드 · 와치관리자 — HealthCare Watch</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="shell">
+    <!-- ===== GNB (포털 = 역할별, 목업 탐색용 전환) ===== -->
+    <header class="gnb">
+      <a class="gnb-logo" href="../index.html" title="데모 허브로 이동">
+        <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+          <rect width="30" height="30" rx="8" fill="#d4af37" />
+          <path d="M4 15 h5 l2.2 -6 l3.4 12 l2.4 -6 H26" fill="none" stroke="#1f3a36" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        서울본병원
+      </a>
+      <nav class="gnb-menu">
+        <a class="gnb-item" href="../pc-admin/dashboard.html">관리자 포털</a>
+        <a class="gnb-item active" href="./dashboard.html">와치관리자 포털</a>
+        <a class="gnb-item" href="../pc-doctor/dashboard.html">의료진 포털</a>
+      </nav>
+      <div class="gnb-user">
+        <button class="gnb-user-btn" onclick="document.getElementById('um').classList.toggle('hidden')">
+          <span class="gnb-avatar">김</span> 김선숙
+        </button>
+        <div class="user-menu hidden" id="um">
+          <button class="user-menu-item">로그아웃</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="shell-body">
+      <!-- ===== LNB (와치관리자 메뉴) ===== -->
+      <aside class="lnb">
+        <div class="lnb-header">
+          <button class="lnb-toggle" onclick="document.querySelector('.lnb').classList.toggle('collapsed')">☰</button>
+          <span class="lnb-title">와치관리자</span>
+        </div>
+        <nav class="lnb-nav">
+          <a class="lnb-link active" href="./dashboard.html">대시보드 <span class="lnb-type-badge">S</span></a>
+          <a class="lnb-link" href="./seniors.html">시니어 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./medicals.html">의료진 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./mapping.html">의료진·시니어 매핑 <span class="lnb-type-badge">P-MAP</span></a>
+          <a class="lnb-link" href="./devices.html">기기 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./notice.html">공지사항 <span class="lnb-type-badge">L</span></a>
+        </nav>
+      </aside>
+
+      <!-- ===== 콘텐츠 ===== -->
+      <main class="shell-content">
+        <div class="shell-content-inner">
+          <div class="page-header">
+            <div class="page-header-text">
+              <h1 class="page-title">대시보드 <span class="badge badge-blue type-tag">S</span></h1>
+              <p class="page-desc">서울본병원 기기·시니어 현황</p>
+            </div>
+          </div>
+
+          <!-- 통계 카드 -->
+          <div class="stat-cards">
+            <div class="stat-card">
+              <div class="stat-label">담당 시니어</div>
+              <div class="stat-value">128</div>
+              <div class="stat-sub">활성 124 · 대기 4</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">활성 기기</div>
+              <div class="stat-value">124</div>
+              <div class="stat-sub">대여 96 · 본인 28</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">연결 오류</div>
+              <div class="stat-value" style="color:var(--color-danger)">4</div>
+              <div class="stat-sub">24시간 이상 미수신</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">페어링 대기</div>
+              <div class="stat-value" style="color:var(--color-warning)">4</div>
+              <div class="stat-sub">배정 후 첫 수신 대기</div>
+            </div>
+          </div>
+
+          <!-- 위젯 그리드 -->
+          <div class="widget-grid">
+            <!-- 데이터 수집 이상 (운영 정보 — 건강 수치 아님) -->
+            <section class="widget">
+              <div class="widget-header">데이터 수집 이상 <span class="badge badge-amber widget-role">5건</span></div>
+              <div class="widget-body" style="padding:0">
+                <table class="tbl">
+                  <thead>
+                    <tr><th>시니어</th><th>사유</th><th>마지막 수신</th><th>배터리</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>김순자</td><td>착용 저조</td><td>3시간 전</td><td class="num">21%</td></tr>
+                    <tr><td>박영호</td><td>수집률 저조</td><td>5시간 전</td><td class="num">44%</td></tr>
+                    <tr><td>이말순</td><td>착용 저조</td><td>7시간 전</td><td class="num">63%</td></tr>
+                    <tr><td>정복동</td><td>페어링 대기</td><td></td><td class="num"></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <!-- 기기 연결 오류 -->
+            <section class="widget">
+              <div class="widget-header">기기 연결 오류 <span class="badge badge-amber widget-role">4건</span></div>
+              <div class="widget-body" style="padding:0">
+                <table class="tbl">
+                  <thead>
+                    <tr><th>시니어</th><th>기기</th><th>마지막 수신</th><th>상태</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>최금자</td><td>HealthWatch A2X</td><td>26시간 전</td><td><span class="badge badge-red">미수신</span></td></tr>
+                    <tr><td>한정식</td><td>Galaxy Watch 6</td><td>31시간 전</td><td><span class="badge badge-red">미수신</span></td></tr>
+                    <tr><td>오삼순</td><td>Apple Watch</td><td>48시간 전</td><td><span class="badge badge-amber">점검 필요</span></td></tr>
+                    <tr><td>강대수</td><td>HealthWatch A2X</td><td>회수 대기</td><td><span class="badge badge-gray">회수대기</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <style>.hidden{display:none}</style>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>기기 관리 · 와치관리자 — HealthCare Watch</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="shell">
+    <!-- ===== GNB ===== -->
+    <header class="gnb">
+      <a class="gnb-logo" href="../index.html" title="데모 허브로 이동">
+        <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+          <rect width="30" height="30" rx="8" fill="#d4af37" />
+          <path d="M4 15 h5 l2.2 -6 l3.4 12 l2.4 -6 H26" fill="none" stroke="#1f3a36" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        서울본병원
+      </a>
+      <nav class="gnb-menu">
+        <a class="gnb-item" href="../pc-admin/dashboard.html">관리자 포털</a>
+        <a class="gnb-item active" href="./dashboard.html">와치관리자 포털</a>
+        <a class="gnb-item" href="../pc-doctor/dashboard.html">의료진 포털</a>
+      </nav>
+      <div class="gnb-user">
+        <button class="gnb-user-btn" onclick="document.getElementById('um').classList.toggle('hidden')">
+          <span class="gnb-avatar">김</span> 김선숙
+        </button>
+        <div class="user-menu hidden" id="um">
+          <button class="user-menu-item">로그아웃</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="shell-body">
+      <!-- ===== LNB ===== -->
+      <aside class="lnb">
+        <div class="lnb-header">
+          <button class="lnb-toggle" onclick="document.querySelector('.lnb').classList.toggle('collapsed')">☰</button>
+          <span class="lnb-title">와치관리자</span>
+        </div>
+        <nav class="lnb-nav">
+          <a class="lnb-link" href="./dashboard.html">대시보드 <span class="lnb-type-badge">S</span></a>
+          <a class="lnb-link" href="./seniors.html">시니어 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./medicals.html">의료진 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./mapping.html">의료진·시니어 매핑 <span class="lnb-type-badge">P-MAP</span></a>
+          <a class="lnb-link active" href="./devices.html">기기 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./notice.html">공지사항 <span class="lnb-type-badge">L</span></a>
+        </nav>
+      </aside>
+
+      <!-- ===== 콘텐츠 (L형) ===== -->
+      <main class="shell-content">
+        <div class="shell-content-inner">
+          <div class="page-header">
+            <div class="page-header-text">
+              <h1 class="page-title">기기 관리 <span class="badge badge-blue type-tag">L</span></h1>
+              <p class="page-desc">서울본병원 와치 기기</p>
+            </div>
+          </div>
+
+          <!-- 조회조건 -->
+          <div class="filter-bar">
+            <div class="filter-item">
+              <span class="filter-label">시리얼·시니어</span>
+              <input class="input" placeholder="시리얼 또는 시니어명" />
+            </div>
+            <div class="filter-item">
+              <span class="filter-label">Tier</span>
+              <select class="select"><option>전체</option><option>Tier1</option><option>Tier2</option><option>Tier3</option></select>
+            </div>
+            <div class="filter-item">
+              <span class="filter-label">소유 유형</span>
+              <select class="select"><option>전체</option><option>대여</option><option>본인</option></select>
+            </div>
+            <div class="filter-item">
+              <span class="filter-label">상태</span>
+              <select class="select"><option>전체</option><option>사용중</option><option>페어링 대기</option><option>연결 오류</option><option>재고</option><option>회수 대기</option><option>점검중</option></select>
+            </div>
+            <div class="filter-actions">
+              <button class="btn-reset" title="초기화">↺</button>
+              <button class="btn btn-primary btn-md">조회</button>
+            </div>
+          </div>
+
+          <!-- 결과 테이블 -->
+          <div class="table-wrap">
+            <div class="table-toolbar">
+              <span class="table-count">총 <b>142</b>건</span>
+              <div class="table-toolbar-actions">
+                <select class="select page-size-select"><option>20개씩 보기</option><option>50개씩 보기</option><option>100개씩 보기</option></select>
+                <button class="btn btn-primary btn-sm" onclick="openModal('deviceModal')">추가</button>
+              </div>
+            </div>
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th class="center" style="width:44px">No</th><th>시리얼</th><th>기기</th><th>Tier</th><th>소유</th>
+                  <th>배정 시니어</th><th>상태</th><th>마지막 수신일시</th><th>등록자</th><th>등록일자</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="center">9</td>
+                  <td><a class="cell-link" href="./device-detail.html">A2X-0012</a></td>
+                  <td>HealthWatch A2X</td><td><span class="badge badge-green">Tier1</span></td><td>대여</td>
+                  <td>김순자</td><td>사용중</td><td>2026-05-20 09:12:00 (2분 전)</td><td>김선숙</td><td>2026-03-28</td>
+                </tr>
+                <tr>
+                  <td class="center">8</td>
+                  <td><a class="cell-link" href="./device-detail.html">GW6-0033</a></td>
+                  <td>Galaxy Watch 6</td><td><span class="badge badge-green">Tier1</span></td><td>대여</td>
+                  <td>박영호</td><td>사용중</td><td>2026-05-20 09:09:00 (5분 전)</td><td>김선숙</td><td>2026-03-15</td>
+                </tr>
+                <tr>
+                  <td class="center">7</td>
+                  <td><a class="cell-link" href="./device-detail.html">FB6-0102</a></td>
+                  <td>Fitbit Charge 6</td><td><span class="badge badge-amber">Tier2</span></td><td>본인</td>
+                  <td>이말순</td><td>사용중</td><td>2026-05-20 08:14:00 (1시간 전)</td><td>김선숙</td><td>2026-02-10</td>
+                </tr>
+                <tr>
+                  <td class="center">6</td>
+                  <td><a class="cell-link" href="./device-detail.html">A2X-0044</a></td>
+                  <td>HealthWatch A2X</td><td><span class="badge badge-green">Tier1</span></td><td>대여</td>
+                  <td>정복동</td><td>페어링 대기</td><td></td><td>김선숙</td><td>2026-04-01</td>
+                </tr>
+                <tr>
+                  <td class="center">5</td>
+                  <td><a class="cell-link" href="./device-detail.html">A2X-0008</a></td>
+                  <td>HealthWatch A2X</td><td><span class="badge badge-green">Tier1</span></td><td>대여</td>
+                  <td>최금자</td><td>연결 오류</td><td>2026-05-19 07:14:00 (26시간 전)</td><td>김선숙</td><td>2026-01-20</td>
+                </tr>
+                <tr>
+                  <td class="center">4</td>
+                  <td><a class="cell-link" href="./device-detail.html">AW-0210</a></td>
+                  <td>Apple Watch SE</td><td><span class="badge badge-green">Tier1</span></td><td>본인</td>
+                  <td>한정식</td><td>사용중</td><td>2026-05-20 09:11:00 (3분 전)</td><td>김선숙</td><td>2026-02-25</td>
+                </tr>
+                <tr>
+                  <td class="center">3</td>
+                  <td><a class="cell-link" href="./device-detail.html">MI8-0301</a></td>
+                  <td>Mi Band 8</td><td><span class="badge badge-gray">Tier3</span></td><td>본인</td>
+                  <td>오삼순</td><td>사용중</td><td>2026-05-20 09:02:00 (12분 전)</td><td>김선숙</td><td>2026-03-05</td>
+                </tr>
+                <tr>
+                  <td class="center">2</td>
+                  <td><a class="cell-link" href="./device-detail.html">A2X-0019</a></td>
+                  <td>HealthWatch A2X</td><td><span class="badge badge-green">Tier1</span></td><td>대여</td>
+                  <td class="center"></td><td>재고</td><td></td><td>김선숙</td><td>2026-05-10</td>
+                </tr>
+                <tr>
+                  <td class="center">1</td>
+                  <td><a class="cell-link" href="./device-detail.html">A2X-0021</a></td>
+                  <td>HealthWatch A2X</td><td><span class="badge badge-green">Tier1</span></td><td>대여</td>
+                  <td>강대수</td><td>회수 대기</td><td>2026-05-18 09:14:00 (2일 전)</td><td>김선숙</td><td>2026-01-15</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="pagination">
+              <button class="page-btn" disabled title="맨앞">«</button>
+              <button class="page-btn" disabled title="이전">‹</button>
+              <button class="page-btn current">1</button>
+              <button class="page-btn">2</button>
+              <button class="page-btn">3</button>
+              <button class="page-btn">4</button>
+              <button class="page-btn">5</button>
+              <button class="page-btn" title="다음">›</button>
+              <button class="page-btn" title="마지막">»</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 기기 입고 모달 (M) -->
+  <div class="overlay hidden" id="deviceModal">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <span class="modal-title">기기 추가</span>
+        <button class="modal-close" onclick="closeModal('deviceModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="form-table">
+          <tbody>
+            <tr><th>시리얼 <span class="required">*</span></th><td><input class="input" placeholder="예: A2X-0050" /></td></tr>
+            <tr><th>기기 모델 <span class="required">*</span></th><td><input class="input" placeholder="예: HealthWatch A2X" /></td></tr>
+            <tr><th>Tier <span class="required">*</span></th><td><select class="select"><option>Tier1</option><option>Tier2</option><option>Tier3</option></select></td></tr>
+            <tr><th>소유 유형 <span class="required">*</span></th><td><select class="select"><option>대여</option><option>본인</option></select></td></tr>
+            <tr><th>상태 <span class="required">*</span></th><td><select class="select"><option>재고</option><option>점검중</option></select></td></tr>
+            <tr><th>비고</th><td><input class="input" placeholder="비고(선택)" /></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('deviceModal')">취소</button>
+        <button class="btn btn-primary btn-md">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <style>.hidden{display:none}</style>
+  <script src="../assets/modal.js"></script>
+  <script src="../assets/tier-tip.js"></script>
+</body>
+</html>

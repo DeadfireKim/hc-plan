@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>대시보드 · 관리자 — HealthCare Watch</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="shell">
+    <!-- ===== GNB ===== -->
+    <header class="gnb">
+      <a class="gnb-logo" href="../index.html" title="데모 허브로 이동">
+        <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+          <rect width="30" height="30" rx="8" fill="#d4af37" />
+          <path d="M4 15 h5 l2.2 -6 l3.4 12 l2.4 -6 H26" fill="none" stroke="#1f3a36" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        HealthCare Watch
+      </a>
+      <nav class="gnb-menu">
+        <a class="gnb-item active" href="./dashboard.html">관리자 포털</a>
+        <a class="gnb-item" href="../pc-watch/dashboard.html">와치관리자 포털</a>
+        <a class="gnb-item" href="../pc-doctor/dashboard.html">의료진 포털</a>
+      </nav>
+      <div class="gnb-user">
+        <button class="gnb-user-btn" onclick="document.getElementById('um').classList.toggle('hidden')">
+          <span class="gnb-avatar">관</span> 관리자
+        </button>
+        <div class="user-menu hidden" id="um">
+          <button class="user-menu-item">로그아웃</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="shell-body">
+      <!-- ===== LNB (관리자 메뉴) ===== -->
+      <aside class="lnb">
+        <div class="lnb-header">
+          <button class="lnb-toggle" onclick="document.querySelector('.lnb').classList.toggle('collapsed')">☰</button>
+          <span class="lnb-title">관리자</span>
+        </div>
+        <nav class="lnb-nav">
+          <a class="lnb-link active" href="./dashboard.html">대시보드 <span class="lnb-type-badge">S</span></a>
+          <a class="lnb-link" href="./hospitals.html">병원 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./accounts.html">계정 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./permissions.html">권한 관리 <span class="lnb-type-badge">P-MATRIX</span></a>
+          <a class="lnb-link" href="./notice.html">공지 관리 <span class="lnb-type-badge">L</span></a>
+        </nav>
+      </aside>
+
+      <!-- ===== 콘텐츠 (S형) ===== -->
+      <main class="shell-content">
+        <div class="shell-content-inner">
+          <div class="page-header">
+            <div class="page-header-text">
+              <h1 class="page-title">대시보드 <span class="badge badge-blue type-tag">S</span></h1>
+              <p class="page-desc">전체 병원·가입자·기기 현황</p>
+            </div>
+          </div>
+
+          <!-- 통계 카드 -->
+          <div class="stat-cards">
+            <div class="stat-card">
+              <div class="stat-label">등록 병원·기관</div>
+              <div class="stat-value">8</div>
+              <div class="stat-sub">병원 5 · 요양기관 3</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">총 시니어</div>
+              <div class="stat-value">1,284</div>
+              <div class="stat-sub">활성 1,201 · 대기 83</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">활성 기기</div>
+              <div class="stat-value">1,156</div>
+              <div class="stat-sub">대여 902 · 본인 254</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">오늘 이상 이벤트</div>
+              <div class="stat-value" style="color:var(--color-danger)">142</div>
+              <div class="stat-sub">전 병원 합계</div>
+            </div>
+          </div>
+
+          <!-- 위젯 그리드 -->
+          <div class="widget-grid">
+            <!-- 병원별 현황 -->
+            <section class="widget">
+              <div class="widget-header">병원·기관별 현황 <a class="btn btn-text btn-sm" href="./hospitals.html" style="margin-left:auto">more</a></div>
+              <div class="widget-body" style="padding:0">
+                <table class="tbl">
+                  <thead>
+                    <tr><th>병원·기관</th><th>시니어</th><th>활성 기기</th><th>이상 이벤트</th><th>연결 오류</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><a class="cell-link" href="./hospital-detail.html">서울본병원</a></td><td class="num">128</td><td class="num">124</td><td class="num" style="color:var(--color-danger)">7</td><td class="num">4</td></tr>
+                    <tr><td><a class="cell-link" href="./hospital-detail.html">강남센트럴의원</a></td><td class="num">312</td><td class="num">290</td><td class="num" style="color:var(--color-danger)">41</td><td class="num">12</td></tr>
+                    <tr><td><a class="cell-link" href="./hospital-detail.html">부산해운대병원</a></td><td class="num">256</td><td class="num">238</td><td class="num" style="color:var(--color-warning)">33</td><td class="num">9</td></tr>
+                    <tr><td><a class="cell-link" href="./hospital-detail.html">행복요양원</a></td><td class="num">198</td><td class="num">182</td><td class="num" style="color:var(--color-warning)">28</td><td class="num">6</td></tr>
+                    <tr><td><a class="cell-link" href="./hospital-detail.html">대구미래병원</a></td><td class="num">224</td><td class="num">201</td><td class="num">19</td><td class="num">7</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <!-- 최근 7일 신규 가입 -->
+            <section class="widget">
+              <div class="widget-header">최근 7일 신규 가입(시니어)</div>
+              <div class="widget-body">
+                <div class="col-chart">
+                  <div class="col-item"><span class="col-value">12</span><span class="col-bar" style="height:40%"></span><span class="col-label">월</span></div>
+                  <div class="col-item"><span class="col-value">9</span><span class="col-bar" style="height:30%"></span><span class="col-label">화</span></div>
+                  <div class="col-item"><span class="col-value">18</span><span class="col-bar" style="height:60%"></span><span class="col-label">수</span></div>
+                  <div class="col-item"><span class="col-value">7</span><span class="col-bar" style="height:23%"></span><span class="col-label">목</span></div>
+                  <div class="col-item"><span class="col-value">21</span><span class="col-bar" style="height:70%"></span><span class="col-label">금</span></div>
+                  <div class="col-item"><span class="col-value">15</span><span class="col-bar" style="height:50%"></span><span class="col-label">토</span></div>
+                  <div class="col-item"><span class="col-value">24</span><span class="col-bar" style="height:80%"></span><span class="col-label">일(오늘)</span></div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <style>.hidden{display:none}</style>
+</body>
+</html>

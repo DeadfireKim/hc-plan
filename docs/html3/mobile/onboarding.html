@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>시작하기 · 시니어 앱 — 서울본병원</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="m-frame">
+    <header class="m-appbar">
+      <a class="m-brand" href="../index.html" title="데모 허브로 이동">서울본병원</a>
+    </header>
+
+    <main class="m-body" style="display:flex; flex-direction:column">
+      <!-- 진행 표시 -->
+      <div style="display:flex; gap:6px; margin-bottom:24px">
+        <span class="ob-step active"></span><span class="ob-step"></span><span class="ob-step"></span>
+      </div>
+
+      <!-- STEP 1: 환영 -->
+      <div id="ob1" class="ob-pane">
+        <div style="text-align:center; padding:24px 0">
+          <div style="font-size:72px; margin-bottom:16px">⌚💙</div>
+          <div style="font-size:24px; font-weight:800; margin-bottom:10px">건강 동행을 시작해요</div>
+          <div style="font-size:15px; color:var(--color-text-secondary); line-height:1.6">와치를 연결하면 심박·혈압·수면을 자동으로<br>기록하고, 이상이 있으면 알려드려요.</div>
+        </div>
+        <button class="m-btn m-btn-primary" onclick="step(2)">시작하기</button>
+      </div>
+
+      <!-- STEP 2: 페어링 -->
+      <div id="ob2" class="ob-pane" style="display:none">
+        <div style="text-align:center; padding:12px 0 20px">
+          <div style="font-size:22px; font-weight:800; margin-bottom:10px">와치를 연결해요</div>
+          <div style="font-size:15px; color:var(--color-text-secondary); line-height:1.6; margin-bottom:20px">와치 상자 또는 뒷면의 <b>QR 코드</b>를<br>화면에 비춰주세요.</div>
+          <div style="width:200px; height:200px; margin:0 auto; border:3px dashed var(--color-primary-border); border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:64px; background:var(--color-primary-subtle)">📷</div>
+        </div>
+        <button class="m-btn m-btn-primary" onclick="step(3)">QR 코드 스캔하기</button>
+        <div style="font-size:12px; color:var(--color-text-muted); text-align:center; margin-top:14px">처음 연결 시 본인 확인을 한 번 진행해요</div>
+      </div>
+
+      <!-- STEP 3: 완료 -->
+      <div id="ob3" class="ob-pane" style="display:none">
+        <div style="text-align:center; padding:24px 0">
+          <div style="font-size:72px; margin-bottom:16px">✅</div>
+          <div style="font-size:24px; font-weight:800; margin-bottom:10px">연결 완료!</div>
+          <div style="font-size:15px; color:var(--color-text-secondary); line-height:1.6">HealthWatch A2X가 연결되었어요.<br>이제 건강을 자동으로 기록할게요.</div>
+        </div>
+        <a class="m-btn m-btn-primary" href="./home.html">홈으로 가기</a>
+      </div>
+    </main>
+  </div>
+
+  <style>
+    .ob-step { flex:1; height:6px; border-radius:999px; background:var(--color-border); }
+    .ob-step.active { background:var(--color-primary); }
+  </style>
+  <script>
+    function step(n) {
+      [1,2,3].forEach(function (i) { document.getElementById('ob' + i).style.display = (i === n) ? 'block' : 'none'; });
+      document.querySelectorAll('.ob-step').forEach(function (s, i) { s.classList.toggle('active', i < n); });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HealthCare Watch v3 — 화면 데모 허브</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="./assets/app.css" />
+  <style>
+    body { background: var(--color-bg); }
+    .hub-top {
+      background: var(--color-sidebar-bg); color: #fff;
+      padding: var(--space-6) var(--space-8);
+    }
+    .hub-top h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+    .hub-top h1 .gold { color: var(--color-gnb-accent); }
+    .hub-top p { margin-top: 6px; color: var(--color-sidebar-text); font-size: 14px; }
+    .hub-legend { margin-top: var(--space-3); display: flex; gap: var(--space-4); flex-wrap: wrap; font-size: 12px; color: var(--color-sidebar-text); }
+    .hub-legend b { color: #fff; }
+    .hub-wrap { padding: var(--space-6) var(--space-8); }
+    .role-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: var(--space-5); }
+    .role-card { background: var(--color-surface); border: 1px solid var(--color-border); box-shadow: var(--shadow-card); }
+    .role-head {
+      display: flex; align-items: center; gap: var(--space-2);
+      padding: var(--space-3) var(--space-4); border-bottom: 2px solid var(--color-primary);
+    }
+    .role-head .role-name { font-size: 16px; font-weight: 700; }
+    .role-head .plat { margin-left: auto; font-size: 11px; padding: 2px 8px; border-radius: 3px; background: var(--color-primary-subtle); color: var(--color-primary); font-weight: 600; }
+    .role-head .plat.mobile { background: #f3ecd9; color: #8a6d12; }
+    .scr-list { display: flex; flex-direction: column; }
+    .scr {
+      display: flex; align-items: center; gap: var(--space-2);
+      padding: 9px var(--space-4); border-bottom: 1px solid var(--color-bg);
+      font-size: 14px; color: var(--color-text); text-decoration: none;
+    }
+    .scr:last-child { border-bottom: none; }
+    .scr.done:hover { background: var(--color-primary-subtle); text-decoration: none; }
+    .scr.soon { color: var(--color-text-muted); cursor: default; }
+    .scr .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .scr.done .dot { background: var(--color-success); }
+    .scr.soon .dot { background: var(--color-border-strong); }
+    .scr .scr-name { flex: 1; }
+    .scr .ver { font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 3px; }
+    .scr .ver.min { background: var(--color-success-subtle); color: var(--color-success); }
+    .scr .ver.max { background: #eef3fc; color: #3a6bd6; }
+    .scr .ty { font-size: 10px; font-weight: 700; color: var(--color-text-muted); min-width: 64px; text-align: right; }
+    .hub-foot { padding: var(--space-4) var(--space-8); color: var(--color-text-secondary); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="hub-top">
+    <h1>HealthCare Watch <span class="gold">v3</span> — 화면 데모 허브</h1>
+    <p>프리미엄 시니어 건강 모니터링 + 의료 컨시어지 · 의뢰인 음성 요건정의서 기반 목업</p>
+    <div class="hub-legend">
+      <span><b>●</b> 완성 &nbsp; <b>○</b> 예정</span>
+      <span><b>Min</b> 테스트베드 · <b>Max</b> Full Vision</span>
+      <span>우측 코드 = 화면 유형(§11.1)</span>
+    </div>
+  </div>
+
+  <div class="hub-wrap">
+    <div class="role-grid">
+
+      <!-- 관리자 -->
+      <section class="role-card">
+        <div class="role-head"><span class="role-name">관리자</span> <span class="plat">PC · 운영사</span></div>
+        <div class="scr-list">
+          <a class="scr done" href="./pc-admin/dashboard.html"><span class="dot"></span><span class="scr-name">대시보드(전체 통계)</span><span class="ver min">Min</span><span class="ty">S</span></a>
+          <a class="scr done" href="./pc-admin/hospitals.html"><span class="dot"></span><span class="scr-name">병원 관리</span><span class="ver min">Min</span><span class="ty">L·D·M</span></a>
+          <a class="scr done" href="./pc-admin/accounts.html"><span class="dot"></span><span class="scr-name">계정 관리</span><span class="ver min">Min</span><span class="ty">L·D·M</span></a>
+          <a class="scr done" href="./pc-admin/permissions.html"><span class="dot"></span><span class="scr-name">권한 관리</span><span class="ver min">Min</span><span class="ty">P-MATRIX</span></a>
+          <a class="scr done" href="./pc-admin/notice.html"><span class="dot"></span><span class="scr-name">공지 관리</span><span class="ver min">Min</span><span class="ty">L·M</span></a>
+        </div>
+      </section>
+
+      <!-- 와치관리자 -->
+      <section class="role-card">
+        <div class="role-head"><span class="role-name">와치관리자</span> <span class="plat">PC · 병원</span></div>
+        <div class="scr-list">
+          <a class="scr done" href="./pc-watch/dashboard.html"><span class="dot"></span><span class="scr-name">대시보드(병원 현황)</span><span class="ver min">Min</span><span class="ty">S</span></a>
+          <a class="scr done" href="./pc-watch/seniors.html"><span class="dot"></span><span class="scr-name">시니어 관리</span><span class="ver min">Min</span><span class="ty">L·D</span></a>
+          <a class="scr done" href="./pc-watch/medicals.html"><span class="dot"></span><span class="scr-name">의료진 관리</span><span class="ver min">Min</span><span class="ty">L·D</span></a>
+          <a class="scr done" href="./pc-watch/mapping.html"><span class="dot"></span><span class="scr-name">의료진·시니어 매핑</span><span class="ver min">Min</span><span class="ty">P-MAP</span></a>
+          <a class="scr done" href="./pc-watch/devices.html"><span class="dot"></span><span class="scr-name">기기 관리</span><span class="ver min">Min</span><span class="ty">L·D</span></a>
+          <a class="scr done" href="./pc-watch/notice.html"><span class="dot"></span><span class="scr-name">공지사항</span><span class="ver min">Min</span><span class="ty">L·M</span></a>
+        </div>
+      </section>
+
+      <!-- 의료진 -->
+      <section class="role-card">
+        <div class="role-head"><span class="role-name">의료진</span> <span class="plat">PC · 의사·간호사</span></div>
+        <div class="scr-list">
+          <a class="scr done" href="./pc-doctor/dashboard.html"><span class="dot"></span><span class="scr-name">대시보드(담당 이상수치)</span><span class="ver min">Min</span><span class="ty">S</span></a>
+          <a class="scr done" href="./pc-doctor/seniors.html"><span class="dot"></span><span class="scr-name">담당 시니어 목록</span><span class="ver min">Min</span><span class="ty">L·D</span></a>
+          <a class="scr done" href="./pc-doctor/senior-detail.html"><span class="dot"></span><span class="scr-name">시니어 건강 상세</span><span class="ver min">Min</span><span class="ty">D·S</span></a>
+          <a class="scr done" href="./pc-doctor/alerts.html"><span class="dot"></span><span class="scr-name">이상징후 관리</span><span class="ver min">Min</span><span class="ty">L</span></a>
+          <a class="scr done" href="./pc-doctor/consult.html"><span class="dot"></span><span class="scr-name">상담·소견 작성</span><span class="ver max">Max</span><span class="ty">F</span></a>
+        </div>
+      </section>
+
+      <!-- 시니어 -->
+      <section class="role-card">
+        <div class="role-head"><span class="role-name">시니어</span> <span class="plat mobile">모바일 앱</span></div>
+        <div class="scr-list">
+          <a class="scr done" href="./mobile/onboarding.html"><span class="dot"></span><span class="scr-name">온보딩(QR·페어링)</span><span class="ver min">Min</span><span class="ty">A-ONBOARD</span></a>
+          <a class="scr done" href="./mobile/home.html"><span class="dot"></span><span class="scr-name">홈(간단/자세히)</span><span class="ver min">Min</span><span class="ty">A-HOME</span></a>
+          <a class="scr done" href="./mobile/trend.html"><span class="dot"></span><span class="scr-name">건강 추이</span><span class="ver min">Min</span><span class="ty">A-TREND</span></a>
+          <a class="scr done" href="./mobile/medication.html"><span class="dot"></span><span class="scr-name">복약</span><span class="ver min">Min</span><span class="ty">A-LIST·FORM</span></a>
+          <a class="scr done" href="./mobile/schedule.html"><span class="dot"></span><span class="scr-name">일정</span><span class="ver min">Min</span><span class="ty">A-LIST·FORM</span></a>
+          <a class="scr done" href="./mobile/sos.html"><span class="dot"></span><span class="scr-name">SOS·응급</span><span class="ver min">Min</span><span class="ty">A-SOS</span></a>
+          <a class="scr done" href="./mobile/settings.html"><span class="dot"></span><span class="scr-name">설정·프로필</span><span class="ver min">Min</span><span class="ty">A-FORM</span></a>
+        </div>
+      </section>
+
+      <!-- 보호자 -->
+      <section class="role-card">
+        <div class="role-head"><span class="role-name">보호자</span> <span class="plat mobile">모바일 앱</span></div>
+        <div class="scr-list">
+          <a class="scr done" href="./mobile/guardian-home.html"><span class="dot"></span><span class="scr-name">홈(부모 상태 요약)</span><span class="ver min">Min</span><span class="ty">A-HOME</span></a>
+          <a class="scr done" href="./mobile/guardian-alerts.html"><span class="dot"></span><span class="scr-name">이상알림·레포트</span><span class="ver min">Min</span><span class="ty">A-LIST</span></a>
+          <a class="scr done" href="./mobile/guardian-notifications.html"><span class="dot"></span><span class="scr-name">알림</span><span class="ver min">Min</span><span class="ty">A-LIST</span></a>
+          <a class="scr done" href="./mobile/guardian-care.html"><span class="dot"></span><span class="scr-name">대리 케어(복약/일정)</span><span class="ver min">Min</span><span class="ty">A-LIST·FORM</span></a>
+        </div>
+      </section>
+
+      <!-- Max 비즈니스 -->
+      <section class="role-card">
+        <div class="role-head"><span class="role-name">비즈니스·컨시어지</span> <span class="plat mobile">Max</span></div>
+        <div class="scr-list">
+          <a class="scr done" href="./mobile/subscription.html"><span class="dot"></span><span class="scr-name">구독·결제(5단계)</span><span class="ver max">Max</span><span class="ty">F·S</span></a>
+          <a class="scr done" href="./mobile/concierge.html"><span class="dot"></span><span class="scr-name">컨시어지 예약</span><span class="ver max">Max</span><span class="ty">L·F</span></a>
+          <a class="scr done" href="./pc-callcenter/console.html"><span class="dot"></span><span class="scr-name">콜센터 상담 콘솔</span><span class="ver max">Max</span><span class="ty">L·D</span></a>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="hub-foot">
+    공통: 로그인(구글) <code>C-LOGIN</code> · 요건정의서: <code>requirements.md</code> · 현재 완성 29 / 전체 29 화면
+  </div>
+</body>
+</html>

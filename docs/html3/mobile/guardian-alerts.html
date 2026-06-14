@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>알림·레포트 · 보호자 앱 — 서울본병원</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="m-frame">
+    <header class="m-appbar">
+      <a class="m-brand" href="../index.html" title="데모 허브로 이동">서울본병원</a>
+      <a class="m-bell" href="./guardian-notifications.html" title="알림">🔔<span class="dot-red"></span></a>
+    </header>
+
+    <main class="m-body">
+      <div class="m-greet" style="font-size:20px; margin-bottom:14px">알림 · 레포트</div>
+
+      <!-- 월간 레포트 -->
+      <div class="m-card" style="background:var(--color-primary-subtle)">
+        <div class="m-card-head">
+          <span class="m-card-title">5월 건강 레포트</span>
+          <a class="m-card-more" onclick="openModal('reportModal')" style="cursor:pointer">자세히</a>
+        </div>
+        <div class="m-list-sub" style="line-height:1.6">
+          김순자 님의 5월 건강은 <b>대체로 안정적</b>이었어요. 다만 최근 2주 <b>혈압 상승 추세</b>와 <b>수면 감소</b>가 관찰됩니다. 담당 의료진이 약 용량 조정을 검토 중이에요.
+        </div>
+      </div>
+
+      <!-- 오늘 -->
+      <div class="m-card-title" style="margin:6px 0 10px">오늘</div>
+      <div class="m-card">
+        <div class="m-list-row">
+          <div>
+            <div class="m-list-main">혈압 상승 감지</div>
+            <div class="m-list-sub">오전 7시 30분 · 평소보다 +18% (145/92)</div>
+          </div>
+          <span class="m-list-right badge badge-red">주의</span>
+        </div>
+        <div class="m-list-row" style="border-bottom:none">
+          <div>
+            <div class="m-list-main">아침 복약 완료</div>
+            <div class="m-list-sub">오전 8시 10분 · 암로디핀 5mg</div>
+          </div>
+          <span class="m-list-right badge badge-green">정상</span>
+        </div>
+      </div>
+
+      <!-- 이전 -->
+      <div class="m-card-title" style="margin:6px 0 10px">이전</div>
+      <div class="m-card">
+        <div class="m-list-row">
+          <div>
+            <div class="m-list-main">수면 부족</div>
+            <div class="m-list-sub">어제 · 평소보다 -22% (5.2시간)</div>
+          </div>
+          <span class="m-list-right badge badge-amber">주의</span>
+        </div>
+        <div class="m-list-row">
+          <div>
+            <div class="m-list-main">저녁 복약 미실시</div>
+            <div class="m-list-sub">5월 18일 · 메트포르민 (2차 알림 발송)</div>
+          </div>
+          <span class="m-list-right badge badge-red">미복약</span>
+        </div>
+        <div class="m-list-row" style="border-bottom:none">
+          <div>
+            <div class="m-list-main">내과 진료 예약 안내</div>
+            <div class="m-list-sub">5월 17일 · 5월 20일 오후 2시 예약</div>
+          </div>
+          <span class="m-list-right badge badge-blue">일정</span>
+        </div>
+      </div>
+    </main>
+
+    <nav class="m-tabbar">
+      <a href="./guardian-home.html"><span class="m-tab-ico">🏠</span>홈</a>
+      <a class="active" href="./guardian-alerts.html"><span class="m-tab-ico">🔔</span>알림·레포트</a>
+      <a href="./guardian-care.html"><span class="m-tab-ico">💊</span>대리 케어</a>
+    </nav>
+  </div>
+
+  <!-- 월간 레포트 모달 (M) -->
+  <div class="overlay hidden m-sheet" id="reportModal">
+    <div class="modal modal-sm">
+      <div class="modal-header"><span class="modal-title">5월 건강 레포트</span><button class="modal-close" onclick="closeModal('reportModal')">✕</button></div>
+      <div class="modal-body">
+        <div class="m-status warn" style="margin-bottom:14px">
+          <span class="m-status-ico">📋</span>
+          <div><div class="m-status-txt" style="font-size:15px">전반적으로 안정적</div><div class="m-status-sub">최근 2주 혈압 상승·수면 감소 주의</div></div>
+        </div>
+        <table class="tbl">
+          <thead><tr><th>항목</th><th>5월 평균</th><th>평소 대비</th></tr></thead>
+          <tbody>
+            <tr><td>혈압(수축기)</td><td class="num">138</td><td class="num" style="color:var(--color-warning)">+8%</td></tr>
+            <tr><td>심박수</td><td class="num">76 bpm</td><td class="num">+3%</td></tr>
+            <tr><td>수면</td><td class="num">5.6 h</td><td class="num" style="color:var(--color-warning)">-15%</td></tr>
+            <tr><td>복약 순응도</td><td class="num">93%</td><td class="num" style="color:var(--color-success)">양호</td></tr>
+          </tbody>
+        </table>      </div>
+      <div class="modal-footer"><button class="btn btn-primary btn-md" onclick="closeModal('reportModal')">확인</button></div>
+    </div>
+  </div>
+
+  <script src="../assets/modal.js"></script>
+</body>
+</html>

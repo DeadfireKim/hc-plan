@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>알림 · 보호자 앱 — 서울본병원</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="m-frame">
+    <header class="m-appbar">
+      <a class="m-back" href="./guardian-home.html" title="뒤로">←</a>
+      <span class="m-title">알림</span>
+    </header>
+
+    <main class="m-body">
+      <div class="m-card-title" style="margin:0 0 10px">오늘</div>
+      <div class="m-card">
+        <div class="m-list-row">
+          <div>
+            <div class="m-list-main">어머니 혈압이 평소보다 높아요</div>
+            <div class="m-list-sub">오전 7시 30분 · 평소 대비 +18%</div>
+          </div>
+          <span class="m-list-right badge badge-red">건강</span>
+        </div>
+        <div class="m-list-row">
+          <div>
+            <div class="m-list-main">어머니가 저녁 약을 아직 안 드셨어요</div>
+            <div class="m-list-sub">저녁 7시 30분 · 메트포르민 500mg</div>
+          </div>
+          <span class="m-list-right badge badge-amber">복약</span>
+        </div>
+        <div class="m-list-row" style="border-bottom:none">
+          <div>
+            <div class="m-list-main">어머니 내과 진료 예약 안내</div>
+            <div class="m-list-sub">오후 2시 · 서울본병원 이정민 선생님</div>
+          </div>
+          <span class="m-list-right badge badge-blue">일정</span>
+        </div>
+      </div>
+
+      <div class="m-card-title" style="margin:6px 0 10px">이전</div>
+      <div class="m-card">
+        <div class="m-list-row">
+          <div>
+            <div class="m-list-main">5월 월간 건강 레포트가 도착했어요</div>
+            <div class="m-list-sub">어제 · 알림·레포트에서 확인</div>
+          </div>
+          <span class="m-list-right badge badge-blue">레포트</span>
+        </div>
+        <div class="m-list-row">
+          <div>
+            <div class="m-list-main">어머니가 잘 주무시지 못했어요</div>
+            <div class="m-list-sub">어제 · 수면 평소 대비 -22%</div>
+          </div>
+          <span class="m-list-right badge badge-amber">건강</span>
+        </div>
+        <div class="m-list-row" style="border-bottom:none; cursor:pointer" onclick="openModal('noticeModal')">
+          <div>
+            <div class="m-list-main">정기 건강검진 안내</div>
+            <div class="m-list-sub">2일 전 · 서울본병원 공지</div>
+          </div>
+          <span class="m-list-right badge badge-gray">공지</span>
+        </div>
+      </div>
+    </main>
+
+    <nav class="m-tabbar">
+      <a href="./guardian-home.html"><span class="m-tab-ico">🏠</span>홈</a>
+      <a href="./guardian-alerts.html"><span class="m-tab-ico">🔔</span>알림·레포트</a>
+      <a href="./guardian-care.html"><span class="m-tab-ico">💊</span>대리 케어</a>
+    </nav>
+  </div>
+
+  <!-- 공지 내용 모달 (M, 읽기) -->
+  <div class="overlay hidden" id="noticeModal">
+    <div class="modal modal-sm">
+      <div class="modal-header"><span class="modal-title">정기 건강검진 안내</span><button class="modal-close" onclick="closeModal('noticeModal')">✕</button></div>
+      <div class="modal-body">
+        <div class="m-list-sub" style="margin-bottom:12px">서울본병원 · 2026-05-28</div>
+        <div style="line-height:1.8; font-size:15px">서울본병원 정기 건강검진을 안내드립니다. 6월 한 달간 진행되니 앱에서 예약 후 내원해 주세요.<br /><br />· 대상: 와치 이용 시니어 전체<br />· 장소: 서울본병원 건강검진센터 2층</div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-primary btn-md" onclick="closeModal('noticeModal')">확인</button></div>
+    </div>
+  </div>
+
+  <script src="../assets/modal.js"></script>
+</body>
+</html>
