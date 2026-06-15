@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>임계치 관리 · 관리자 — HealthCare Watch</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+  <div class="shell">
+    <!-- ===== GNB ===== -->
+    <header class="gnb">
+      <a class="gnb-logo" href="../index.html" title="데모 허브로 이동">
+        <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+          <rect width="30" height="30" rx="8" fill="#d4af37" />
+          <path d="M4 15 h5 l2.2 -6 l3.4 12 l2.4 -6 H26" fill="none" stroke="#1f3a36" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        HealthCare Watch
+      </a>
+      <nav class="gnb-menu">
+        <a class="gnb-item active" href="./dashboard.html">관리자 포털</a>
+        <a class="gnb-item" href="../pc-watch/dashboard.html">와치관리자 포털</a>
+        <a class="gnb-item" href="../pc-doctor/dashboard.html">의료진 포털</a>
+      </nav>
+      <div class="gnb-user">
+        <button class="gnb-user-btn" onclick="document.getElementById('um').classList.toggle('hidden')">
+          <span class="gnb-avatar">관</span> 관리자
+        </button>
+        <div class="user-menu hidden" id="um">
+          <button class="user-menu-item">로그아웃</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="shell-body">
+      <!-- ===== LNB ===== -->
+      <aside class="lnb">
+        <div class="lnb-header">
+          <button class="lnb-toggle" onclick="document.querySelector('.lnb').classList.toggle('collapsed')">☰</button>
+          <span class="lnb-title">관리자</span>
+        </div>
+        <nav class="lnb-nav">
+          <a class="lnb-link" href="./dashboard.html">대시보드 <span class="lnb-type-badge">S</span></a>
+          <a class="lnb-link" href="./hospitals.html">병원 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./accounts.html">계정 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./permissions.html">권한 관리 <span class="lnb-type-badge">P-MATRIX</span></a>
+          <a class="lnb-link active" href="./thresholds.html">임계치 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./notice.html">공지 관리 <span class="lnb-type-badge">L</span></a>
+        </nav>
+      </aside>
+
+      <!-- ===== 콘텐츠 (L형 · 설정 테이블) ===== -->
+      <main class="shell-content">
+        <div class="shell-content-inner">
+          <div class="page-header">
+            <div class="page-header-text">
+              <h1 class="page-title">임계치 관리 <span class="badge badge-blue type-tag">L</span></h1>
+              <p class="page-desc">이상징후 판정 기본 임계치 — 시스템 기본값을 항목별로 조정합니다. 의료진이 시니어별로 다시 조정할 수 있습니다.</p>
+            </div>
+          </div>
+
+          <!-- 결과 테이블 -->
+          <div class="table-wrap">
+            <div class="table-toolbar">
+              <span class="table-count">측정 항목 <b>5</b>종</span>
+              <div class="table-toolbar-actions">
+                <span class="badge badge-gray" style="font-weight:500">비교 기준: 본인 평상시(기저선) 대비 %</span>
+                <button class="btn btn-secondary btn-sm" onclick="openModal('historyModal')">변경 이력</button>
+              </div>
+            </div>
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>항목</th><th>주의 임계치</th><th>위험 임계치</th><th>적용</th><th>수정자</th><th>수정일시</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><a class="cell-link" onclick="openModal('thViewModal')" style="cursor:pointer">심박수</a></td><td class="num">±15%</td><td class="num">±30%</td>
+                  <td>관리자 조정</td><td>관리자</td><td>2026-05-12 14:30:10</td>
+                </tr>
+                <tr>
+                  <td><a class="cell-link" onclick="openModal('thViewModal')" style="cursor:pointer">혈압(수축기)</a></td><td class="num">+10%</td><td class="num">+18%</td>
+                  <td>관리자 조정</td><td>관리자</td><td>2026-05-12 14:30:10</td>
+                </tr>
+                <tr>
+                  <td><a class="cell-link" onclick="openModal('thViewModal')" style="cursor:pointer">SpO₂</a></td><td class="num">-4%</td><td class="num">-8%</td>
+                  <td>시스템 기본값</td><td>시스템</td><td>2026-01-02 00:00:00</td>
+                </tr>
+                <tr>
+                  <td><a class="cell-link" onclick="openModal('thViewModal')" style="cursor:pointer">체온</a></td><td class="num">±3%</td><td class="num">±6%</td>
+                  <td>시스템 기본값</td><td>시스템</td><td>2026-01-02 00:00:00</td>
+                </tr>
+                <tr>
+                  <td><a class="cell-link" onclick="openModal('thViewModal')" style="cursor:pointer">수면</a></td><td class="num">-20%</td><td class="num">-40%</td>
+                  <td>시스템 기본값</td><td>시스템</td><td>2026-01-02 00:00:00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 임계치 상세 모달 (M, 읽기) -->
+  <div class="overlay hidden" id="thViewModal">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <span class="modal-title">임계치 상세 · 심박수</span>
+        <button class="modal-close" onclick="closeModal('thViewModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="form-table">
+          <colgroup><col style="width:120px" /><col /><col style="width:120px" /><col /></colgroup>
+          <tbody>
+            <tr><th>항목</th><td>심박수</td><th>적용</th><td>관리자 조정</td></tr>
+            <tr><th>비교 기준</th><td colspan="3">본인 평상시(기저선) 대비 %</td></tr>
+            <tr><th>주의 임계치</th><td>±15%</td><th>위험 임계치</th><td>±30%</td></tr>
+            <tr><th>입력일시</th><td>2026-01-02 00:00:00</td><th>입력자</th><td>시스템</td></tr>
+            <tr><th>수정일시</th><td>2026-05-12 14:30:10</td><th>수정자</th><td>관리자</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('thViewModal')">닫기</button>
+        <button class="btn btn-primary btn-md" onclick="closeModal('thViewModal'); openModal('thEditModal')">수정</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 임계치 수정 모달 (M) -->
+  <div class="overlay hidden" id="thEditModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <span class="modal-title">임계치 수정 · 심박수</span>
+        <button class="modal-close" onclick="closeModal('thEditModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="form-table">
+          <tbody>
+            <tr><th>항목</th><td><input class="input" value="심박수" disabled /></td></tr>
+            <tr><th>비교 기준</th><td><select class="select"><option>본인 평상시(기저선) 대비 %</option><option>또래평균(코호트) · Max</option></select></td></tr>
+            <tr><th>주의 임계치 <span class="required">*</span></th><td>
+              <div style="display:flex; align-items:center; gap:12px">
+                <input class="input" value="±15%" data-sys="±12%" placeholder="예: ±15%" style="flex:1" />
+                <label class="checkbox-label" style="white-space:nowrap"><input type="checkbox" onchange="toggleSysDefault(this)" /> 시스템 기본값</label>
+              </div>
+            </td></tr>
+            <tr><th>위험 임계치 <span class="required">*</span></th><td>
+              <div style="display:flex; align-items:center; gap:12px">
+                <input class="input" value="±30%" data-sys="±25%" placeholder="예: ±30%" style="flex:1" />
+                <label class="checkbox-label" style="white-space:nowrap"><input type="checkbox" onchange="toggleSysDefault(this)" /> 시스템 기본값</label>
+              </div>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('thEditModal')">취소</button>
+        <button class="btn btn-primary btn-md">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 변경 이력 모달 (M, 공통) -->
+  <div class="overlay hidden" id="historyModal">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <span class="modal-title">변경 이력 · 임계치</span>
+        <button class="modal-close" onclick="closeModal('historyModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="filter-bar">
+          <div class="filter-item"><span class="filter-label">항목</span><select class="select"><option>전체</option><option>심박수 위험 임계치</option><option>심박수 주의 임계치</option><option>혈압(수축기) 위험 임계치</option><option>혈압(수축기) 주의 임계치</option></select></div>
+          <div class="filter-item"><span class="filter-label">데이터</span><input class="input" placeholder="변경 전·후 데이터 검색" /></div>
+          <div class="filter-item"><span class="filter-label">입력자</span><input class="input" placeholder="입력자 검색" /></div>
+          <div class="filter-actions">
+            <button class="btn-reset" title="초기화">↺</button>
+            <button class="btn btn-primary btn-md">조회</button>
+          </div>
+        </div>
+        <table class="tbl">
+          <thead><tr><th class="center" style="width:44px">No</th><th>항목</th><th>변경 전 데이터</th><th>변경 후 데이터</th><th>입력자</th><th>입력일시</th></tr></thead>
+          <tbody>
+            <tr><td class="center">4</td><td>심박수 위험 임계치</td><td>±25%</td><td>±30%</td><td>관리자</td><td>2026-05-12 14:30:10</td></tr>
+            <tr><td class="center">3</td><td>심박수 주의 임계치</td><td>±12%</td><td>±15%</td><td>관리자</td><td>2026-05-12 14:29:50</td></tr>
+            <tr><td class="center">2</td><td>혈압(수축기) 주의 임계치</td><td>+8%</td><td>+10%</td><td>관리자</td><td>2026-04-20 09:15:00</td></tr>
+            <tr><td class="center">1</td><td></td><td></td><td>시스템 기본값 적용</td><td>시스템</td><td>2026-01-02 00:00:00</td></tr>
+          </tbody>
+        </table>
+        <div class="pagination">
+          <button class="page-btn" disabled title="맨앞">«</button>
+          <button class="page-btn" disabled title="이전">‹</button>
+          <button class="page-btn current">1</button>
+          <button class="page-btn" title="다음">›</button>
+          <button class="page-btn" title="마지막">»</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md" onclick="closeModal('historyModal')">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <style>.hidden{display:none}</style>
+  <script src="../assets/modal.js"></script>
+  <script>
+    // 시스템 기본값 체크 시 해당 임계치를 시스템 기본값으로 채우고 입력 잠금
+    function toggleSysDefault(chk) {
+      var inp = chk.closest('td').querySelector('.input');
+      inp.disabled = chk.checked;
+      if (chk.checked) inp.value = inp.dataset.sys;
+    }
+  </script>
+</body>
+</html>

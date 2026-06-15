@@ -249,6 +249,7 @@ a:hover {
 .gnb-item:hover {
   background: var(--color-sidebar-item-hover);
   color: var(--color-sidebar-text-active);
+  text-decoration: none;
 }
 /* 활성 대메뉴 — 상단 액센트 바 + 글자색 동일 (cube 방식, 배경 채움 없음) */
 .gnb-item.active {
@@ -1348,23 +1349,23 @@ table.tbl {
 .line-chart .lc-line {
   fill: none;
   stroke: var(--color-primary);
-  stroke-width: 2;
+  stroke-width: 1;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 .line-chart .lc-dot {
   fill: #fff;
   stroke: var(--color-primary);
-  stroke-width: 2;
+  stroke-width: 1;
 }
 .line-chart .lc-label {
   fill: var(--color-text-muted);
-  font-size: 8px;
+  font-size: 4.5px;
   text-anchor: middle;
 }
 .line-chart .lc-val {
   fill: var(--color-text-secondary);
-  font-size: 7px;
+  font-size: 4.5px;
   text-anchor: middle;
   font-weight: 600;
 }

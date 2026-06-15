@@ -44,7 +44,6 @@
           <a class="lnb-link" href="./dashboard.html">대시보드 <span class="lnb-type-badge">S</span></a>
           <a class="lnb-link active" href="./seniors.html">담당 시니어 <span class="lnb-type-badge">L</span></a>
           <a class="lnb-link" href="./alerts.html">이상징후 관리 <span class="lnb-type-badge">L</span></a>
-          <a class="lnb-link" href="./consult.html">상담·소견 <span title="Max 전용 기능" style="font-size:11px">👑</span> <span class="lnb-type-badge">F</span></a>
         </nav>
       </aside>
 
@@ -94,7 +93,6 @@
 
           <!-- 버튼 = 정보 테이블 아래 중앙 정렬 (D형 규칙) -->
           <div class="detail-actions">
-            <button class="btn btn-secondary btn-md" onclick="openModal('historyModal')">변경 이력</button>
             <a class="btn btn-secondary btn-md" href="./seniors.html">목록</a>
           </div>
 
@@ -102,24 +100,24 @@
           <div class="tabs" style="margin-bottom: calc(-1 * var(--space-3)); align-items:center">
             <button class="tab active" onclick="showTab(this,'trend')">건강 추이</button>
             <button class="tab" onclick="showTab(this,'measure')">측정 데이터</button>
-            <button class="tab" onclick="showTab(this,'med')">복약</button>
             <button class="tab" onclick="showTab(this,'consult')">상담·소견 이력</button>
             <button class="tab" onclick="showTab(this,'threshold')">임계치</button>
             <select id="pageSizeSel" class="select page-size-select" style="margin-left:auto; display:none"><option>20개씩 보기</option><option>50개씩 보기</option><option>100개씩 보기</option></select>
+            <button id="thHistoryBtn" class="btn btn-secondary btn-sm" style="margin-left:auto; display:none" onclick="openModal('historyModal')">변경 이력</button>
           </div>
 
           <!-- 건강 추이 탭 (S = 차트) -->
           <div id="tab-trend" class="tab-panel">
             <table class="tbl">
               <thead>
-                <tr><th>항목</th><th>최근값</th><th>평상시 대비</th><th>측정 시각</th><th>상태</th></tr>
+                <tr><th>항목</th><th>기저선(평상시)</th><th>최근값</th><th>평상시 대비</th><th>측정 시각</th><th>상태</th></tr>
               </thead>
               <tbody>
-                <tr class="metric-row" onclick="showMetric(this,'hr')"><td>심박수</td><td class="num">88 bpm</td><td class="num" style="color:var(--color-warning)">+12%</td><td>09:12</td><td><span class="badge badge-green">정상</span></td></tr>
-                <tr class="metric-row" onclick="showMetric(this,'spo2')"><td>SpO₂</td><td class="num">97 %</td><td class="num">-1%</td><td>09:10</td><td><span class="badge badge-green">정상</span></td></tr>
-                <tr class="metric-row active" onclick="showMetric(this,'bp')"><td>혈압</td><td class="num">145 / 92</td><td class="num" style="color:var(--color-danger)">+18%</td><td>07:30</td><td><span class="badge badge-red">주의</span></td></tr>
-                <tr class="metric-row" onclick="showMetric(this,'temp')"><td>체온</td><td class="num">36.6 ℃</td><td class="num">0%</td><td>09:00</td><td><span class="badge badge-green">정상</span></td></tr>
-                <tr class="metric-row" onclick="showMetric(this,'sleep')"><td>수면</td><td class="num">5.2 h</td><td class="num" style="color:var(--color-warning)">-22%</td><td>어제</td><td><span class="badge badge-amber">주의</span></td></tr>
+                <tr class="metric-row" onclick="showMetric(this,'hr')"><td>심박수</td><td class="num">70 bpm</td><td class="num">88 bpm</td><td class="num" style="color:var(--color-warning)">+12%</td><td>09:12</td><td><span class="badge badge-green">정상</span></td></tr>
+                <tr class="metric-row" onclick="showMetric(this,'spo2')"><td>SpO₂</td><td class="num">98 %</td><td class="num">97 %</td><td class="num">-1%</td><td>09:10</td><td><span class="badge badge-green">정상</span></td></tr>
+                <tr class="metric-row active" onclick="showMetric(this,'bp')"><td>혈압</td><td class="num">128 / 80</td><td class="num">145 / 92</td><td class="num" style="color:var(--color-danger)">+18%</td><td>07:30</td><td><span class="badge badge-red">주의</span></td></tr>
+                <tr class="metric-row" onclick="showMetric(this,'temp')"><td>체온</td><td class="num">36.5 ℃</td><td class="num">36.6 ℃</td><td class="num">0%</td><td>09:00</td><td><span class="badge badge-green">정상</span></td></tr>
+                <tr class="metric-row" onclick="showMetric(this,'sleep')"><td>수면</td><td class="num">7.0 h</td><td class="num">5.2 h</td><td class="num" style="color:var(--color-warning)">-22%</td><td>어제</td><td><span class="badge badge-amber">주의</span></td></tr>
               </tbody>
             </table>
 
@@ -145,17 +143,6 @@
             </table>
           </div>
 
-          <!-- 복약 탭 -->
-          <div id="tab-med" class="tab-panel hidden">
-            <table class="tbl">
-              <thead><tr><th>약품</th><th>용법</th><th>처방</th><th>최근 복약</th><th>순응도(7일)</th></tr></thead>
-              <tbody>
-                <tr><td>암로디핀 5mg</td><td>1일 1회 (아침)</td><td>이정민</td><td>오늘 08:10</td><td><span class="badge badge-green">100%</span></td></tr>
-                <tr><td>메트포르민 500mg</td><td>1일 2회 (아침·저녁)</td><td>이정민</td><td>오늘 08:10</td><td><span class="badge badge-amber">86%</span></td></tr>
-              </tbody>
-            </table>
-          </div>
-
           <!-- 상담·소견 이력 탭 -->
           <div id="tab-consult" class="tab-panel hidden">
             <table class="tbl">
@@ -171,14 +158,14 @@
           <div id="tab-threshold" class="tab-panel hidden">
             <table class="tbl">
               <thead>
-                <tr><th>항목</th><th>주의 임계치 (평상시 대비)</th><th>위험 임계치</th><th>적용</th><th>설정</th></tr>
+                <tr><th>항목</th><th>기저선(평상시)</th><th>주의 임계치 (평상시 대비)</th><th>위험 임계치 (평상시 대비)</th><th>적용</th><th>설정</th></tr>
               </thead>
               <tbody>
-                <tr><td>심박수</td><td class="num">±15%</td><td class="num">±30%</td><td><span class="badge badge-gray">기본값 상속</span></td><td><button class="btn btn-text btn-sm" onclick="openModal('thresholdModal')">직접 설정</button></td></tr>
-                <tr><td>혈압</td><td class="num">+10%</td><td class="num">+18%</td><td><span class="badge badge-blue">직접 설정</span></td><td><button class="btn btn-text btn-sm" onclick="openModal('resetThresholdModal')">기본값 복귀</button></td></tr>
-                <tr><td>SpO₂</td><td class="num">-4%</td><td class="num">-8%</td><td><span class="badge badge-gray">기본값 상속</span></td><td><button class="btn btn-text btn-sm" onclick="openModal('thresholdModal')">직접 설정</button></td></tr>
-                <tr><td>체온</td><td class="num">±3%</td><td class="num">±6%</td><td><span class="badge badge-gray">기본값 상속</span></td><td><button class="btn btn-text btn-sm" onclick="openModal('thresholdModal')">직접 설정</button></td></tr>
-                <tr><td>수면</td><td class="num">-20%</td><td class="num">-40%</td><td><span class="badge badge-gray">기본값 상속</span></td><td><button class="btn btn-text btn-sm" onclick="openModal('thresholdModal')">직접 설정</button></td></tr>
+                <tr><td>심박수</td><td class="num">70 bpm</td><td class="num">±15%</td><td class="num">±30%</td><td>기본값 상속</td><td><button class="btn btn-primary btn-sm" style="width:88px" onclick="openModal('thresholdModal')">직접 설정</button></td></tr>
+                <tr><td>혈압</td><td class="num">128 / 80</td><td class="num">+10%</td><td class="num">+18%</td><td>직접 설정</td><td><button class="btn btn-secondary btn-sm" style="width:88px" onclick="openModal('resetThresholdModal')">기본값 복귀</button></td></tr>
+                <tr><td>SpO₂</td><td class="num">98 %</td><td class="num">-4%</td><td class="num">-8%</td><td>기본값 상속</td><td><button class="btn btn-primary btn-sm" style="width:88px" onclick="openModal('thresholdModal')">직접 설정</button></td></tr>
+                <tr><td>체온</td><td class="num">36.5 ℃</td><td class="num">±3%</td><td class="num">±6%</td><td>기본값 상속</td><td><button class="btn btn-primary btn-sm" style="width:88px" onclick="openModal('thresholdModal')">직접 설정</button></td></tr>
+                <tr><td>수면</td><td class="num">7.0 h</td><td class="num">-20%</td><td class="num">-40%</td><td>기본값 상속</td><td><button class="btn btn-primary btn-sm" style="width:88px" onclick="openModal('thresholdModal')">직접 설정</button></td></tr>
               </tbody>
             </table>
           </div>
@@ -196,6 +183,8 @@
       document.getElementById('tab-' + id).classList.remove('hidden');
       // 목록형 탭(측정 데이터·상담소견 이력)에서만 N개씩 보기 노출
       document.getElementById('pageSizeSel').style.display = (id === 'measure' || id === 'consult') ? '' : 'none';
+      // 임계치 탭에서만 변경 이력 버튼 노출
+      document.getElementById('thHistoryBtn').style.display = (id === 'threshold') ? '' : 'none';
     }
 
     // ===== 건강 추이 선그래프 (항목 클릭 시 전환) =====
@@ -334,7 +323,7 @@
         <table class="form-table">
           <tbody>
             <tr><th>시니어</th><td><input class="input" value="김순자" disabled /></td></tr>
-            <tr><th>유형</th><td><select class="select"><option>대면 상담</option><option>전화 상담</option><option>비대면(앱) 상담</option><option>데이터 검토</option></select></td></tr>
+            <tr><th>유형 <span class="required">*</span></th><td><select class="select"><option>대면 상담</option><option>전화 상담</option><option>기타</option></select></td></tr>
             <tr><th>소견 내용 <span class="required">*</span></th><td><textarea class="textarea">혈압 상승 추세(평소 대비 +18%). 고혈압 약 용량 조정 검토가 필요해 보임. 1주 후 재측정 권고, 가정 혈압 일지 작성 안내함.</textarea></td></tr>
             <tr><th>조치</th><td><select class="select"><option>내원 권고</option><option>경과 관찰</option><option>처방 조정</option><option>보호자 통보</option></select></td></tr>
           </tbody>
