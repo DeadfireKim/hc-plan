@@ -121,13 +121,8 @@
               </tbody>
             </table>
 
-            <!-- 선택 항목 추이 (line-chart, SVG) — 위 표에서 항목 클릭 시 전환 -->
-            <div class="widget" style="margin-top: var(--space-4)">
-              <div class="widget-header"><span id="trendTitle">혈압(수축기) 14일 추이</span> <span class="badge badge-gray widget-role" id="trendBase">기저선 128 mmHg</span></div>
-              <div class="widget-body">
-                <div class="line-chart" id="trendChart"></div>
-              </div>
-            </div>
+            <!-- 항목별 추이 (line-chart, SVG) — 모든 항목 그래프를 세로로 나열 -->
+            <div id="trendCharts"></div>
           </div>
 
           <!-- 측정 데이터 탭 -->
@@ -174,7 +169,11 @@
     </div>
   </div>
 
-  <style>.hidden{display:none}</style>
+  <style>
+    .hidden{display:none}
+    #trendCharts .lc-label, #trendCharts .lc-val { font-size: 4px; }
+    #trendCharts .lc-line { stroke-width: 0.7; }
+  </style>
   <script>
     function showTab(btn, id) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -206,9 +205,9 @@
       }
       return d;
     }
-    function renderTrend(key) {
+    function buildTrendSvg(key) {
       var m = METRICS[key];
-      var W = 600, H = 133, padL = 40, padR = 16, padT = 18, padB = 22;
+      var W = 600, H = 93, padL = 40, padR = 16, padT = 13, padB = 15;
       var iW = W - padL - padR, iH = H - padT - padB, n = m.pts.length;
       var X = function (i) { return padL + (n === 1 ? iW / 2 : (i / (n - 1)) * iW); };
       var Y = function (v) { return padT + (1 - (v - m.lo) / (m.hi - m.lo)) * iH; };
@@ -232,16 +231,27 @@
         + '<text class="lc-label" x="2" y="' + (+baseY + 3) + '" style="text-anchor:start">기저선</text>'
         + dots + vals + labels
         + '</svg>';
-      document.getElementById('trendChart').innerHTML = svg;
-      document.getElementById('trendTitle').textContent = m.name + ' 14일 추이';
-      document.getElementById('trendBase').textContent = '기저선 ' + m.base + ' ' + m.unit;
+      return svg;
     }
+    // 모든 항목 그래프를 세로로 펼쳐 렌더링
+    (function renderAllTrends() {
+      var html = '';
+      Object.keys(METRICS).forEach(function (key) {
+        var m = METRICS[key];
+        html += '<div class="widget" id="trend-' + key + '" style="margin-top: var(--space-4)">'
+          + '<div class="widget-header"><span>' + m.name + ' 14일 추이</span> <span class="badge badge-gray widget-role">기저선 ' + m.base + ' ' + m.unit + '</span></div>'
+          + '<div class="widget-body"><div class="line-chart">' + buildTrendSvg(key) + '</div></div>'
+          + '</div>';
+      });
+      document.getElementById('trendCharts').innerHTML = html;
+    })();
+    // 표 항목 클릭 시 해당 그래프로 스크롤
     function showMetric(row, key) {
       document.querySelectorAll('.metric-row').forEach(function (r) { r.classList.remove('active'); });
       row.classList.add('active');
-      renderTrend(key);
+      var el = document.getElementById('trend-' + key);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-    renderTrend('bp');
   </script>
   <!-- 임계치 직접 설정 모달 (M) — 시니어별 개인 임계치 (평상시 대비 %) -->
   <div class="overlay hidden" id="thresholdModal">
