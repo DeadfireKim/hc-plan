@@ -43,7 +43,7 @@
         <nav class="lnb-nav">
           <a class="lnb-link" href="./dashboard.html">대시보드 <span class="lnb-type-badge">S</span></a>
           <a class="lnb-link active" href="./seniors.html">담당 시니어 <span class="lnb-type-badge">L</span></a>
-          <a class="lnb-link" href="./alerts.html">이상징후 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./alerts.html">이상징후 리스트 <span class="lnb-type-badge">L</span></a>
         </nav>
       </aside>
 
@@ -100,10 +100,11 @@
           <div class="tabs" style="margin-bottom: calc(-1 * var(--space-3)); align-items:center">
             <button class="tab active" onclick="showTab(this,'trend')">건강 추이</button>
             <button class="tab" onclick="showTab(this,'measure')">측정 데이터</button>
-            <button class="tab" onclick="showTab(this,'alerts')">이상징후·소견</button>
+            <button class="tab" onclick="showTab(this,'alerts')">이상징후</button>
+            <button class="tab" onclick="showTab(this,'consult')">소견</button>
             <button class="tab" onclick="showTab(this,'threshold')">임계치</button>
             <select id="pageSizeSel" class="select page-size-select" style="margin-left:auto; display:none"><option>20개씩 보기</option><option>50개씩 보기</option><option>100개씩 보기</option></select>
-            <button id="alertConsultBtn" class="btn btn-primary btn-sm" style="display:none" onclick="openModal('consultModal')" disabled>소견 추가</button>
+            <button id="consultAddBtn" class="btn btn-primary btn-sm" style="display:none" onclick="openModal('consultModal')">소견 추가</button>
             <button id="thHistoryBtn" class="btn btn-secondary btn-sm" style="margin-left:auto; display:none" onclick="openModal('historyModal')">변경 이력</button>
           </div>
 
@@ -126,31 +127,27 @@
             <div id="trendCharts"></div>
           </div>
 
-          <!-- 이상징후·소견 통합 탭 (이상징후 건 + 대응 소견을 한 행에) -->
+          <!-- 이상징후 탭 (감지 이벤트 — 본인 건만, 조회 전용) -->
           <div id="tab-alerts" class="tab-panel hidden">
             <table class="tbl">
               <thead>
-                <tr><th class="center" style="width:36px"></th><th class="center" style="width:44px">No</th><th>감지일시</th><th>항목</th><th>측정값</th><th>평상시 대비</th><th>심각도</th><th>소견</th><th>작성자</th><th>작성일시</th></tr>
+                <tr><th class="center" style="width:44px">No</th><th>측정일시</th><th>항목</th><th>기저값</th><th>측정값</th><th>평상시 대비</th><th>심각도</th></tr>
               </thead>
               <tbody>
-                <tr>
-                  <td class="center"><input type="radio" name="alertPick" onchange="pickAlert()" /></td><td class="center">8</td><td>2026-05-20 09:12:00</td><td>심박수</td><td class="num">88 bpm</td>
-                  <td class="num" style="color:var(--color-warning)">+12%</td>
-                  <td><span class="badge badge-amber">주의</span></td>
-                  <td></td><td></td><td></td>
-                </tr>
-                <tr>
-                  <td class="center"><input type="radio" name="alertPick" onchange="pickAlert()" disabled title="이미 소견이 있는 건은 소견에서 수정" /></td><td class="center">5</td><td>2026-05-20 07:30:00</td><td>혈압</td><td class="num">145 / 92</td>
-                  <td class="num" style="color:var(--color-danger)">+18%</td>
-                  <td><span class="badge badge-red">위험</span></td>
-                  <td style="text-align:left"><a class="cell-link" onclick="openModal('consultViewModal')" style="cursor:pointer">혈압 상승 추세, 약 용량 조정 검토</a></td><td>이정민</td><td>2026-05-20 08:05:12</td>
-                </tr>
-                <tr>
-                  <td class="center"><input type="radio" name="alertPick" onchange="pickAlert()" disabled title="이미 소견이 있는 건은 소견에서 수정" /></td><td class="center">2</td><td>2026-05-19 21:40:00</td><td>수면</td><td class="num">5.2 h</td>
-                  <td class="num" style="color:var(--color-warning)">-22%</td>
-                  <td><span class="badge badge-amber">주의</span></td>
-                  <td style="text-align:left"><a class="cell-link" onclick="openModal('consultViewModal')" style="cursor:pointer">수면 부족 호소, 생활 습관 안내</a></td><td>박서연</td><td>2026-05-19 22:00:00</td>
-                </tr>
+                <tr><td class="center">8</td><td>2026-05-20 09:12:00</td><td>심박수</td><td class="num">70 bpm</td><td class="num">88 bpm</td><td class="num" style="color:var(--color-warning)">+12%</td><td><span class="badge badge-amber">주의</span></td></tr>
+                <tr><td class="center">5</td><td>2026-05-20 07:30:00</td><td>혈압</td><td class="num">128 / 80</td><td class="num">145 / 92</td><td class="num" style="color:var(--color-danger)">+18%</td><td><span class="badge badge-red">위험</span></td></tr>
+                <tr><td class="center">2</td><td>2026-05-19 21:40:00</td><td>수면</td><td class="num">7.0 h</td><td class="num">5.2 h</td><td class="num" style="color:var(--color-warning)">-22%</td><td><span class="badge badge-amber">주의</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 소견 탭 (의료진이 언제든 자유 작성 — 이상징후와 독립) -->
+          <div id="tab-consult" class="tab-panel hidden">
+            <table class="tbl">
+              <thead><tr><th>작성일시</th><th>유형</th><th>작성자</th><th>소견</th></tr></thead>
+              <tbody>
+                <tr><td>2026-05-18 15:20:00</td><td><span class="badge badge-blue">대면 상담</span></td><td>이정민</td><td style="text-align:left"><a class="cell-link" onclick="openModal('consultViewModal')" style="cursor:pointer">혈압 상승 추세, 약 용량 조정 검토</a></td></tr>
+                <tr><td>2026-04-30 11:05:00</td><td><span class="badge badge-gray">전화 상담</span></td><td>박서연</td><td style="text-align:left"><a class="cell-link" onclick="openModal('consultViewModal')" style="cursor:pointer">수면 부족 호소, 생활 습관 안내</a></td></tr>
               </tbody>
             </table>
           </div>
@@ -200,15 +197,11 @@
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
       document.getElementById('tab-' + id).classList.remove('hidden');
       // 목록형 탭(측정 데이터·이상징후·소견)에서만 N개씩 보기 노출
-      document.getElementById('pageSizeSel').style.display = (id === 'measure' || id === 'alerts') ? '' : 'none';
+      document.getElementById('pageSizeSel').style.display = (id === 'measure' || id === 'alerts' || id === 'consult') ? '' : 'none';
       // 임계치 탭에서만 변경 이력 버튼 노출
       document.getElementById('thHistoryBtn').style.display = (id === 'threshold') ? '' : 'none';
-      // 이상징후·소견 탭에서만 소견 추가 버튼 노출
-      document.getElementById('alertConsultBtn').style.display = (id === 'alerts') ? '' : 'none';
-    }
-    // 이상징후 행 라디오 선택 시 소견 추가 활성화
-    function pickAlert() {
-      document.getElementById('alertConsultBtn').disabled = false;
+      // 소견 탭에서만 소견 추가 버튼 노출(언제든 작성 가능)
+      document.getElementById('consultAddBtn').style.display = (id === 'consult') ? '' : 'none';
     }
 
     // ===== 건강 추이 선그래프 (항목 클릭 시 전환) =====
@@ -320,7 +313,7 @@
     </div>
   </div>
 
-  <!-- 소견 추가 모달 (M) — 이상징후 탭에서 선택 건에 소견 작성 -->
+  <!-- 소견 추가 모달 (M) — 소견 탭에서 언제든 자유 작성(이상징후 종속 아님) -->
   <div class="overlay hidden" id="consultModal">
     <div class="modal modal-md">
       <div class="modal-header">
@@ -331,7 +324,6 @@
         <table class="form-table">
           <tbody>
             <tr><th>시니어</th><td><input class="input" value="김순자" disabled /></td></tr>
-            <tr><th>항목</th><td><input class="input" value="혈압" disabled /></td></tr>
             <tr><th>유형 <span class="required">*</span></th><td><select class="select"><option>대면 상담</option><option>전화 상담</option><option>기타</option></select></td></tr>
             <tr><th>소견 내용 <span class="required">*</span></th><td><textarea class="textarea" placeholder="진단 소견을 입력하세요"></textarea></td></tr>
             <tr><th>조치</th><td><select class="select"><option>경과 관찰</option><option>내원 권고</option><option>처방 조정</option><option>보호자 통보</option></select></td></tr>

@@ -43,7 +43,7 @@
         <nav class="lnb-nav">
           <a class="lnb-link" href="./dashboard.html">대시보드 <span class="lnb-type-badge">S</span></a>
           <a class="lnb-link active" href="./seniors.html">담당 시니어 <span class="lnb-type-badge">L</span></a>
-          <a class="lnb-link" href="./alerts.html">이상징후 관리 <span class="lnb-type-badge">L</span></a>
+          <a class="lnb-link" href="./alerts.html">이상징후 리스트 <span class="lnb-type-badge">L</span></a>
         </nav>
       </aside>
 
@@ -92,8 +92,9 @@
             <table class="tbl">
               <thead>
                 <tr>
-                  <th class="center" style="width:44px">No</th><th>이름</th><th>출생년도</th><th>나이·성별</th><th>주요 이상</th><th>심박수</th><th>혈압</th>
-                  <th>평상시 대비</th><th>와치 (Tier)</th><th>최근 측정일시</th><th>상태</th>
+                  <th class="center" style="width:44px">No</th><th>이름</th><th>출생년도</th><th>나이·성별</th><th>주요 이상</th>
+                  <th>심박수</th><th>혈압</th><th>SpO₂</th><th>체온</th><th>수면</th><th>걸음수</th>
+                  <th>와치 (Tier)</th><th>최근 측정일시</th><th>상태</th>
                 </tr>
               </thead>
               <tbody>
@@ -101,8 +102,7 @@
                   <td class="center">7</td>
                   <td><a class="cell-link" href="./senior-detail.html">김순자</a></td>
                   <td>1948</td><td>78 · 여</td><td><span class="badge badge-red">혈압</span> <span style="color:var(--color-text-muted);font-size:var(--font-size-xs)">외 2건</span></td>
-                  <td class="num">88 bpm</td><td class="num">145/92</td>
-                  <td class="num" style="color:var(--color-danger)">+18%</td>
+                  <td class="num">88 bpm</td><td class="num" style="color:var(--color-danger)">145/92</td><td class="num">97 %</td><td class="num">36.6 ℃</td><td class="num">5.2 h</td><td class="num">1,240</td>
                   <td>HealthWatch A2X <span class="badge badge-green">Tier1</span></td>
                   <td>2026-05-20 09:12:00</td><td>활성</td>
                 </tr>
@@ -110,8 +110,7 @@
                   <td class="center">6</td>
                   <td><a class="cell-link" href="./senior-detail.html">이말순</a></td>
                   <td>1951</td><td>75 · 여</td><td><span class="badge badge-red">심박수</span> <span style="color:var(--color-text-muted);font-size:var(--font-size-xs)">외 1건</span></td>
-                  <td class="num">112 bpm</td><td class="num">132/85</td>
-                  <td class="num" style="color:var(--color-danger)">+38%</td>
+                  <td class="num" style="color:var(--color-danger)">112 bpm</td><td class="num">132/85</td><td class="num">96 %</td><td class="num">36.8 ℃</td><td class="num">6.1 h</td><td class="num">800</td>
                   <td>Fitbit Charge 6 <span class="badge badge-amber">Tier2</span></td>
                   <td>2026-05-20 09:12:00</td><td>활성</td>
                 </tr>
@@ -119,8 +118,7 @@
                   <td class="center">5</td>
                   <td><a class="cell-link" href="./senior-detail.html">박영호</a></td>
                   <td>1945</td><td>81 · 남</td><td><span class="badge badge-red">SpO₂</span></td>
-                  <td class="num">76 bpm</td><td class="num">128/80</td>
-                  <td class="num" style="color:var(--color-danger)">-9%</td>
+                  <td class="num">76 bpm</td><td class="num">128/80</td><td class="num" style="color:var(--color-danger)">91 %</td><td class="num">36.5 ℃</td><td class="num">6.8 h</td><td class="num">2,100</td>
                   <td>Galaxy Watch 6 <span class="badge badge-green">Tier1</span></td>
                   <td>2026-05-20 08:47:00</td><td>활성</td>
                 </tr>
@@ -128,8 +126,7 @@
                   <td class="center">4</td>
                   <td><a class="cell-link" href="./senior-detail.html">오삼순</a></td>
                   <td>1941</td><td>85 · 여</td><td></td>
-                  <td class="num">74 bpm</td><td class="num">122/78</td>
-                  <td class="num">+3%</td>
+                  <td class="num">74 bpm</td><td class="num">122/78</td><td class="num">98 %</td><td class="num">36.4 ℃</td><td class="num">7.2 h</td><td class="num">3,500</td>
                   <td>Mi Band 8 <span class="badge badge-gray">Tier3</span></td>
                   <td>2026-05-20 08:30:00</td><td>활성</td>
                 </tr>
@@ -137,8 +134,7 @@
                   <td class="center">3</td>
                   <td><a class="cell-link" href="./senior-detail.html">한정식</a></td>
                   <td>1949</td><td>77 · 남</td><td><span class="badge badge-amber">혈압</span></td>
-                  <td class="num">80 bpm</td><td class="num">138/88</td>
-                  <td class="num" style="color:var(--color-warning)">+15%</td>
+                  <td class="num">80 bpm</td><td class="num" style="color:var(--color-warning)">138/88</td><td class="num">97 %</td><td class="num">36.6 ℃</td><td class="num">6.5 h</td><td class="num">2,800</td>
                   <td>Apple Watch SE <span class="badge badge-green">Tier1</span></td>
                   <td>2026-05-20 06:50:00</td><td>활성</td>
                 </tr>
@@ -146,8 +142,7 @@
                   <td class="center">2</td>
                   <td><a class="cell-link" href="./senior-detail.html">정복동</a></td>
                   <td>1943</td><td>83 · 남</td><td><span class="badge badge-amber">수면</span></td>
-                  <td class="num">72 bpm</td><td class="num">126/79</td>
-                  <td class="num" style="color:var(--color-warning)">-31%</td>
+                  <td class="num">72 bpm</td><td class="num">126/79</td><td class="num">98 %</td><td class="num">36.5 ℃</td><td class="num" style="color:var(--color-warning)">3.6 h</td><td class="num">1,900</td>
                   <td>HealthWatch A2X <span class="badge badge-green">Tier1</span></td>
                   <td>2026-05-19 21:30:00</td><td>페어링 대기</td>
                 </tr>
@@ -155,8 +150,7 @@
                   <td class="center">1</td>
                   <td><a class="cell-link" href="./senior-detail.html">최금자</a></td>
                   <td>1947</td><td>79 · 여</td><td></td>
-                  <td class="num"></td><td class="num"></td>
-                  <td class="num"></td>
+                  <td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td>
                   <td>HealthWatch A2X <span class="badge badge-green">Tier1</span></td>
                   <td><span class="badge badge-red">미수신</span></td><td>활성</td>
                 </tr>
