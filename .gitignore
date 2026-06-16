@@ -1,0 +1,7 @@
+# 기획 원천 자료 — 의뢰인 음성·전사본 등. 로컬에만 보관(비공개, repo에 올리지 않음)
+docs/hc_plan.m4a
+docs/hc_plan_text.txt
+docs/hc_plan_transcript.txt
+docs/_sheet.csv
+docs/_transcribe.py
+docs/_transcribe_progress.txt
