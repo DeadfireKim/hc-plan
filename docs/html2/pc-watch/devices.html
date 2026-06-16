@@ -174,7 +174,109 @@
       margin-bottom: 28px;
     }
 
-    /* ── 요약 카드 4개 ── */
+    /* ── 소유 유형 탭 ── */
+    .ownership-tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 2px solid #D1D9E6;
+      margin-bottom: 24px;
+    }
+    .ownership-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 22px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #546E7A;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+    .ownership-tab:hover { color: #1A2332; }
+    .ownership-tab.active {
+      color: #2B7FE0;
+      border-bottom-color: #2B7FE0;
+    }
+    .ownership-tab .tab-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 22px;
+      padding: 0 8px;
+      background: #F4F6F9;
+      border-radius: 11px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #546E7A;
+    }
+    .ownership-tab.active .tab-count {
+      background: #EBF3FF;
+      color: #2B7FE0;
+    }
+    .ownership-tab .tab-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 10px;
+    }
+    .tab-badge.rental   { background: #FFF3E0; color: #E65100; }
+    .tab-badge.personal { background: #EDE7F6; color: #5E35B1; }
+
+    /* ── Tier 배지 (glossary §4.2) ── */
+    .tier-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+    .tier-badge.tier1 { background: #E8FAF4; color: #1B8A6B; }
+    .tier-badge.tier2 { background: #FFF3E0; color: #E65100; }
+    .tier-badge.tier3 { background: #ECEFF1; color: #455A64; }
+
+    /* 브랜드 셀 */
+    .brand-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-logo {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .brand-logo.apple       { background: #F4F4F4; color: #1A2332; }
+    .brand-logo.samsung     { background: #E3F2FD; color: #1565C0; }
+    .brand-logo.fitbit      { background: #E0F2F1; color: #00695C; }
+    .brand-logo.garmin      { background: #E8F5E9; color: #2E7D32; }
+    .brand-logo.xiaomi      { background: #FFF3E0; color: #E65100; }
+    .brand-logo.healthwatch { background: #EBF3FF; color: #2B7FE0; }
+    .brand-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1A2332;
+      line-height: 1.2;
+    }
+    .brand-model {
+      font-size: 11px;
+      color: #546E7A;
+      margin-top: 2px;
+      line-height: 1.2;
+    }
+
+    /* ── 요약 카드 ── */
     .summary-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -216,14 +318,55 @@
       align-items: center;
       justify-content: center;
     }
-    .summary-card.ok .summary-card-value { color: #34C4A0; }
-    .summary-card.err .summary-card-value { color: #E53935; }
-    .summary-card.warn .summary-card-value { color: #F5A623; }
-    .summary-card.ok .summary-card-icon { background: #E8FAF4; }
-    .summary-card.err .summary-card-icon { background: #FDECEA; }
-    .summary-card.warn .summary-card-icon { background: #FFF3E0; }
+    .summary-card.ok    .summary-card-value { color: #34C4A0; }
+    .summary-card.err   .summary-card-value { color: #E53935; }
+    .summary-card.warn  .summary-card-value { color: #F5A623; }
+    .summary-card.stock .summary-card-value { color: #546E7A; }
+    .summary-card.ok    .summary-card-icon { background: #E8FAF4; }
+    .summary-card.err   .summary-card-icon { background: #FDECEA; }
+    .summary-card.warn  .summary-card-icon { background: #FFF3E0; }
+    .summary-card.stock .summary-card-icon { background: #ECEFF1; }
     .summary-card.primary .summary-card-icon { background: #EBF3FF; }
     .summary-card.err { border: 1.5px solid #FFCDD2; }
+
+    /* ── 액션 버튼 영역 ── */
+    .action-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .btn-primary {
+      height: 40px;
+      padding: 0 18px;
+      border-radius: 8px;
+      border: none;
+      background: #2B7FE0;
+      color: #fff;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-primary:hover { background: #1F6BCC; }
+    .btn-secondary {
+      height: 40px;
+      padding: 0 18px;
+      border-radius: 8px;
+      border: 1px solid #2B7FE0;
+      background: #FFF;
+      color: #2B7FE0;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-secondary:hover { background: #EBF3FF; }
 
     /* ── 필터 바 ── */
     .filter-bar {
@@ -329,19 +472,43 @@
       padding: 3px 10px;
       border-radius: 20px;
     }
-    .badge-ok   { background: #E8FAF4; color: #1B8A6B; }
-    .badge-err  { background: #FDECEA; color: #C62828; }
-    .badge-warn { background: #FFF3E0; color: #E65100; }
-    .badge-none { background: #F4F6F9; color: #546E7A; }
+    .badge-ok      { background: #E8FAF4; color: #1B8A6B; }
+    .badge-err     { background: #FDECEA; color: #C62828; }
+    .badge-warn    { background: #FFF3E0; color: #E65100; }
+    .badge-stock   { background: #ECEFF1; color: #455A64; }
+    .badge-pairing { background: #E3F2FD; color: #1565C0; }
+    .badge-recall  { background: #FFEBEE; color: #C62828; }
+    .badge-fix     { background: #F3E5F5; color: #6A1B9A; }
+    .badge-back    { background: #E8F5E9; color: #2E7D32; }
+    .badge-none    { background: #F4F6F9; color: #546E7A; }
     .badge-dot {
       width: 6px; height: 6px;
       border-radius: 50%;
       flex-shrink: 0;
     }
-    .badge-ok   .badge-dot { background: #34C4A0; }
-    .badge-err  .badge-dot { background: #E53935; }
-    .badge-warn .badge-dot { background: #F5A623; }
-    .badge-none .badge-dot { background: #8FA3B1; }
+    .badge-ok      .badge-dot { background: #34C4A0; }
+    .badge-err     .badge-dot { background: #E53935; }
+    .badge-warn    .badge-dot { background: #F5A623; }
+    .badge-stock   .badge-dot { background: #8FA3B1; }
+    .badge-pairing .badge-dot { background: #2196F3; }
+    .badge-recall  .badge-dot { background: #E53935; }
+    .badge-fix     .badge-dot { background: #9C27B0; }
+    .badge-back    .badge-dot { background: #43A047; }
+
+    /* 알람 칩 (저배터리·통신지연 등 sub-state) */
+    .alert-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: #FDECEA;
+      color: #C62828;
+      margin-left: 6px;
+    }
+    .alert-chip.warn { background: #FFF3E0; color: #E65100; }
 
     /* 배터리 바 */
     .battery-bar-wrap {
@@ -364,6 +531,7 @@
     .battery-bar-fill.ok   { background: #34C4A0; }
     .battery-bar-fill.mid  { background: #F5A623; }
     .battery-bar-fill.low  { background: #E53935; }
+    .battery-na { font-size: 12px; color: #B0BEC5; }
 
     /* 버튼 */
     .btn-sm {
@@ -386,6 +554,12 @@
       border-color: #FFCDD2;
     }
     .btn-sm.danger:hover { background: #FDECEA; }
+    .btn-sm.success {
+      color: #2E7D32;
+      border-color: #C8E6C9;
+    }
+    .btn-sm.success:hover { background: #E8F5E9; }
+    .btn-sm + .btn-sm { margin-left: 6px; }
 
     /* 빈 결과 */
     .empty-row td {
@@ -393,6 +567,255 @@
       padding: 40px 16px;
       color: #8FA3B1;
       font-size: 14px;
+    }
+
+    /* ── 모달 공통 ── */
+    .modal-backdrop {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-backdrop.show { display: flex; }
+    .modal-box {
+      background: #fff;
+      border-radius: 20px;
+      width: 520px;
+      max-height: 88vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .modal-head {
+      padding: 22px 28px 18px;
+      border-bottom: 1px solid #F0F2F5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-title-md {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1A2332;
+    }
+    .modal-sub-md {
+      font-size: 12px;
+      color: #546E7A;
+      margin-top: 3px;
+    }
+    .modal-close {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: #F4F6F9;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      color: #546E7A;
+    }
+    .modal-body { padding: 24px 28px; }
+    .modal-foot {
+      padding: 16px 28px 24px;
+      border-top: 1px solid #F0F2F5;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .form-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #546E7A;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 0 12px;
+      border: 1px solid #D1D9E6;
+      border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+      color: #1A2332;
+      outline: none;
+      background: #fff;
+    }
+    .form-input, .form-select { height: 40px; }
+    .form-textarea { padding: 10px 12px; resize: none; font-size: 13px; }
+    .form-hint {
+      font-size: 11px;
+      color: #90A4AE;
+      margin-top: 4px;
+    }
+
+    /* QR 스캔 영역 mock */
+    .scan-area {
+      border: 2.5px dashed #2B7FE0;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #F8FBFF 0%, #EBF3FF 100%);
+      padding: 36px 24px;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    .scan-area-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 12px;
+      border-radius: 16px;
+      background: #2B7FE0;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+    .scan-area-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1A2332;
+      margin-bottom: 4px;
+    }
+    .scan-area-sub {
+      font-size: 12px;
+      color: #546E7A;
+      margin-bottom: 14px;
+    }
+    .scan-area-btn {
+      height: 38px;
+      padding: 0 18px;
+      border-radius: 8px;
+      background: #2B7FE0;
+      color: #fff;
+      border: none;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .scan-method-tabs {
+      display: flex;
+      gap: 6px;
+      background: #F4F6F9;
+      padding: 4px;
+      border-radius: 8px;
+      margin-bottom: 14px;
+    }
+    .scan-method-tab {
+      flex: 1;
+      height: 36px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: #546E7A;
+      cursor: pointer;
+    }
+    .scan-method-tab.active {
+      background: #fff;
+      color: #2B7FE0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    /* 고급/폴백 토글 (시리얼 수기 입력) */
+    .advanced-toggle {
+      font-size: 12px;
+      color: #546E7A;
+      text-align: center;
+      cursor: pointer;
+      padding: 10px 0;
+      user-select: none;
+    }
+    .advanced-toggle:hover { color: #2B7FE0; }
+    .advanced-body { display: none; padding-top: 8px; }
+    .advanced-body.show { display: block; }
+
+    /* 회수 사유 라디오 */
+    .reason-list { display: flex; flex-direction: column; gap: 8px; }
+    .reason-list label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      border: 2px solid #D1D9E6;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1A2332;
+    }
+    .reason-list label:hover { border-color: #B0BEC5; }
+    .reason-list input[type="radio"] { accent-color: #E53935; }
+    .reason-list label.active { border-color: #E53935; background: #FFF8F8; }
+
+    /* BLE 근접 감지 가짜 리스트 */
+    .ble-list {
+      max-height: 220px;
+      overflow-y: auto;
+      border: 1px solid #D1D9E6;
+      border-radius: 10px;
+      background: #FAFBFC;
+    }
+    .ble-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid #F0F2F5;
+      cursor: pointer;
+    }
+    .ble-row:last-child { border-bottom: none; }
+    .ble-row:hover { background: #EBF3FF; }
+    .ble-row.selected { background: #EBF3FF; }
+    .ble-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      background: #EBF3FF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #2B7FE0;
+    }
+    .ble-info { flex: 1; }
+    .ble-info-id { font-size: 14px; font-weight: 700; color: #1A2332; }
+    .ble-info-sub { font-size: 12px; color: #546E7A; margin-top: 2px; }
+    .ble-signal {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: #E8FAF4;
+      color: #1B8A6B;
+    }
+
+    /* 본인 보유 안내 배너 */
+    .info-banner {
+      background: #EDE7F6;
+      border: 1px solid #D1C4E9;
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .info-banner-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #5E35B1;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .info-banner-text {
+      font-size: 13px;
+      color: #4527A0;
+      line-height: 1.6;
     }
   </style>
 </head>
@@ -515,64 +938,44 @@
 
   <!-- ── 메인 콘텐츠 ── -->
   <main>
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:16px;">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:16px;">
       <div>
         <div class="page-title" style="margin-bottom:4px;">기기 목록</div>
-        <div class="page-subtitle" style="margin-bottom:0;" id="page-subtitle">한마음내과의원 소속 <span id="page-device-count">48</span>개 기기</div>
+        <div class="page-subtitle" style="margin-bottom:0;">한마음내과의원에 등록된 모든 와치 기기 — 소유 유형별로 분리됩니다.</div>
       </div>
-      <button onclick="openRegisterModal()" style="height:40px;padding:0 18px;border-radius:8px;border:none;background:#2B7FE0;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">+ 기기 등록</button>
+      <div class="action-bar" id="rental-actions">
+        <button class="btn-secondary" onclick="openIntakeModal()">📦 박스 입고</button>
+        <button class="btn-primary" onclick="openPairingModal()">+ 페어링 시작</button>
+      </div>
     </div>
 
-    <!-- 요약 카드 4개 -->
-    <div class="summary-grid">
-      <div class="summary-card primary">
-        <span class="summary-card-label">전체 기기</span>
-        <span class="summary-card-value">48</span>
-        <span class="summary-card-sub">등록된 스마트워치 총합</span>
-        <div class="summary-card-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2B7FE0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-          </svg>
-        </div>
-      </div>
+    <!-- 소유 유형 탭 -->
+    <div class="ownership-tabs">
+      <button class="ownership-tab active" data-tab="rental" onclick="switchTab('rental')">
+        <span>🏥 대여 기기</span>
+        <span class="tab-badge rental">rental</span>
+        <span class="tab-count" id="count-rental">40</span>
+      </button>
+      <button class="ownership-tab" data-tab="personal" onclick="switchTab('personal')">
+        <span>👤 본인 보유</span>
+        <span class="tab-badge personal">personal</span>
+        <span class="tab-count" id="count-personal">8</span>
+      </button>
+    </div>
 
-      <div class="summary-card ok">
-        <span class="summary-card-label">정상 연결</span>
-        <span class="summary-card-value">44</span>
-        <span class="summary-card-sub">현재 정상 동작 중</span>
-        <div class="summary-card-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34C4A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-        </div>
+    <!-- 본인 보유 탭 안내 배너 (personal 탭일 때만 표시) -->
+    <div class="info-banner" id="personal-banner" style="display:none;">
+      <div class="info-banner-icon">i</div>
+      <div class="info-banner-text">
+        본인 보유(personal) 기기는 <strong>시니어 본인이 직접 페어링한 와치</strong>입니다. 와치관리자는 <em>조회 전용</em> 권한이며, 회수·재고 처리 권한이 없습니다.
+        <br/>
+        브랜드는 화이트리스트(<strong>Tier 1·2·3</strong>)만 허용되며, Tier별로 수집 가능한 데이터 항목이 다릅니다. 자세한 정책은 <code>glossary §4.2</code> 참조.
       </div>
+    </div>
 
-      <div class="summary-card err">
-        <span class="summary-card-label">연결 오류</span>
-        <span class="summary-card-value">4</span>
-        <span class="summary-card-sub">즉시 확인 필요</span>
-        <div class="summary-card-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E53935" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-        </div>
-      </div>
-
-      <div class="summary-card warn">
-        <span class="summary-card-label">오늘 배포 예정</span>
-        <span class="summary-card-value">3</span>
-        <span class="summary-card-sub">오늘 신규 배포 대상</span>
-        <div class="summary-card-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-            <line x1="16" y1="2" x2="16" y2="6"/>
-            <line x1="8" y1="2" x2="8" y2="6"/>
-            <line x1="3" y1="10" x2="21" y2="10"/>
-          </svg>
-        </div>
-      </div>
+    <!-- 요약 카드 — 탭별로 동적 갱신 -->
+    <div class="summary-grid" id="summary-grid">
+      <!-- renderSummary()로 채움 -->
     </div>
 
     <!-- 필터 바 -->
@@ -581,42 +984,22 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8FA3B1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
-        <input type="text" id="search-input" placeholder="기기번호 또는 시니어명으로 검색" oninput="filterTable()" />
+        <input type="text" id="search-input" placeholder="기기번호 또는 시니어명으로 검색" oninput="renderTable()" />
       </div>
-      <select class="filter-select" id="status-filter" onchange="filterTable()">
+      <select class="filter-select" id="status-filter" onchange="renderTable()">
         <option value="">상태: 전체</option>
-        <option value="정상">정상</option>
-        <option value="저배터리">저배터리</option>
-        <option value="연결오류">연결오류</option>
-        <option value="미배정">미배정</option>
+        <!-- renderStatusFilter()로 동적 채움 -->
       </select>
-      <select class="filter-select" id="staff-filter" onchange="filterTable()">
-        <option value="">담당의료진: 전체</option>
-        <option value="김성민">김성민 의사</option>
-        <option value="이수진">이수진 간호사</option>
-        <option value="박준형">박준형 의사</option>
-        <option value="최영진">최영진 의사</option>
-      </select>
-      <div class="filter-result" id="filter-result">
-        총 <strong id="result-count">12</strong>개 기기
+      <div class="filter-result">
+        총 <strong id="result-count">0</strong>개 기기
       </div>
     </div>
 
     <!-- 기기 테이블 -->
     <div class="card">
       <div class="table-wrap">
-        <table id="device-table">
-          <thead>
-            <tr>
-              <th>기기 번호</th>
-              <th>시니어명</th>
-              <th>상태</th>
-              <th>배터리</th>
-              <th>마지막 동기화</th>
-              <th>담당 의료진</th>
-              <th>액션</th>
-            </tr>
-          </thead>
+        <table>
+          <thead id="device-thead"></thead>
           <tbody id="device-tbody"></tbody>
         </table>
       </div>
@@ -624,234 +1007,628 @@
   </main>
 </div>
 
-<!-- ── 조치하기 모달 ── -->
-<div id="modal-action" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:500;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:20px;width:480px;box-shadow:0 20px 60px rgba(0,0,0,0.2);overflow:hidden;">
-    <div style="padding:22px 28px 18px;border-bottom:1px solid #F0F2F5;display:flex;align-items:center;justify-content:space-between;">
+<!-- ============================================ -->
+<!-- ── 박스 입고 모달 (rental 전용)            ── -->
+<!-- ============================================ -->
+<div class="modal-backdrop" id="modal-intake">
+  <div class="modal-box">
+    <div class="modal-head">
       <div>
-        <div style="font-size:17px;font-weight:700;color:#1A2332;" id="modal-device-title">기기 조치</div>
-        <div style="font-size:12px;color:#546E7A;margin-top:3px;" id="modal-device-meta"></div>
+        <div class="modal-title-md">📦 박스 입고</div>
+        <div class="modal-sub-md">박스 QR을 한 번 스캔하면 기기 전체가 일괄 재고 등록됩니다.</div>
       </div>
-      <button onclick="closeActionModal()" style="width:32px;height:32px;border-radius:50%;background:#F4F6F9;border:none;cursor:pointer;font-size:16px;color:#546E7A;">✕</button>
+      <button class="modal-close" onclick="closeModal('modal-intake')">✕</button>
     </div>
-    <div style="padding:24px 28px;">
-      <div style="display:flex;flex-direction:column;gap:14px;">
-        <div style="font-size:13px;font-weight:600;color:#546E7A;margin-bottom:2px;">조치 유형 선택</div>
-        <label style="display:flex;align-items:center;gap:10px;padding:12px 16px;border:2px solid #D1D9E6;border-radius:10px;cursor:pointer;transition:border-color 0.15s;" id="opt-visit">
-          <input type="radio" name="action-type" value="visit" style="accent-color:#2B7FE0;" onchange="selectOpt('opt-visit')"> <span style="font-size:14px;font-weight:600;">📞 담당 의료진에게 연락 요청</span>
-        </label>
-        <label style="display:flex;align-items:center;gap:10px;padding:12px 16px;border:2px solid #D1D9E6;border-radius:10px;cursor:pointer;" id="opt-replace">
-          <input type="radio" name="action-type" value="replace" style="accent-color:#2B7FE0;" onchange="selectOpt('opt-replace')"> <span style="font-size:14px;font-weight:600;">🔄 기기 교체 요청</span>
-        </label>
-        <label style="display:flex;align-items:center;gap:10px;padding:12px 16px;border:2px solid #D1D9E6;border-radius:10px;cursor:pointer;" id="opt-recall">
-          <input type="radio" name="action-type" value="recall" style="accent-color:#2B7FE0;" onchange="selectOpt('opt-recall')"> <span style="font-size:14px;font-weight:600;">📥 기기 회수 처리</span>
-        </label>
+    <div class="modal-body">
+      <div class="scan-area">
+        <div class="scan-area-icon">📷</div>
+        <div class="scan-area-title">박스 외부 QR 스캔</div>
+        <div class="scan-area-sub">박스 상단의 QR 라벨을 카메라에 가져다 대세요.</div>
+        <button class="scan-area-btn" onclick="mockIntakeScan()">시뮬레이션: 박스 스캔</button>
       </div>
-      <div style="margin-top:18px;">
-        <label style="font-size:13px;font-weight:600;color:#546E7A;display:block;margin-bottom:6px;">메모 (선택)</label>
-        <textarea id="action-memo" rows="3" placeholder="조치 관련 내용을 입력하세요" style="width:100%;padding:10px 12px;border:1px solid #D1D9E6;border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:13px;resize:none;outline:none;"></textarea>
+
+      <div class="advanced-toggle" onclick="toggleAdvanced('intake-advanced')">⚙ 고급 — CSV 임포트 / 시리얼 수기 입력 ▾</div>
+      <div class="advanced-body" id="intake-advanced">
+        <label class="form-label">CSV 파일 업로드 (시리얼 목록)</label>
+        <input type="file" class="form-input" style="height:auto;padding:8px 12px;" accept=".csv" />
+        <div class="form-hint">vendor가 제공하는 manifest CSV. 컬럼: <code>serial_no</code></div>
+        <div style="margin-top:14px;">
+          <label class="form-label">시리얼 수기 입력 (1줄에 1개)</label>
+          <textarea class="form-textarea" rows="4" placeholder="HW-A2X-049&#10;HW-A2X-050&#10;HW-A2X-051"></textarea>
+        </div>
       </div>
     </div>
-    <div style="padding:16px 28px 24px;border-top:1px solid #F0F2F5;display:flex;justify-content:flex-end;gap:10px;">
-      <button onclick="closeActionModal()" style="height:40px;padding:0 20px;border-radius:8px;border:1px solid #D1D9E6;background:#fff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer;color:#546E7A;">취소</button>
-      <button onclick="submitAction()" style="height:40px;padding:0 24px;border-radius:8px;border:none;background:#E53935;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">조치 등록</button>
+    <div class="modal-foot">
+      <button class="btn-sm" onclick="closeModal('modal-intake')">취소</button>
+      <button class="btn-primary" onclick="submitIntake()">재고 등록</button>
     </div>
   </div>
 </div>
 
-<!-- ── 새 기기 등록 모달 ── -->
-<div id="modal-register" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:500;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:20px;width:520px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
-    <div style="padding:22px 28px 18px;border-bottom:1px solid #F0F2F5;display:flex;align-items:center;justify-content:space-between;">
+<!-- ============================================ -->
+<!-- ── 페어링 모달 (rental 전용)               ── -->
+<!-- ============================================ -->
+<div class="modal-backdrop" id="modal-pairing">
+  <div class="modal-box">
+    <div class="modal-head">
       <div>
-        <div style="font-size:17px;font-weight:700;color:#1A2332;">새 기기 등록</div>
-        <div style="font-size:12px;color:#546E7A;margin-top:3px;">기기번호와 시니어를 매칭해 한 번에 등록합니다.</div>
+        <div class="modal-title-md">🔗 페어링 시작</div>
+        <div class="modal-sub-md">시니어와 재고 기기를 매핑합니다.</div>
       </div>
-      <button onclick="closeRegisterModal()" style="width:32px;height:32px;border-radius:50%;background:#F4F6F9;border:none;cursor:pointer;font-size:16px;color:#546E7A;">✕</button>
+      <button class="modal-close" onclick="closeModal('modal-pairing')">✕</button>
     </div>
-    <div style="padding:24px 28px;display:flex;flex-direction:column;gap:14px;">
-      <div>
-        <label style="font-size:13px;font-weight:600;color:#546E7A;display:block;margin-bottom:6px;">기기 번호 *</label>
-        <input id="reg-id" type="text" placeholder="예: W-049" style="width:100%;height:40px;padding:0 12px;border:1px solid #D1D9E6;border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:14px;color:#1A2332;outline:none;" />
-        <div style="font-size:11px;color:#90A4AE;margin-top:4px;">자동 채워집니다 (수정 가능)</div>
-      </div>
-      <div>
-        <label style="font-size:13px;font-weight:600;color:#546E7A;display:block;margin-bottom:6px;">시니어 *</label>
-        <select id="reg-senior" style="width:100%;height:40px;padding:0 12px;border:1px solid #D1D9E6;border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:14px;color:#1A2332;outline:none;background:#fff;">
-          <option value="">-- 미배정 상태로 등록 --</option>
+    <div class="modal-body">
+      <div style="margin-bottom:16px;">
+        <label class="form-label">① 시니어 선택 *</label>
+        <select class="form-select" id="pair-senior">
+          <option value="">-- 시니어 검색 / 선택 --</option>
           <option>이영자 (81세 여 · 서울 송파구)</option>
           <option>한복선 (77세 여 · 경기 안양시)</option>
           <option>조정민 (84세 남 · 부산 사하구)</option>
           <option>윤희자 (79세 여 · 대전 서구)</option>
           <option>배기철 (83세 남 · 광주 북구)</option>
         </select>
-        <div style="font-size:11px;color:#90A4AE;margin-top:4px;">앱 가입 후 기기가 없는 시니어 5명. 빈칸으로 두면 "미배정" 상태로 등록</div>
+        <div class="form-hint">앱 가입 후 기기 미배정 시니어 5명</div>
       </div>
-      <div>
-        <label style="font-size:13px;font-weight:600;color:#546E7A;display:block;margin-bottom:6px;">담당 의료진 *</label>
-        <select id="reg-staff" style="width:100%;height:40px;padding:0 12px;border:1px solid #D1D9E6;border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:14px;color:#1A2332;outline:none;background:#fff;">
-          <option value="">-- 담당 의료진 선택 --</option>
+
+      <label class="form-label">② 기기 선택 *</label>
+      <div class="scan-method-tabs">
+        <button class="scan-method-tab active" data-method="qr" onclick="switchScanMethod('qr')">📷 기기 QR 스캔</button>
+        <button class="scan-method-tab" data-method="ble" onclick="switchScanMethod('ble')">📡 BLE 근접 감지</button>
+      </div>
+
+      <div id="scan-qr">
+        <div class="scan-area">
+          <div class="scan-area-icon">📷</div>
+          <div class="scan-area-title">기기 본체 QR 스캔</div>
+          <div class="scan-area-sub">와치 뒷면 또는 박스 라벨의 QR을 스캔하세요.</div>
+          <button class="scan-area-btn" onclick="mockPairingScan('HW-A2X-049')">시뮬레이션: 스캔</button>
+        </div>
+      </div>
+
+      <div id="scan-ble" style="display:none;">
+        <div style="font-size:12px;color:#546E7A;margin-bottom:8px;">반경 2m 이내 와치를 자동 감지합니다.</div>
+        <div class="ble-list">
+          <div class="ble-row" onclick="selectBle(this, 'HW-A2X-049')">
+            <div class="ble-icon">⌚</div>
+            <div class="ble-info">
+              <div class="ble-info-id">HW-A2X-049 <span style="font-weight:400;color:#90A4AE;font-size:12px;">(끝 4자리: …X049)</span></div>
+              <div class="ble-info-sub">재고 · 배터리 100% · 전원 ON</div>
+            </div>
+            <span class="ble-signal">신호 강함</span>
+          </div>
+          <div class="ble-row" onclick="selectBle(this, 'HW-A2X-051')">
+            <div class="ble-icon">⌚</div>
+            <div class="ble-info">
+              <div class="ble-info-id">HW-A2X-051 <span style="font-weight:400;color:#90A4AE;font-size:12px;">(끝 4자리: …X051)</span></div>
+              <div class="ble-info-sub">재고 · 배터리 92% · 전원 ON</div>
+            </div>
+            <span class="ble-signal">신호 강함</span>
+          </div>
+          <div class="ble-row" onclick="selectBle(this, 'HW-A2X-053')">
+            <div class="ble-icon">⌚</div>
+            <div class="ble-info">
+              <div class="ble-info-id">HW-A2X-053 <span style="font-weight:400;color:#90A4AE;font-size:12px;">(끝 4자리: …X053)</span></div>
+              <div class="ble-info-sub">재고 · 배터리 88% · 전원 ON</div>
+            </div>
+            <span class="ble-signal" style="background:#FFF3E0;color:#E65100;">신호 약함</span>
+          </div>
+        </div>
+        <div class="form-hint" style="margin-top:8px;">⚠ 다인실에서는 신호 강함 기기만 선택 + 끝 4자리 재확인</div>
+      </div>
+
+      <div class="advanced-toggle" onclick="toggleAdvanced('pair-advanced')">⚙ 고급 — 시리얼 수기 입력 (QR 손상 시) ▾</div>
+      <div class="advanced-body" id="pair-advanced">
+        <label class="form-label">시리얼 직접 입력</label>
+        <input class="form-input" placeholder="예: HW-A2X-049" id="pair-serial-manual" />
+        <div class="form-hint">QR 라벨이 손상된 경우에만 사용. 오타 위험 있음.</div>
+      </div>
+
+      <div style="margin-top:14px;background:#F4F6F9;border-radius:10px;padding:12px 14px;display:flex;gap:10px;align-items:center;">
+        <span style="font-size:13px;color:#546E7A;">선택된 기기:</span>
+        <span id="pair-device-display" style="font-size:14px;font-weight:700;color:#1A2332;">— 미선택 —</span>
+      </div>
+
+      <div style="margin-top:14px;">
+        <label class="form-label">담당 의료진</label>
+        <select class="form-select" id="pair-staff">
           <option>김성민 의사</option>
           <option>이수진 간호사</option>
           <option>박준형 의사</option>
           <option>최영진 의사</option>
         </select>
       </div>
-      <div>
-        <label style="font-size:13px;font-weight:600;color:#546E7A;display:block;margin-bottom:6px;">초기 상태</label>
-        <select id="reg-status" style="width:100%;height:40px;padding:0 12px;border:1px solid #D1D9E6;border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:14px;color:#1A2332;outline:none;background:#fff;">
-          <option value="정상">정상 (페어링 완료, 데이터 수집 시작)</option>
-          <option value="미배정">미배정 (기기만 등록, 시니어 매칭 대기)</option>
-        </select>
-      </div>
-      <div>
-        <label style="font-size:13px;font-weight:600;color:#546E7A;display:block;margin-bottom:6px;">메모 (선택)</label>
-        <textarea id="reg-memo" rows="2" placeholder="배포 위치·일정 등 메모" style="width:100%;padding:10px 12px;border:1px solid #D1D9E6;border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:13px;resize:none;outline:none;"></textarea>
-      </div>
     </div>
-    <div style="padding:16px 28px 24px;border-top:1px solid #F0F2F5;display:flex;justify-content:flex-end;gap:10px;">
-      <button onclick="closeRegisterModal()" style="height:40px;padding:0 20px;border-radius:8px;border:1px solid #D1D9E6;background:#fff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer;color:#546E7A;">취소</button>
-      <button onclick="submitRegister()" style="height:40px;padding:0 24px;border-radius:8px;border:none;background:#2B7FE0;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">기기 등록</button>
+    <div class="modal-foot">
+      <button class="btn-sm" onclick="closeModal('modal-pairing')">취소</button>
+      <button class="btn-primary" onclick="submitPairing()">페어링대기로 등록</button>
     </div>
   </div>
 </div>
 
-<!-- 토스트 -->
+<!-- ============================================ -->
+<!-- ── 회수 모달 (rental 전용)                 ── -->
+<!-- ============================================ -->
+<div class="modal-backdrop" id="modal-recall">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title-md">📥 기기 회수</div>
+        <div class="modal-sub-md" id="recall-device-meta">— 회수 대상 —</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-recall')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:#5D4037;line-height:1.6;">
+        ⚠ 회수 처리 시:
+        <ul style="margin:6px 0 0 18px;">
+          <li>기기 ↔ 시니어 매핑이 종료되고 이력에 보존됩니다.</li>
+          <li>이후 24시간 동안 누락 데이터 업로드만 허용됩니다.</li>
+          <li>점검 통과 후에만 재고 복귀가 가능합니다.</li>
+        </ul>
+      </div>
+
+      <label class="form-label">회수 사유 *</label>
+      <div class="reason-list">
+        <label onclick="selectReason(this)"><input type="radio" name="recall-reason" value="expired"> 대여 기간 만료 <span style="color:#90A4AE;font-size:12px;">(expired)</span></label>
+        <label onclick="selectReason(this)"><input type="radio" name="recall-reason" value="lost"> 분실 <span style="color:#90A4AE;font-size:12px;">(lost)</span></label>
+        <label onclick="selectReason(this)"><input type="radio" name="recall-reason" value="deceased"> 시니어 사망 <span style="color:#90A4AE;font-size:12px;">(deceased)</span></label>
+        <label onclick="selectReason(this)"><input type="radio" name="recall-reason" value="replaced"> 기기 교체 (장애·업그레이드) <span style="color:#90A4AE;font-size:12px;">(replaced)</span></label>
+        <label onclick="selectReason(this)"><input type="radio" name="recall-reason" value="user_request"> 시니어 요청 <span style="color:#90A4AE;font-size:12px;">(user_request)</span></label>
+      </div>
+
+      <div style="margin-top:16px;">
+        <label class="form-label">메모 (선택)</label>
+        <textarea class="form-textarea" rows="2" id="recall-memo" placeholder="회수 관련 보충 설명"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sm" onclick="closeModal('modal-recall')">취소</button>
+      <button class="btn-sm danger" onclick="submitRecall()">회수 확정</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 토스트 ── -->
 <div id="toast" style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:#1A2332;color:#fff;border-radius:10px;padding:12px 22px;font-size:14px;font-weight:500;z-index:600;transition:transform 0.3s;white-space:nowrap;pointer-events:none;"></div>
 
 <script>
-  /* ── 데이터 ── */
+  /* ──────────────────────────────────────────────
+   * 상태 머신 (glossary §4.3)
+   * ──────────────────────────────────────────────*/
+  const STATUS = {
+    in_stock:        { label: '재고',       badge: 'badge-stock'   },
+    pairing_wait:    { label: '페어링대기', badge: 'badge-pairing' },
+    active:          { label: '사용중',     badge: 'badge-ok'      },
+    retrieval_wait:  { label: '회수대기',   badge: 'badge-recall'  },
+    maintenance:     { label: '점검중',     badge: 'badge-fix'     },
+    returned_stock:  { label: '재고복귀',   badge: 'badge-back'    },
+    lost:            { label: '분실',       badge: 'badge-err'     },
+    disposed:        { label: '폐기',       badge: 'badge-none'    }
+  };
+
+  /* glossary §4.2 — 브랜드 화이트리스트 */
+  const BRAND_INFO = {
+    healthwatch: { name: 'HealthWatch', icon: '⌚', cls: 'healthwatch' },
+    apple:       { name: 'Apple',       icon: '',  cls: 'apple'       },
+    samsung:     { name: 'Samsung',     icon: '◐',  cls: 'samsung'     },
+    fitbit:      { name: 'Fitbit',      icon: '◇',  cls: 'fitbit'      },
+    garmin:      { name: 'Garmin',      icon: 'G',  cls: 'garmin'      },
+    xiaomi:      { name: 'Xiaomi',      icon: 'Mi', cls: 'xiaomi'      },
+    coros:       { name: 'COROS',       icon: 'C',  cls: 'garmin'      },
+    amazfit:     { name: 'Amazfit',     icon: 'A',  cls: 'xiaomi'      }
+  };
+  const TIER_INFO = {
+    tier1: { label: '✅ Tier 1', short: 'Tier 1', desc: '의료급'       },
+    tier2: { label: '⚠️ Tier 2', short: 'Tier 2', desc: '일부 항목 누락' },
+    tier3: { label: '🧪 Tier 3', short: 'Tier 3', desc: '실험적'        }
+  };
+
+  /* ──────────────────────────────────────────────
+   * 데이터 — ownership 분기 (rental / personal)
+   * ──────────────────────────────────────────────*/
   const DEVICES = [
-    { id: 'W-001', name: '강말례', status: '정상', battery: 92,  sync: '2분 전',    staff: '김성민 의사' },
-    { id: 'W-005', name: '유정희', status: '정상', battery: 78,  sync: '8분 전',    staff: '이수진 간호사' },
-    { id: 'W-012', name: '박철수', status: '저배터리', battery: 22, sync: '15분 전', staff: '박준형 의사' },
-    { id: 'W-015', name: '김순자', status: '정상', battery: 80,  sync: '5분 전',    staff: '최영진 의사' },
-    { id: 'W-023', name: '김순자', status: '연결오류', battery: 12, sync: '2시간 전', staff: '김성민 의사' },
-    { id: 'W-031', name: '박영자', status: '연결오류', battery: 3,  sync: '6시간 전', staff: '이수진 간호사' },
-    { id: 'W-037', name: '이정자', status: '연결오류', battery: 8,  sync: '4시간 전', staff: '최영진 의사' },
-    { id: 'W-038', name: '한영숙', status: '정상', battery: 65,  sync: '3분 전',    staff: '박준형 의사' },
-    { id: 'W-042', name: '최말순', status: '연결오류', battery: 0,  sync: '11시간 전', staff: '최영진 의사' },
-    { id: 'W-046', name: '윤길자', status: '정상', battery: 100, sync: '방금 전',   staff: '이수진 간호사' },
-    { id: 'W-047', name: '노순옥', status: '정상', battery: 55,  sync: '20분 전',   staff: '김성민 의사' },
-    { id: 'W-048', name: '조말례', status: '정상', battery: 88,  sync: '1분 전',    staff: '최영진 의사' },
+    // ── rental: 사용중 ──
+    { id:'HW-A2X-001', ownership:'rental', name:'강말례', status:'active', battery:92, sync:'2분 전',  staff:'김성민 의사' },
+    { id:'HW-A2X-005', ownership:'rental', name:'유정희', status:'active', battery:78, sync:'8분 전',  staff:'이수진 간호사' },
+    { id:'HW-A2X-012', ownership:'rental', name:'박철수', status:'active', battery:22, sync:'15분 전', staff:'박준형 의사',  alerts:['저배터리'] },
+    { id:'HW-A2X-015', ownership:'rental', name:'김순자', status:'active', battery:80, sync:'5분 전',  staff:'최영진 의사' },
+    { id:'HW-A2X-023', ownership:'rental', name:'정희자', status:'active', battery:12, sync:'2시간 전', staff:'김성민 의사', alerts:['저배터리','통신지연'] },
+    { id:'HW-A2X-038', ownership:'rental', name:'한영숙', status:'active', battery:65, sync:'3분 전',  staff:'박준형 의사' },
+    { id:'HW-A2X-046', ownership:'rental', name:'윤길자', status:'active', battery:100, sync:'방금 전', staff:'이수진 간호사' },
+    { id:'HW-A2X-047', ownership:'rental', name:'노순옥', status:'active', battery:55, sync:'20분 전', staff:'김성민 의사' },
+    { id:'HW-A2X-048', ownership:'rental', name:'조말례', status:'active', battery:88, sync:'1분 전',  staff:'최영진 의사' },
+    // ── rental: 페어링대기 ──
+    { id:'HW-A2X-050', ownership:'rental', name:'이영자', status:'pairing_wait', battery:100, sync:'-',         staff:'김성민 의사' },
+    // ── rental: 재고 ──
+    { id:'HW-A2X-049', ownership:'rental', name:'',       status:'in_stock', battery:100, sync:'-',         staff:'-' },
+    { id:'HW-A2X-051', ownership:'rental', name:'',       status:'in_stock', battery:92,  sync:'-',         staff:'-' },
+    { id:'HW-A2X-052', ownership:'rental', name:'',       status:'in_stock', battery:88,  sync:'-',         staff:'-' },
+    // ── rental: 회수대기 / 점검중 / 폐기 ──
+    { id:'HW-A2X-031', ownership:'rental', name:'박영자', status:'retrieval_wait', battery:3, sync:'6시간 전', staff:'이수진 간호사', alerts:['회수예정'] },
+    { id:'HW-A2X-037', ownership:'rental', name:'-',       status:'maintenance',   battery:0, sync:'-',         staff:'-' },
+    { id:'HW-A2X-042', ownership:'rental', name:'-',       status:'disposed',      battery:0, sync:'-',         staff:'-' },
+
+    // ── personal (brand 화이트리스트 §4.2) ──
+    { id:'P-AWG-001', ownership:'personal', name:'정수영', status:'active',       battery:55,  sync:'10분 전', brand:'apple',   model:'Watch Series 9',    tier:'tier1' },
+    { id:'P-GWG-002', ownership:'personal', name:'장태경', status:'active',       battery:78,  sync:'5분 전',  brand:'samsung', model:'Galaxy Watch 6',    tier:'tier1' },
+    { id:'P-FBT-003', ownership:'personal', name:'홍길순', status:'active',       battery:91,  sync:'2분 전',  brand:'fitbit',  model:'Charge 6',          tier:'tier2' },
+    { id:'P-GMN-004', ownership:'personal', name:'박현숙', status:'active',       battery:64,  sync:'7분 전',  brand:'garmin',  model:'Vivosmart 5',       tier:'tier2' },
+    { id:'P-MIB-005', ownership:'personal', name:'김명자', status:'active',       battery:38,  sync:'25분 전', brand:'xiaomi',  model:'Mi Band 8',         tier:'tier3', alerts:['데이터 끊김'] },
+    { id:'P-AWG-006', ownership:'personal', name:'최영자', status:'pairing_wait', battery:100, sync:'-',       brand:'apple',   model:'Watch SE (2세대)',  tier:'tier1' }
   ];
 
-  /* ── 배지 설정 ── */
-  function badgeCls(status) {
-    if (status === '정상')   return 'badge-ok';
-    if (status === '저배터리') return 'badge-warn';
-    if (status === '연결오류') return 'badge-err';
-    return 'badge-none';
+  /* ──────────────────────────────────────────────
+   * 탭 / 필터 상태
+   * ──────────────────────────────────────────────*/
+  let currentTab = 'rental';
+  let selectedDeviceForRecall = null;
+  let pendingPairDevice = null;
+
+  /* ──────────────────────────────────────────────
+   * 상태별 가용 액션 (이 탭에서 어떤 버튼이 나오는가)
+   * ──────────────────────────────────────────────*/
+  const RENTAL_ACTIONS = {
+    in_stock:        [{ label: '페어링 시작', cls: 'btn-sm', fn: 'openPairingModal' }],
+    pairing_wait:    [{ label: '상세 보기', cls: 'btn-sm', fn: 'gotoDetail' }],
+    active:          [{ label: '상세 보기', cls: 'btn-sm', fn: 'gotoDetail' },
+                      { label: '회수',     cls: 'btn-sm danger', fn: 'openRecallModal' }],
+    retrieval_wait:  [{ label: '점검 보내기', cls: 'btn-sm', fn: 'sendMaintenance' }],
+    maintenance:     [{ label: '재고 복귀', cls: 'btn-sm success', fn: 'returnToStock' },
+                      { label: '폐기',     cls: 'btn-sm danger',  fn: 'disposeDevice' }],
+    returned_stock:  [{ label: '페어링 시작', cls: 'btn-sm', fn: 'openPairingModal' }],
+    lost:            [{ label: '상세 보기', cls: 'btn-sm', fn: 'gotoDetail' }],
+    disposed:        [{ label: '상세 보기', cls: 'btn-sm', fn: 'gotoDetail' }]
+  };
+  // personal: 조회만 — 액션 없음
+  const PERSONAL_ACTIONS_DEFAULT = [{ label: '상세 보기', cls: 'btn-sm', fn: 'gotoDetail' }];
+
+  /* ──────────────────────────────────────────────
+   * 탭 전환
+   * ──────────────────────────────────────────────*/
+  function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.ownership-tab').forEach(b => {
+      b.classList.toggle('active', b.dataset.tab === tab);
+    });
+    // 액션 바: rental만 표시
+    document.getElementById('rental-actions').style.display = (tab === 'rental') ? 'flex' : 'none';
+    // 본인 보유 배너
+    document.getElementById('personal-banner').style.display = (tab === 'personal') ? 'flex' : 'none';
+    renderStatusFilter();
+    renderSummary();
+    renderTable();
   }
 
-  /* ── 배터리 바 색상 ── */
-  function batteryFillCls(pct) {
-    if (pct <= 15) return 'low';
-    if (pct <= 30) return 'mid';
-    return 'ok';
-  }
-  function batteryTextColor(pct) {
-    if (pct <= 15) return '#E53935';
-    if (pct <= 30) return '#E65100';
-    return '#546E7A';
-  }
-
-  /* ── 동기화 시간 색상 ── */
-  function syncColor(status) {
-    return status === '연결오류' ? '#E53935' : '#546E7A';
-  }
-  function syncWeight(status) {
-    return status === '연결오류' ? '600' : '400';
+  /* ──────────────────────────────────────────────
+   * 상태 필터 옵션 (탭별로 다름)
+   * ──────────────────────────────────────────────*/
+  function renderStatusFilter() {
+    const sel = document.getElementById('status-filter');
+    const statuses = currentTab === 'rental'
+      ? ['in_stock','pairing_wait','active','retrieval_wait','maintenance','returned_stock','disposed']
+      : ['pairing_wait','active','lost'];
+    sel.innerHTML = '<option value="">상태: 전체</option>' +
+      statuses.map(s => `<option value="${s}">${STATUS[s].label}</option>`).join('');
   }
 
-  /* ── 행 렌더링 ── */
-  function renderRow(d) {
-    const bc   = badgeCls(d.status);
-    const bfc  = batteryFillCls(d.battery);
-    const btc  = batteryTextColor(d.battery);
-    const sc   = syncColor(d.status);
-    const sw   = syncWeight(d.status);
-    const isErr = d.status === '연결오류';
+  /* ──────────────────────────────────────────────
+   * 요약 카드
+   * ──────────────────────────────────────────────*/
+  function renderSummary() {
+    const filtered = DEVICES.filter(d => d.ownership === currentTab);
+    document.getElementById('count-rental').textContent   = DEVICES.filter(d => d.ownership === 'rental').length;
+    document.getElementById('count-personal').textContent = DEVICES.filter(d => d.ownership === 'personal').length;
 
-    const actionBtn = isErr
-      ? `<button class="btn-sm danger" onclick="openActionModal('${d.id}','${d.name}')">조치하기</button>`
-      : `<button class="btn-sm" onclick="location.href='device-detail.html'">상세 보기</button>`;
+    const grid = document.getElementById('summary-grid');
+    let cards = '';
 
-    return `
-      <tr data-id="${d.id}" data-name="${d.name}" data-status="${d.status}" data-staff="${d.staff}">
-        <td><strong>${d.id}</strong></td>
-        <td>${d.name}</td>
-        <td><span class="badge ${bc}"><span class="badge-dot"></span>${d.status}</span></td>
-        <td>
-          <div class="battery-bar-wrap">
-            <div class="battery-bar">
-              <div class="battery-bar-fill ${bfc}" style="width:${d.battery}%"></div>
-            </div>
-            <span style="font-size:12px;color:${btc};">${d.battery}%</span>
+    if (currentTab === 'rental') {
+      const total       = filtered.length;
+      const active      = filtered.filter(d => d.status === 'active').length;
+      const inStock     = filtered.filter(d => d.status === 'in_stock').length;
+      const alerts      = filtered.filter(d => d.alerts && d.alerts.length).length;
+      cards = `
+        <div class="summary-card primary">
+          <span class="summary-card-label">대여 기기 전체</span>
+          <span class="summary-card-value">${total}</span>
+          <span class="summary-card-sub">기관 보유 자산</span>
+          <div class="summary-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2B7FE0" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
           </div>
-        </td>
-        <td style="color:${sc};font-size:13px;font-weight:${sw};">${d.sync}</td>
-        <td>${d.staff}</td>
-        <td>${actionBtn}</td>
-      </tr>`;
+        </div>
+        <div class="summary-card ok">
+          <span class="summary-card-label">사용중</span>
+          <span class="summary-card-value">${active}</span>
+          <span class="summary-card-sub">시니어에게 배포되어 활성</span>
+          <div class="summary-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34C4A0" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+        <div class="summary-card stock">
+          <span class="summary-card-label">재고</span>
+          <span class="summary-card-value">${inStock}</span>
+          <span class="summary-card-sub">배정 대기 중인 기기</span>
+          <div class="summary-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#546E7A" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+        </div>
+        <div class="summary-card err">
+          <span class="summary-card-label">알람 발생</span>
+          <span class="summary-card-value">${alerts}</span>
+          <span class="summary-card-sub">저배터리·통신지연 등</span>
+          <div class="summary-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E53935" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+        </div>
+      `;
+    } else {
+      const total = filtered.length;
+      const t1    = filtered.filter(d => d.tier === 'tier1').length;
+      const t2    = filtered.filter(d => d.tier === 'tier2').length;
+      const t3    = filtered.filter(d => d.tier === 'tier3').length;
+      cards = `
+        <div class="summary-card primary">
+          <span class="summary-card-label">본인 보유 전체</span>
+          <span class="summary-card-value">${total}</span>
+          <span class="summary-card-sub">시니어 자가 페어링</span>
+          <div class="summary-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5E35B1" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg>
+          </div>
+        </div>
+        <div class="summary-card ok">
+          <span class="summary-card-label">Tier 1 (의료급)</span>
+          <span class="summary-card-value">${t1}</span>
+          <span class="summary-card-sub">HealthWatch · Apple · Galaxy</span>
+          <div class="summary-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34C4A0" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+        <div class="summary-card warn">
+          <span class="summary-card-label">Tier 2 (부분 지원)</span>
+          <span class="summary-card-value">${t2}</span>
+          <span class="summary-card-sub">Fitbit · Garmin · COROS</span>
+          <div class="summary-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+        </div>
+        <div class="summary-card stock">
+          <span class="summary-card-label">Tier 3 (실험적)</span>
+          <span class="summary-card-value">${t3}</span>
+          <span class="summary-card-sub">Xiaomi · Amazfit</span>
+          <div class="summary-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#546E7A" stroke-width="2"><path d="M9 2v6l-3 8a4 4 0 0 0 4 6h4a4 4 0 0 0 4-6l-3-8V2"/><line x1="9" y1="2" x2="15" y2="2"/></svg>
+          </div>
+        </div>
+      `;
+    }
+    grid.innerHTML = cards;
   }
 
-  /* ── 초기 렌더 ── */
-  function renderAll(list) {
+  /* ──────────────────────────────────────────────
+   * 테이블
+   * ──────────────────────────────────────────────*/
+  function renderTable() {
+    const q      = document.getElementById('search-input').value.trim().toLowerCase();
+    const status = document.getElementById('status-filter').value;
+
+    const list = DEVICES.filter(d => d.ownership === currentTab && (
+      (!q || d.id.toLowerCase().includes(q) || (d.name && d.name.includes(q))) &&
+      (!status || d.status === status)
+    ));
+
+    // 헤더
+    const thead = document.getElementById('device-thead');
+    const cols = currentTab === 'rental'
+      ? ['기기 번호','시니어명','상태','배터리','마지막 동기화','담당 의료진','액션']
+      : ['기기 ID','시니어명','상태','배터리','마지막 동기화','브랜드 / 모델','Tier','액션'];
+    thead.innerHTML = '<tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr>';
+
     const tbody = document.getElementById('device-tbody');
     if (list.length === 0) {
-      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">검색 조건에 해당하는 기기가 없습니다.</td></tr>';
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="${cols.length}">검색 조건에 해당하는 기기가 없습니다.</td></tr>`;
     } else {
       tbody.innerHTML = list.map(renderRow).join('');
     }
     document.getElementById('result-count').textContent = list.length;
   }
 
-  renderAll(DEVICES);
+  function renderRow(d) {
+    const st = STATUS[d.status];
+    const statusBadge = `<span class="badge ${st.badge}"><span class="badge-dot"></span>${st.label}</span>`;
 
-  /* ── 필터 ── */
-  function filterTable() {
-    const q      = document.getElementById('search-input').value.trim().toLowerCase();
-    const status = document.getElementById('status-filter').value;
-    const staff  = document.getElementById('staff-filter').value;
+    // 알람 칩
+    const alertChips = (d.alerts || []).map(a =>
+      `<span class="alert-chip ${a === '저배터리' ? 'warn' : ''}">⚠ ${a}</span>`
+    ).join('');
 
-    const filtered = DEVICES.filter(d => {
-      const matchQ = !q || d.id.toLowerCase().includes(q) || d.name.includes(q);
-      const matchS = !status || d.status === status;
-      const matchP = !staff  || d.staff.includes(staff);
-      return matchQ && matchS && matchP;
+    // 배터리
+    let battery;
+    if (d.status === 'in_stock' || d.status === 'maintenance' || d.status === 'disposed' || d.status === 'returned_stock') {
+      battery = `<span class="battery-na">—</span>`;
+    } else {
+      const fc = d.battery <= 15 ? 'low' : d.battery <= 30 ? 'mid' : 'ok';
+      const tc = d.battery <= 15 ? '#E53935' : d.battery <= 30 ? '#E65100' : '#546E7A';
+      battery = `<div class="battery-bar-wrap">
+        <div class="battery-bar"><div class="battery-bar-fill ${fc}" style="width:${d.battery}%"></div></div>
+        <span style="font-size:12px;color:${tc};">${d.battery}%</span>
+      </div>`;
+    }
+
+    // 액션
+    const acts = currentTab === 'rental'
+      ? (RENTAL_ACTIONS[d.status] || [])
+      : PERSONAL_ACTIONS_DEFAULT;
+    const actionBtns = acts.map(a =>
+      `<button class="${a.cls}" onclick="${a.fn}('${d.id}','${d.name || '-'}')">${a.label}</button>`
+    ).join('');
+
+    const seniorCell = d.name
+      ? d.name + alertChips
+      : '<span style="color:#B0BEC5;">—</span>';
+
+    if (currentTab === 'rental') {
+      return `
+        <tr>
+          <td><strong>${d.id}</strong></td>
+          <td>${seniorCell}</td>
+          <td>${statusBadge}</td>
+          <td>${battery}</td>
+          <td style="color:${d.alerts && d.alerts.includes('통신지연') ? '#E53935' : '#546E7A'};font-size:13px;">${d.sync}</td>
+          <td>${d.staff}</td>
+          <td>${actionBtns}</td>
+        </tr>`;
+    } else {
+      const br = BRAND_INFO[d.brand] || { name: d.brand || '-', icon: '?', cls: 'healthwatch' };
+      const tier = TIER_INFO[d.tier] || { short: '-' };
+      const brandCell = `
+        <div class="brand-cell">
+          <div class="brand-logo ${br.cls}">${br.icon}</div>
+          <div>
+            <div class="brand-name">${br.name}</div>
+            <div class="brand-model">${d.model || ''}</div>
+          </div>
+        </div>`;
+      const tierCell = d.tier
+        ? `<span class="tier-badge ${d.tier}" title="${tier.desc || ''}">${tier.short}</span>`
+        : '<span style="color:#B0BEC5;">—</span>';
+      return `
+        <tr>
+          <td><strong>${d.id}</strong></td>
+          <td>${seniorCell}</td>
+          <td>${statusBadge}</td>
+          <td>${battery}</td>
+          <td style="color:#546E7A;font-size:13px;">${d.sync}</td>
+          <td>${brandCell}</td>
+          <td>${tierCell}</td>
+          <td>${actionBtns}</td>
+        </tr>`;
+    }
+  }
+
+  /* ──────────────────────────────────────────────
+   * 모달 공통
+   * ──────────────────────────────────────────────*/
+  function openModal(id) { document.getElementById(id).classList.add('show'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+  /* 박스 입고 */
+  function openIntakeModal() { openModal('modal-intake'); }
+  function mockIntakeScan() {
+    closeModal('modal-intake');
+    // 가짜 신규 재고 3대 추가
+    ['053','054','055'].forEach(n => {
+      DEVICES.push({ id:'HW-A2X-'+n, ownership:'rental', name:'', status:'in_stock', battery:100, sync:'-', staff:'-' });
     });
-
-    renderAll(filtered);
+    renderSummary(); renderTable();
+    showToast('✅ 박스 1개 입고 — 와치 3대를 재고로 등록했습니다.');
+  }
+  function submitIntake() {
+    closeModal('modal-intake');
+    showToast('✅ 입고 처리 완료');
   }
 
-  /* ── 모달 ── */
-  function openActionModal(deviceId, seniorName) {
-    document.getElementById('modal-device-title').textContent = `기기 ${deviceId} 조치`;
-    document.getElementById('modal-device-meta').textContent  = `시니어: ${seniorName}`;
-    document.querySelectorAll('[id^="opt-"]').forEach(el => el.style.borderColor = '#D1D9E6');
-    document.querySelectorAll('input[name="action-type"]').forEach(r => r.checked = false);
-    document.getElementById('action-memo').value = '';
-    const modal = document.getElementById('modal-action');
-    modal.style.display = 'flex';
+  /* 페어링 */
+  function openPairingModal() {
+    pendingPairDevice = null;
+    document.getElementById('pair-senior').value = '';
+    document.getElementById('pair-device-display').textContent = '— 미선택 —';
+    document.getElementById('pair-serial-manual').value = '';
+    switchScanMethod('qr');
+    document.querySelectorAll('.ble-row').forEach(r => r.classList.remove('selected'));
+    openModal('modal-pairing');
+  }
+  function switchScanMethod(m) {
+    document.querySelectorAll('.scan-method-tab').forEach(t => t.classList.toggle('active', t.dataset.method === m));
+    document.getElementById('scan-qr').style.display  = (m === 'qr')  ? 'block' : 'none';
+    document.getElementById('scan-ble').style.display = (m === 'ble') ? 'block' : 'none';
+  }
+  function mockPairingScan(id) {
+    pendingPairDevice = id;
+    document.getElementById('pair-device-display').textContent = id;
+    showToast('📷 ' + id + ' 인식 완료');
+  }
+  function selectBle(row, id) {
+    document.querySelectorAll('.ble-row').forEach(r => r.classList.remove('selected'));
+    row.classList.add('selected');
+    pendingPairDevice = id;
+    document.getElementById('pair-device-display').textContent = id;
+  }
+  function submitPairing() {
+    const senior = document.getElementById('pair-senior').value;
+    const manual = document.getElementById('pair-serial-manual').value.trim();
+    const deviceId = pendingPairDevice || manual;
+    if (!senior) { alert('시니어를 선택해 주세요.'); return; }
+    if (!deviceId) { alert('기기를 선택하거나 시리얼을 입력해 주세요.'); return; }
+
+    const seniorName = senior.split(' ')[0];
+    const staff = document.getElementById('pair-staff').value;
+
+    const existing = DEVICES.find(d => d.id === deviceId);
+    if (existing) {
+      existing.status = 'pairing_wait';
+      existing.name = seniorName;
+      existing.staff = staff;
+    } else {
+      DEVICES.unshift({ id: deviceId, ownership:'rental', name:seniorName, status:'pairing_wait', battery:100, sync:'-', staff });
+    }
+    closeModal('modal-pairing');
+    renderSummary(); renderTable();
+    showToast('🔗 ' + deviceId + ' → ' + seniorName + ' 페어링대기 등록');
   }
 
-  function closeActionModal() {
-    document.getElementById('modal-action').style.display = 'none';
+  /* 회수 */
+  function openRecallModal(id, name) {
+    selectedDeviceForRecall = id;
+    document.getElementById('recall-device-meta').textContent = id + ' — ' + name;
+    document.querySelectorAll('input[name="recall-reason"]').forEach(r => r.checked = false);
+    document.querySelectorAll('.reason-list label').forEach(l => l.classList.remove('active'));
+    document.getElementById('recall-memo').value = '';
+    openModal('modal-recall');
+  }
+  function selectReason(label) {
+    document.querySelectorAll('.reason-list label').forEach(l => l.classList.remove('active'));
+    label.classList.add('active');
+  }
+  function submitRecall() {
+    const reason = document.querySelector('input[name="recall-reason"]:checked');
+    if (!reason) { alert('회수 사유를 선택해 주세요.'); return; }
+    const d = DEVICES.find(x => x.id === selectedDeviceForRecall);
+    if (d) {
+      d.status = 'retrieval_wait';
+      d.alerts = ['회수예정'];
+    }
+    closeModal('modal-recall');
+    renderSummary(); renderTable();
+    showToast('📥 ' + selectedDeviceForRecall + ' 회수대기 (' + reason.value + ')');
   }
 
-  function selectOpt(id) {
-    document.querySelectorAll('[id^="opt-"]').forEach(el => el.style.borderColor = '#D1D9E6');
-    document.getElementById(id).style.borderColor = '#2B7FE0';
+  /* 기타 액션 */
+  function sendMaintenance(id) {
+    const d = DEVICES.find(x => x.id === id);
+    if (d) { d.status = 'maintenance'; d.name = '-'; d.alerts = []; }
+    renderSummary(); renderTable();
+    showToast('🛠 ' + id + ' 점검 입고');
   }
-
-  function submitAction() {
-    const selected = document.querySelector('input[name="action-type"]:checked');
-    if (!selected) { alert('조치 유형을 선택해 주세요.'); return; }
-    closeActionModal();
-    showToast('조치가 등록되었습니다.');
+  function returnToStock(id) {
+    const d = DEVICES.find(x => x.id === id);
+    if (d) { d.status = 'returned_stock'; d.battery = 100; d.alerts = []; }
+    renderSummary(); renderTable();
+    showToast('🔄 ' + id + ' 재고 복귀');
   }
+  function disposeDevice(id) {
+    if (!confirm(id + '를 폐기 처리합니다. 되돌릴 수 없습니다.')) return;
+    const d = DEVICES.find(x => x.id === id);
+    if (d) { d.status = 'disposed'; d.battery = 0; }
+    renderSummary(); renderTable();
+    showToast('🗑 ' + id + ' 폐기 처리');
+  }
+  function gotoDetail() { location.href = 'device-detail.html'; }
 
+  /* 고급 토글 */
+  function toggleAdvanced(id) { document.getElementById(id).classList.toggle('show'); }
+
+  /* 토스트 */
   function showToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg;
@@ -859,62 +1636,15 @@
     setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(80px)'; }, 2800);
   }
 
-  document.getElementById('modal-action').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeActionModal();
+  /* 배경 클릭으로 모달 닫기 */
+  document.querySelectorAll('.modal-backdrop').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === e.currentTarget) m.classList.remove('show'); });
   });
 
-  /* ── 새 기기 등록 모달 ── */
-  function openRegisterModal() {
-    /* 다음 기기번호 자동 생성: W-XXX 형식의 max + 1 */
-    const max  = Math.max(...DEVICES.map(d => parseInt(d.id.replace('W-',''), 10) || 0));
-    const next = String(max + 1).padStart(3, '0');
-    document.getElementById('reg-id').value     = 'W-' + next;
-    document.getElementById('reg-senior').value = '';
-    document.getElementById('reg-staff').value  = '';
-    document.getElementById('reg-status').value = '정상';
-    document.getElementById('reg-memo').value   = '';
-    document.getElementById('modal-register').style.display = 'flex';
-  }
-
-  function closeRegisterModal() {
-    document.getElementById('modal-register').style.display = 'none';
-  }
-
-  function submitRegister() {
-    const id     = document.getElementById('reg-id').value.trim();
-    const senior = document.getElementById('reg-senior').value;
-    const staff  = document.getElementById('reg-staff').value;
-    const status = document.getElementById('reg-status').value;
-
-    if (!id || !staff) { alert('기기 번호와 담당 의료진은 필수입니다.'); return; }
-    if (DEVICES.some(d => d.id === id)) { alert('이미 존재하는 기기 번호입니다: ' + id); return; }
-
-    /* 시니어 옵션 형식 "이영자 (81세 여 · 서울 송파구)" → 이름만 추출 */
-    const seniorName   = senior ? senior.split(' ')[0] : '미배정';
-    const actualStatus = senior ? status : '미배정';
-
-    DEVICES.unshift({
-      id: id, name: seniorName, status: actualStatus,
-      battery: 100, sync: '방금 등록', staff: staff
-    });
-
-    /* 통계 카드 increment: [0]전체 / [1]정상 / [2]연결오류 / [3]오늘 배포 */
-    const sv = document.querySelectorAll('.summary-card-value');
-    if (sv[0]) sv[0].textContent = DEVICES.length;
-    if (actualStatus === '정상' && sv[1]) sv[1].textContent = (parseInt(sv[1].textContent, 10) || 0) + 1;
-    if (sv[3]) sv[3].textContent = (parseInt(sv[3].textContent, 10) || 0) + 1;
-
-    const pageCount = document.getElementById('page-device-count');
-    if (pageCount) pageCount.textContent = DEVICES.length;
-
-    filterTable();
-    closeRegisterModal();
-    showToast('✅ 기기 ' + id + ' 등록 완료 (시니어: ' + seniorName + ')');
-  }
-
-  document.getElementById('modal-register').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeRegisterModal();
-  });
+  /* 초기화 */
+  renderStatusFilter();
+  renderSummary();
+  renderTable();
 </script>
 </body>
 </html>

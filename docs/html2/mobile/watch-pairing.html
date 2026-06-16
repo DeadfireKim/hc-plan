@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M-WP 와치 등록 (셀프 페어링) | 헬스케어 앱</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary:        #2B7FE0;
+      --primary-dark:   #1A5FB4;
+      --secondary:      #34C4A0;
+      --danger:         #E53935;
+      --warning:        #F5A623;
+      --purple:         #5E35B1;
+      --bg:             #F4F6F9;
+      --surface:        #FFFFFF;
+      --border:         #D1D9E6;
+      --text-primary:   #1A2332;
+      --text-secondary: #546E7A;
+      --text-disabled:  #B0BEC5;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: #C8D0DC; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 18px;
+      color: var(--text-primary);
+      background: var(--bg);
+      max-width: 390px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding-bottom: 100px;
+      position: relative;
+    }
+
+    /* ── 헤더 ── */
+    .app-header {
+      background: var(--surface);
+      padding: 16px 16px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .btn-back {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-primary);
+    }
+    .btn-back svg { width: 22px; height: 22px; }
+    .header-title {
+      font-size: 20px;
+      font-weight: 700;
+      flex: 1;
+    }
+    .header-step-indicator {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    /* ── 진행 점 ── */
+    .progress-dots {
+      display: flex;
+      gap: 6px;
+      padding: 14px 20px 18px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .progress-dot {
+      flex: 1;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      transition: background 0.25s;
+    }
+    .progress-dot.done   { background: var(--secondary); }
+    .progress-dot.active { background: var(--primary); }
+
+    /* ── 본문 ── */
+    .content {
+      padding: 24px 20px 28px;
+    }
+    .step { display: none; }
+    .step.active { display: block; }
+
+    .step-title {
+      font-size: 26px;
+      font-weight: 900;
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .step-sub {
+      font-size: 15px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      line-height: 1.55;
+    }
+
+    /* ── 조달 방식 선택 카드 ── */
+    .option-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+    .option-card {
+      display: flex;
+      gap: 14px;
+      padding: 18px 18px;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .option-card:hover { border-color: var(--primary); }
+    .option-card.selected {
+      border-color: var(--primary);
+      background: #F0F7FF;
+    }
+    .option-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+    }
+    .option-icon.rental   { background: #FFF3E0; }
+    .option-icon.personal { background: #EDE7F6; }
+    .option-icon.skip     { background: #ECEFF1; }
+    .option-body { flex: 1; }
+    .option-name {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .option-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .option-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-top: 6px;
+    }
+    .option-tag.rental   { background: #FFE0B2; color: #E65100; }
+    .option-tag.personal { background: #D1C4E9; color: #4527A0; }
+
+    /* ── 단계 2-A (대여 신청 완료) ── */
+    .success-illust {
+      width: 120px;
+      height: 120px;
+      margin: 28px auto 20px;
+      border-radius: 50%;
+      background: #E8FAF4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 56px;
+    }
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin: 18px 0 24px;
+    }
+    .info-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 8px 0;
+    }
+    .info-row + .info-row {
+      border-top: 1px dashed var(--border);
+    }
+    .info-row-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      min-width: 88px;
+      font-weight: 600;
+    }
+    .info-row-value {
+      font-size: 14px;
+      font-weight: 700;
+      flex: 1;
+    }
+
+    /* ── 단계 2-B (와치 켜기 안내) ── */
+    .power-on-steps {
+      background: var(--surface);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 18px;
+      border: 1px solid var(--border);
+    }
+    .power-on-step {
+      display: flex;
+      gap: 14px;
+      padding: 10px 0;
+    }
+    .power-on-step + .power-on-step {
+      border-top: 1px dashed var(--border);
+    }
+    .pos-num {
+      width: 30px; height: 30px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pos-text {
+      font-size: 15px;
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    /* 페어링 방법 탭 */
+    .method-tabs {
+      display: flex;
+      gap: 6px;
+      padding: 4px;
+      background: #ECEFF1;
+      border-radius: 12px;
+      margin-bottom: 18px;
+    }
+    .method-tab {
+      flex: 1;
+      padding: 12px 8px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+    .method-tab.active {
+      background: var(--surface);
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    /* QR 스캔 뷰 */
+    .scan-viewfinder {
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, #F0F7FF, #E3F2FD);
+      border: 3px dashed var(--primary);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 14px;
+      position: relative;
+    }
+    .scan-corner {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border: 4px solid var(--primary);
+    }
+    .scan-corner.tl { top: 16px; left: 16px;  border-right: none; border-bottom: none; border-top-left-radius: 8px; }
+    .scan-corner.tr { top: 16px; right: 16px; border-left:  none; border-bottom: none; border-top-right-radius: 8px; }
+    .scan-corner.bl { bottom: 16px; left: 16px;  border-right: none; border-top: none; border-bottom-left-radius: 8px; }
+    .scan-corner.br { bottom: 16px; right: 16px; border-left:  none; border-top: none; border-bottom-right-radius: 8px; }
+    .scan-icon-big {
+      font-size: 56px;
+      opacity: 0.8;
+    }
+    .scan-instruction {
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-align: center;
+      max-width: 220px;
+      line-height: 1.5;
+    }
+
+    /* BLE 발견 리스트 */
+    .ble-status {
+      padding: 14px 16px;
+      background: #E3F2FD;
+      border-radius: 12px;
+      font-size: 14px;
+      color: #1565C0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .ble-pulse {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #2196F3;
+      animation: pulse 1.4s infinite ease-out;
+    }
+    @keyframes pulse {
+      0%   { transform: scale(1);   opacity: 1; }
+      70%  { transform: scale(2.2); opacity: 0; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+    .ble-device {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      padding: 16px;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    .ble-device:hover { border-color: var(--primary); }
+    .ble-device.selected {
+      border-color: var(--primary);
+      background: #F0F7FF;
+    }
+    .ble-device-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: #E3F2FD;
+      color: var(--primary);
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .ble-device-info { flex: 1; }
+    .ble-device-name {
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .ble-device-sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .ble-signal-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .ble-signal-bars .bar {
+      width: 4px;
+      border-radius: 2px;
+      background: var(--secondary);
+    }
+
+    /* ── Tier 배지 (glossary §4.2) ── */
+    .tier-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 10px;
+      margin-top: 4px;
+      white-space: nowrap;
+    }
+    .tier-badge.tier1 { background: #E8FAF4; color: #1B8A6B; }
+    .tier-badge.tier2 { background: #FFF3E0; color: #E65100; }
+    .tier-badge.tier3 { background: #ECEFF1; color: #455A64; }
+    .tier-badge.unsupported { background: #FDECEA; color: #C62828; }
+
+    /* 미지원 기기 카드 */
+    .ble-device.unsupported {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .ble-device.unsupported:hover { border-color: var(--border); }
+
+    /* 시리얼 폴백 토글 */
+    .fallback-toggle {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 13px;
+      padding: 14px 0;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .fallback-body {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .fallback-body.show { display: block; }
+    .form-input {
+      width: 100%;
+      height: 50px;
+      padding: 0 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 16px;
+      font-family: 'Noto Sans KR', sans-serif;
+      outline: none;
+    }
+    .form-input:focus { border-color: var(--primary); }
+    .form-label-sm {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      display: block;
+    }
+    .form-hint-sm {
+      font-size: 11px;
+      color: var(--text-disabled);
+      margin-top: 6px;
+    }
+
+    /* ── 단계 3 (본인 인증) ── */
+    .auth-illust {
+      width: 100px;
+      height: 100px;
+      margin: 12px auto 20px;
+      border-radius: 50%;
+      background: #FFF3E0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+    }
+    .phone-line {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .phone-num {
+      font-size: 17px;
+      font-weight: 700;
+    }
+    .btn-send-otp {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'Noto Sans KR', sans-serif;
+      cursor: pointer;
+    }
+    .otp-input {
+      width: 100%;
+      height: 60px;
+      text-align: center;
+      letter-spacing: 12px;
+      font-size: 28px;
+      font-weight: 700;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+      font-family: 'Noto Sans KR', sans-serif;
+      margin-bottom: 16px;
+    }
+    .otp-input:focus { border-color: var(--primary); }
+    .biometric-row {
+      text-align: center;
+      padding: 14px 0;
+    }
+    .biometric-row a {
+      color: var(--primary);
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      border-bottom: 1px solid var(--primary);
+      padding-bottom: 2px;
+    }
+
+    /* ── 단계 4 (완료) ── */
+    .done-illust {
+      width: 140px;
+      height: 140px;
+      margin: 28px auto 24px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--secondary), #2E9D7F);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 36px rgba(52,196,160,0.32);
+    }
+    .done-illust svg {
+      width: 70px;
+      height: 70px;
+      color: #fff;
+    }
+
+    /* ── 하단 고정 버튼 영역 ── */
+    .footer-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 390px;
+      width: 100%;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 14px 16px 18px;
+      display: flex;
+      gap: 10px;
+      z-index: 90;
+    }
+    .btn-primary {
+      flex: 1;
+      height: 56px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 700;
+      font-family: 'Noto Sans KR', sans-serif;
+      cursor: pointer;
+    }
+    .btn-primary:disabled {
+      background: var(--border);
+      color: var(--text-disabled);
+      cursor: not-allowed;
+    }
+    .btn-secondary {
+      flex: 1;
+      height: 56px;
+      background: var(--surface);
+      color: var(--text-primary);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'Noto Sans KR', sans-serif;
+      cursor: pointer;
+    }
+
+    /* ── 토스트 ── */
+    .toast {
+      position: fixed;
+      bottom: 96px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1A2332;
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 500;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: transform 0.3s, opacity 0.3s, visibility 0.3s;
+      white-space: nowrap;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── 헤더 ── -->
+<header class="app-header">
+  <button class="btn-back" onclick="goBack()" aria-label="뒤로가기">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </button>
+  <div class="header-title">와치 등록</div>
+  <div class="header-step-indicator" id="step-indicator">1 / 4</div>
+</header>
+
+<!-- ── 진행 점 ── -->
+<div class="progress-dots">
+  <div class="progress-dot active" id="dot-1"></div>
+  <div class="progress-dot" id="dot-2"></div>
+  <div class="progress-dot" id="dot-3"></div>
+  <div class="progress-dot" id="dot-4"></div>
+</div>
+
+<!-- ============================================ -->
+<!-- ── STEP 1: 조달 방식 선택                  ── -->
+<!-- ============================================ -->
+<main class="content">
+
+<section class="step active" id="step-1">
+  <div class="step-title">와치는 어떻게<br/>받으시나요?</div>
+  <div class="step-sub">조달 방식에 따라 페어링 절차가 다릅니다.<br/>편하신 방법을 선택해 주세요.</div>
+
+  <div class="option-list">
+    <label class="option-card" data-choice="rental" onclick="selectChoice('rental', this)">
+      <div class="option-icon rental">🏥</div>
+      <div class="option-body">
+        <div class="option-name">기관에서 대여</div>
+        <div class="option-desc">병원·지자체에서 지원하는 와치를 사용합니다. 와치관리자가 페어링을 진행합니다.</div>
+        <span class="option-tag rental">rental</span>
+      </div>
+    </label>
+
+    <label class="option-card" data-choice="personal" onclick="selectChoice('personal', this)">
+      <div class="option-icon personal">🛒</div>
+      <div class="option-body">
+        <div class="option-name">직접 구매한 와치 사용</div>
+        <div class="option-desc">본인이 보유한 와치를 본 앱에 직접 연결합니다. 본인 인증 후 즉시 사용할 수 있어요.</div>
+        <span class="option-tag personal">personal</span>
+      </div>
+    </label>
+
+    <label class="option-card" data-choice="skip" onclick="selectChoice('skip', this)">
+      <div class="option-icon skip">⏰</div>
+      <div class="option-body">
+        <div class="option-name">나중에 등록</div>
+        <div class="option-desc">와치 없이 먼저 앱을 사용해 봅니다. 나중에 설정에서 등록할 수 있어요.</div>
+      </div>
+    </label>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- ── STEP 2-A: 대여 신청 완료 (rental 분기) ── -->
+<!-- ============================================ -->
+<section class="step" id="step-2a">
+  <div class="success-illust">📩</div>
+  <div class="step-title" style="text-align:center;">신청이<br/>접수되었습니다</div>
+  <div class="step-sub" style="text-align:center;">와치관리자가 와치를 준비하면 알림으로 안내드립니다.<br/>일반적으로 1–3 영업일 소요됩니다.</div>
+
+  <div class="info-card">
+    <div class="info-row">
+      <div class="info-row-label">신청 기관</div>
+      <div class="info-row-value">🏥 한마음내과의원</div>
+    </div>
+    <div class="info-row">
+      <div class="info-row-label">신청 번호</div>
+      <div class="info-row-value">WR-2026-00347</div>
+    </div>
+    <div class="info-row">
+      <div class="info-row-label">예상 수령일</div>
+      <div class="info-row-value">2026-05-30 (목)</div>
+    </div>
+    <div class="info-row">
+      <div class="info-row-label">담당자 연락처</div>
+      <div class="info-row-value">02-1234-5678</div>
+    </div>
+  </div>
+
+  <div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:12px;padding:14px 16px;font-size:13px;color:#5D4037;line-height:1.6;">
+    💡 와치 수령 후 다시 페어링이 필요하지 않습니다. 와치관리자가 미리 페어링한 상태로 전달해 드립니다.
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- ── STEP 2-B: 와치 켜기 + 페어링 (personal) ── -->
+<!-- ============================================ -->
+<section class="step" id="step-2b">
+  <div class="step-title">와치 전원을<br/>켜주세요</div>
+  <div class="step-sub">와치가 자동으로 페어링 모드로 진입합니다.</div>
+
+  <div class="power-on-steps">
+    <div class="power-on-step">
+      <div class="pos-num">1</div>
+      <div class="pos-text">와치 오른쪽 측면 <strong>전원 버튼</strong>을 3초 이상 길게 눌러주세요.</div>
+    </div>
+    <div class="power-on-step">
+      <div class="pos-num">2</div>
+      <div class="pos-text">화면에 <strong>HealthWatch 로고</strong>가 보이면 손을 떼주세요.</div>
+    </div>
+    <div class="power-on-step">
+      <div class="pos-num">3</div>
+      <div class="pos-text">아래 두 방법 중 <strong>편한 방식</strong>을 선택하세요.</div>
+    </div>
+  </div>
+
+  <div class="method-tabs">
+    <button class="method-tab active" data-method="qr"  onclick="switchMethod('qr')">📷 QR 스캔</button>
+    <button class="method-tab"        data-method="ble" onclick="switchMethod('ble')">📡 자동 감지</button>
+  </div>
+
+  <div id="method-qr">
+    <div class="scan-viewfinder">
+      <div class="scan-corner tl"></div>
+      <div class="scan-corner tr"></div>
+      <div class="scan-corner bl"></div>
+      <div class="scan-corner br"></div>
+      <div class="scan-icon-big">📷</div>
+      <div class="scan-instruction">와치 뒷면(또는 박스 라벨)의<br/>QR 코드를 사각형 안에 맞추세요.</div>
+    </div>
+    <button class="btn-secondary" style="height:50px;" onclick="mockScanSuccess()">시뮬레이션: QR 인식</button>
+  </div>
+
+  <div id="method-ble" style="display:none;">
+    <div class="ble-status">
+      <span class="ble-pulse"></span>
+      <span><strong>주변 와치 검색 중…</strong> 2m 이내로 가까이 두세요.</span>
+    </div>
+
+    <!-- Tier 1: Galaxy Watch -->
+    <div class="ble-device" onclick="selectBle(this, 'P-GWG-882', 'samsung', 'Galaxy Watch 6', 'tier1')">
+      <div class="ble-device-icon" style="background:#E3F2FD;color:#1565C0;">◐</div>
+      <div class="ble-device-info">
+        <div class="ble-device-name">Galaxy Watch 6</div>
+        <div class="ble-device-sub">시리얼 끝 4자리: <strong>X882</strong> · 배터리 100%</div>
+        <span class="tier-badge tier1">✅ Tier 1 (의료급)</span>
+      </div>
+      <div class="ble-signal-bars">
+        <span class="bar" style="height:6px;"></span>
+        <span class="bar" style="height:10px;"></span>
+        <span class="bar" style="height:14px;"></span>
+        <span class="bar" style="height:18px;"></span>
+      </div>
+    </div>
+
+    <!-- Tier 2: Fitbit -->
+    <div class="ble-device" onclick="selectBle(this, 'P-FBT-451', 'fitbit', 'Charge 6', 'tier2')">
+      <div class="ble-device-icon" style="background:#E0F2F1;color:#00695C;">◇</div>
+      <div class="ble-device-info">
+        <div class="ble-device-name">Fitbit Charge 6</div>
+        <div class="ble-device-sub">시리얼 끝 4자리: <strong>X451</strong> · 배터리 64%</div>
+        <span class="tier-badge tier2">⚠️ Tier 2 — 혈압·ECG 미수집</span>
+      </div>
+      <div class="ble-signal-bars">
+        <span class="bar" style="height:6px;"></span>
+        <span class="bar" style="height:10px;"></span>
+        <span class="bar" style="height:14px;"></span>
+        <span class="bar" style="height:18px;background:#CFD8DC;"></span>
+      </div>
+    </div>
+
+    <!-- Tier 3: Xiaomi -->
+    <div class="ble-device" onclick="selectBle(this, 'P-MIB-220', 'xiaomi', 'Mi Band 8', 'tier3')">
+      <div class="ble-device-icon" style="background:#FFF3E0;color:#E65100;">Mi</div>
+      <div class="ble-device-info">
+        <div class="ble-device-name">Xiaomi Mi Band 8</div>
+        <div class="ble-device-sub">시리얼 끝 4자리: <strong>X220</strong> · 배터리 38%</div>
+        <span class="tier-badge tier3">🧪 Tier 3 — 실험적, 끊김 가능</span>
+      </div>
+      <div class="ble-signal-bars">
+        <span class="bar" style="height:6px;"></span>
+        <span class="bar" style="height:10px;"></span>
+        <span class="bar" style="height:14px;background:#CFD8DC;"></span>
+        <span class="bar" style="height:18px;background:#CFD8DC;"></span>
+      </div>
+    </div>
+
+    <!-- 미지원 — 차단 -->
+    <div class="ble-device unsupported" title="화이트리스트에 없는 브랜드입니다">
+      <div class="ble-device-icon" style="background:#F4F6F9;color:#90A4AE;">?</div>
+      <div class="ble-device-info">
+        <div class="ble-device-name" style="color:#90A4AE;">TicWatch Pro 5</div>
+        <div class="ble-device-sub">시리얼 끝 4자리: X107 · 신호 보통</div>
+        <span class="tier-badge unsupported">❌ 미지원 — 페어링 불가</span>
+      </div>
+      <div class="ble-signal-bars">
+        <span class="bar" style="height:6px;background:#CFD8DC;"></span>
+        <span class="bar" style="height:10px;background:#CFD8DC;"></span>
+        <span class="bar" style="height:14px;background:#CFD8DC;"></span>
+        <span class="bar" style="height:18px;background:#CFD8DC;"></span>
+      </div>
+    </div>
+
+    <div style="font-size:12px;color:var(--text-secondary);margin-top:10px;padding:0 4px;line-height:1.5;">
+      ⚠ 다인 가구·요양원에서는 <strong>내 와치 뒷면의 시리얼 끝 4자리</strong>를 꼭 다시 한번 확인해 주세요. 미지원 브랜드는 회색으로 표시되며 페어링할 수 없습니다.
+    </div>
+  </div>
+
+  <!-- 시리얼 수기 폴백 -->
+  <div class="fallback-toggle" onclick="toggleFallback()">QR 라벨이 손상되었나요? 시리얼 직접 입력 ▾</div>
+  <div class="fallback-body" id="fallback-body">
+    <label class="form-label-sm">와치 뒷면의 시리얼 (15자)</label>
+    <input class="form-input" id="manual-serial" placeholder="예: HW-A2X-XXXXXXXX" />
+    <div class="form-hint-sm">대소문자·하이픈 포함, 그대로 입력해 주세요.</div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- ── STEP 3: 본인 인증 (personal 전용)        ── -->
+<!-- ============================================ -->
+<section class="step" id="step-3">
+  <div class="auth-illust">🔐</div>
+  <div class="step-title" style="text-align:center;">본인 인증이<br/>필요합니다</div>
+  <div class="step-sub" style="text-align:center;">본인의 와치임을 확인하기 위해<br/>한 번만 인증해 주세요.</div>
+
+  <div class="phone-line">
+    <div>
+      <div style="font-size:12px;color:var(--text-secondary);font-weight:600;margin-bottom:2px;">등록된 휴대폰</div>
+      <div class="phone-num">010-1234-•••8</div>
+    </div>
+    <button class="btn-send-otp" onclick="sendOtp(this)">인증번호 받기</button>
+  </div>
+
+  <label class="form-label-sm">인증번호 6자리</label>
+  <input class="otp-input" id="otp" maxlength="6" inputmode="numeric" placeholder="••••••" />
+
+  <div class="biometric-row">
+    <a href="javascript:void(0)" onclick="useBiometric()">🔓 생체 인증으로 대체</a>
+  </div>
+
+  <div style="background:#F4F6F9;border-radius:12px;padding:14px 16px;font-size:12px;color:var(--text-secondary);line-height:1.6;margin-top:10px;">
+    💡 본인 보유 와치는 시니어 본인의 인증이 필수입니다. 도용·오인식을 방지하기 위한 안전장치입니다.
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- ── STEP 4: 완료                            ── -->
+<!-- ============================================ -->
+<section class="step" id="step-4">
+  <div class="done-illust">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+  <div class="step-title" style="text-align:center;" id="done-title">페어링이<br/>완료되었습니다</div>
+  <div class="step-sub" style="text-align:center;" id="done-sub">이제 자동으로 건강 데이터가 수집됩니다.</div>
+
+  <div class="info-card" id="done-info">
+    <!-- 동적으로 채움 -->
+  </div>
+
+  <div style="background:#F0F7FF;border:1px solid #B3DDFF;border-radius:12px;padding:14px 16px;font-size:13px;color:#0D47A1;line-height:1.6;">
+    📊 와치가 손목에 닿아 있어야 데이터가 정확히 측정됩니다. 첫 측정값은 잠시 후 홈 화면에서 확인할 수 있어요.
+  </div>
+</section>
+
+</main>
+
+<!-- ── 하단 고정 버튼 ── -->
+<div class="footer-bar" id="footer-bar">
+  <button class="btn-secondary" id="btn-prev" onclick="goPrev()" style="display:none;">이전</button>
+  <button class="btn-primary"   id="btn-next" onclick="goNext()" disabled>다음</button>
+</div>
+
+<!-- 토스트 -->
+<div class="toast" id="toast">완료</div>
+
+<script>
+  /* ──────────────────────────────────────────────
+   * 상태
+   * ──────────────────────────────────────────────*/
+  let choice = null;          // 'rental' | 'personal' | 'skip'
+  let currentStep = 1;        // 1 → (rental: 2a → 4) (personal: 2b → 3 → 4) (skip: 4 with skip msg)
+  let pairedDevice = null;    // 본인 페어링한 기기 ID
+  let pairedBrand  = null;    // 'apple' | 'samsung' | 'fitbit' | 'garmin' | 'xiaomi' | ...
+  let pairedModel  = null;    // 'Galaxy Watch 6' 등
+  let pairedTier   = null;    // 'tier1' | 'tier2' | 'tier3'
+
+  /* glossary §4.2 — 브랜드/Tier 메타 */
+  const BRAND_LABEL = {
+    healthwatch: 'HealthWatch',
+    apple:       'Apple',
+    samsung:     'Samsung',
+    fitbit:      'Fitbit',
+    garmin:      'Garmin',
+    xiaomi:      'Xiaomi',
+    coros:       'COROS',
+    amazfit:     'Amazfit'
+  };
+  const TIER_DETAIL = {
+    tier1: { label: '✅ Tier 1 (의료급)',    color: '#1B8A6B', bg: '#E8FAF4', warn: null },
+    tier2: { label: '⚠️ Tier 2 (부분 지원)', color: '#E65100', bg: '#FFF3E0', warn: '혈압·ECG·낙상감지는 수집되지 않습니다.' },
+    tier3: { label: '🧪 Tier 3 (실험적)',   color: '#455A64', bg: '#ECEFF1', warn: '데이터가 끊길 수 있어요. 안정적 사용을 위해 Tier 1 와치를 권장합니다.' }
+  };
+
+  /* ──────────────────────────────────────────────
+   * 조달 방식 선택
+   * ──────────────────────────────────────────────*/
+  function selectChoice(c, el) {
+    choice = c;
+    document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('btn-next').disabled = false;
+  }
+
+  /* ──────────────────────────────────────────────
+   * 진행 점 + 인디케이터
+   * ──────────────────────────────────────────────*/
+  function updateProgress() {
+    let totalSteps = 4, currentLabel;
+    if (choice === 'rental')   { totalSteps = 2; currentLabel = (currentStep === 1) ? '1 / 2' : '2 / 2'; }
+    else if (choice === 'personal') { totalSteps = 4; currentLabel = currentStep + ' / 4'; }
+    else if (choice === 'skip') { totalSteps = 2; currentLabel = (currentStep === 1) ? '1 / 2' : '2 / 2'; }
+    else { currentLabel = '1 / 4'; }
+    document.getElementById('step-indicator').textContent = currentLabel;
+
+    /* 점 4개를 가용 totalSteps에 맞춰 done/active 표시 */
+    const dots = document.querySelectorAll('.progress-dot');
+    dots.forEach((d, i) => {
+      d.classList.remove('done', 'active');
+      if (i >= totalSteps) { d.style.opacity = '0'; return; }
+      d.style.opacity = '1';
+      const stepNumber = i + 1;
+      const mapped = (choice === 'rental' || choice === 'skip')
+        ? (currentStep === 1 ? 1 : 2)
+        : currentStep;
+      if (stepNumber < mapped) d.classList.add('done');
+      else if (stepNumber === mapped) d.classList.add('active');
+    });
+  }
+
+  /* ──────────────────────────────────────────────
+   * 스텝 전환
+   * ──────────────────────────────────────────────*/
+  function showStepEl(id) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function goNext() {
+    /* STEP 1 → */
+    if (currentStep === 1) {
+      if (choice === 'rental') {
+        currentStep = 2;
+        showStepEl('step-2a');
+        setFooter('확인', '');
+      } else if (choice === 'personal') {
+        currentStep = 2;
+        showStepEl('step-2b');
+        setFooter('다음', '이전');
+        document.getElementById('btn-next').disabled = true;
+      } else if (choice === 'skip') {
+        currentStep = 2;
+        showSkipDone();
+      }
+      updateProgress();
+      return;
+    }
+
+    /* personal STEP 2 → 3 */
+    if (choice === 'personal' && currentStep === 2) {
+      currentStep = 3;
+      showStepEl('step-3');
+      setFooter('확인', '이전');
+      document.getElementById('btn-next').disabled = true;
+      updateProgress();
+      return;
+    }
+
+    /* personal STEP 3 → 4 */
+    if (choice === 'personal' && currentStep === 3) {
+      currentStep = 4;
+      renderPersonalDone();
+      showStepEl('step-4');
+      setFooter('홈으로', '');
+      updateProgress();
+      return;
+    }
+
+    /* rental STEP 2 (확인) → 닫기 */
+    if (choice === 'rental' && currentStep === 2) {
+      showToast('홈으로 돌아갑니다.');
+      setTimeout(() => location.href = 'home-simple.html', 600);
+      return;
+    }
+
+    /* personal STEP 4 → 홈 */
+    if (choice === 'personal' && currentStep === 4) {
+      location.href = 'home-simple.html';
+      return;
+    }
+
+    /* skip 완료 → 홈 */
+    if (choice === 'skip' && currentStep === 2) {
+      location.href = 'home-simple.html';
+    }
+  }
+
+  function goPrev() {
+    if (choice === 'personal' && currentStep === 3) {
+      currentStep = 2;
+      showStepEl('step-2b');
+      setFooter('다음', '이전');
+      document.getElementById('btn-next').disabled = !pairedDevice;
+      updateProgress();
+      return;
+    }
+    if (currentStep === 2) {
+      currentStep = 1;
+      choice = null; pairedDevice = null;
+      document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+      showStepEl('step-1');
+      setFooter('다음', '');
+      document.getElementById('btn-next').disabled = true;
+      updateProgress();
+    }
+  }
+
+  function setFooter(nextLabel, prevLabel) {
+    document.getElementById('btn-next').textContent = nextLabel;
+    const prev = document.getElementById('btn-prev');
+    prev.textContent = prevLabel;
+    prev.style.display = prevLabel ? 'block' : 'none';
+  }
+
+  /* ──────────────────────────────────────────────
+   * STEP 2-B: 페어링 방법
+   * ──────────────────────────────────────────────*/
+  function switchMethod(m) {
+    document.querySelectorAll('.method-tab').forEach(t => t.classList.toggle('active', t.dataset.method === m));
+    document.getElementById('method-qr').style.display  = (m === 'qr')  ? 'block' : 'none';
+    document.getElementById('method-ble').style.display = (m === 'ble') ? 'block' : 'none';
+  }
+
+  function mockScanSuccess() {
+    /* QR로 인식된 와치 — 본 mockup에서는 Galaxy Watch 6 (Tier 1)로 가정 */
+    pairedDevice = 'P-GWG-882';
+    pairedBrand  = 'samsung';
+    pairedModel  = 'Galaxy Watch 6';
+    pairedTier   = 'tier1';
+    document.getElementById('btn-next').disabled = false;
+    showToast('📷 ' + BRAND_LABEL[pairedBrand] + ' ' + pairedModel + ' 인식 완료');
+  }
+
+  function selectBle(el, id, brand, model, tier) {
+    /* 미지원 카드는 클릭 자체 차단 */
+    if (el.classList.contains('unsupported')) {
+      showToast('❌ 미지원 브랜드 — 페어링 불가');
+      return;
+    }
+    document.querySelectorAll('.ble-device').forEach(d => d.classList.remove('selected'));
+    el.classList.add('selected');
+    pairedDevice = id;
+    pairedBrand  = brand;
+    pairedModel  = model;
+    pairedTier   = tier;
+    document.getElementById('btn-next').disabled = false;
+    const tier_label = tier === 'tier1' ? '의료급' : tier === 'tier2' ? '부분 지원' : '실험적';
+    showToast('📡 ' + BRAND_LABEL[brand] + ' ' + model + ' (' + tier_label + ') 선택');
+  }
+
+  function toggleFallback() {
+    document.getElementById('fallback-body').classList.toggle('show');
+  }
+
+  /* 수동 시리얼 입력 모니터링 */
+  document.addEventListener('input', e => {
+    if (e.target.id === 'manual-serial') {
+      const v = e.target.value.trim();
+      if (v.length >= 10) {
+        pairedDevice = v;
+        document.getElementById('btn-next').disabled = false;
+      }
+    }
+    if (e.target.id === 'otp') {
+      const v = e.target.value.replace(/\D/g, '');
+      e.target.value = v;
+      document.getElementById('btn-next').disabled = (v.length !== 6);
+    }
+  });
+
+  /* ──────────────────────────────────────────────
+   * STEP 3: 인증
+   * ──────────────────────────────────────────────*/
+  function sendOtp(btn) {
+    btn.textContent = '재발송 (60초)';
+    btn.disabled = true;
+    showToast('📱 인증번호가 전송되었습니다');
+    let remain = 60;
+    const t = setInterval(() => {
+      remain--;
+      btn.textContent = '재발송 (' + remain + '초)';
+      if (remain <= 0) { clearInterval(t); btn.textContent = '인증번호 재발송'; btn.disabled = false; }
+    }, 1000);
+  }
+
+  function useBiometric() {
+    showToast('🔓 생체 인증 성공');
+    document.getElementById('otp').value = '••••••';
+    document.getElementById('btn-next').disabled = false;
+  }
+
+  /* ──────────────────────────────────────────────
+   * STEP 4: 완료
+   * ──────────────────────────────────────────────*/
+  function renderPersonalDone() {
+    document.getElementById('done-title').innerHTML = '페어링이<br/>완료되었습니다';
+    document.getElementById('done-sub').textContent = '이제 자동으로 건강 데이터가 수집됩니다.';
+
+    const brandLabel = BRAND_LABEL[pairedBrand] || '-';
+    const modelLabel = pairedModel || '-';
+    const tierInfo   = TIER_DETAIL[pairedTier] || TIER_DETAIL.tier1;
+
+    document.getElementById('done-info').innerHTML = `
+      <div class="info-row">
+        <div class="info-row-label">브랜드</div>
+        <div class="info-row-value">${brandLabel}</div>
+      </div>
+      <div class="info-row">
+        <div class="info-row-label">모델</div>
+        <div class="info-row-value">${modelLabel}</div>
+      </div>
+      <div class="info-row">
+        <div class="info-row-label">지원 등급</div>
+        <div class="info-row-value">
+          <span style="display:inline-block;padding:3px 10px;border-radius:10px;background:${tierInfo.bg};color:${tierInfo.color};font-size:12px;font-weight:700;">${tierInfo.label}</span>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-row-label">기기 ID</div>
+        <div class="info-row-value" style="font-size:13px;font-family:monospace;">${pairedDevice || '-'}</div>
+      </div>
+      <div class="info-row">
+        <div class="info-row-label">소유 유형</div>
+        <div class="info-row-value" style="color:var(--purple);">👤 본인 보유 (personal)</div>
+      </div>
+      <div class="info-row">
+        <div class="info-row-label">페어링 시각</div>
+        <div class="info-row-value">2026-05-27 14:32</div>
+      </div>
+    `;
+
+    /* Tier 2/3은 경고 박스 추가 표시 */
+    const oldWarn = document.getElementById('tier-warn-box');
+    if (oldWarn) oldWarn.remove();
+    if (tierInfo.warn) {
+      const box = document.createElement('div');
+      box.id = 'tier-warn-box';
+      box.style.cssText = 'background:' + tierInfo.bg + ';border:1px solid ' + tierInfo.color + '33;border-radius:12px;padding:14px 16px;font-size:13px;color:' + tierInfo.color + ';line-height:1.6;margin-top:14px;font-weight:600;';
+      box.innerHTML = '⚠ ' + tierInfo.warn;
+      document.getElementById('done-info').insertAdjacentElement('afterend', box);
+    }
+  }
+
+  function showSkipDone() {
+    document.getElementById('done-title').innerHTML = '나중에<br/>등록하실 수 있어요';
+    document.getElementById('done-sub').textContent = '설정 메뉴에서 언제든지 와치를 추가할 수 있습니다.';
+    document.getElementById('done-info').innerHTML = `
+      <div style="text-align:center;padding:10px 0;color:var(--text-secondary);font-size:14px;line-height:1.7;">
+        와치 없이도 <strong>혈당·체중·컨디션</strong>을<br/>직접 입력하여 기록할 수 있습니다.
+      </div>
+    `;
+    showStepEl('step-4');
+    setFooter('홈으로', '');
+    updateProgress();
+  }
+
+  /* ──────────────────────────────────────────────
+   * 기타
+   * ──────────────────────────────────────────────*/
+  function goBack() {
+    if (currentStep > 1) goPrev();
+    else location.href = 'settings.html';
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  /* 초기화 */
+  updateProgress();
+</script>
+</body>
+</html>
